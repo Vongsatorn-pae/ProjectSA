@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to the Academic Dashboard!</h1>
+
+    <!-- แสดงข้อมูลของพนักงานที่ล็อกอินอยู่ -->
+    <p>Logged in as: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</p>
+    <p>Age: {{ current_user.employee.employee_age }}</p> <!-- แสดงอายุของพนักงาน -->
+    <p>Sex: {{ current_user.employee.employee_sex }}</p>
+    <p>Position: {{ current_user.employee.employee_position }}</p>
+    <p>Address: {{ current_user.employee.employee_address }}</p>
+    <p>Salary: {{ current_user.employee.employee_salary }}</p>
+    <p>Your role: {{ current_user.role }}</p>
+
+    <!-- เพิ่มปุ่ม Logout -->
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+
+</body>
+</html>

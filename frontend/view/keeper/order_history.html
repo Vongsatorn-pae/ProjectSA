@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase History</title>
+</head>
+<body>
+    <h1>Purchase History</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Lot ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.order_date }}</td>
+                <td>
+                    {% for item in order.order_lists %}
+                        {{ item.product.product_name }}<br>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for item in order.order_lists %}
+                        {{ item.product_quantity }}<br>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for item in order.order_lists %}
+                        {{ item.product_unit }}<br>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for item in order.order_lists %}
+                        {{ item.lot_id }}<br>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Menu</h2>
+    <ul>
+        <button onclick="history.back()">Go Back</button>
+    </ul>
+</body>
+</html>

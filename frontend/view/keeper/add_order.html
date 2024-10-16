@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Order</title>
+</head>
+<body>
+    <h1>Add New Order</h1>
+
+    <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
+    <form method="POST">
+        <label for="product_id">Select Product:</label>
+        <select id="product_id" name="product_id" required>
+            {% for product in product_lists %}
+                <option value="{{ product.product_id }}">{{ product.product_name }} ({{ product.product_type }})</option>
+            {% endfor %}
+        </select>
+
+        <label for="product_quantity">Quantity:</label>
+        <input type="number" id="product_quantity" name="product_quantity" required>
+
+        <label for="product_unit">Unit:</label>
+        <input type="text" id="product_unit" name="product_unit" required>
+
+        <label for="lot_exp">Lot Expiration Date:</label>
+        <input type="date" id="lot_exp" name="lot_exp" required>
+
+        <button type="submit" name="add_to_cart">Add to Cart</button>
+    </form>
+
+    <!-- แสดงรายการสินค้าที่อยู่ใน cart -->
+    <h2>Current Order</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Expiration Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+            <tr>
+                <td>{{ item.product_id }}</td>
+                <td>{{ item.product_quantity }}</td>
+                <td>{{ item.product_unit }}</td>
+                <td>{{ item.lot_exp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ปุ่มสำหรับบันทึกคำสั่งซื้อทั้งหมด -->
+    <form method="POST">
+        <button type="submit" name="submit_order">Submit Order</button>
+    </form>
+
+</body>
+</html>

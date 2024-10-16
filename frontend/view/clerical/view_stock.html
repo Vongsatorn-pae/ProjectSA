@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Stock</title>
+</head>
+<body>
+    <h1>Stock Management</h1>
+    <a href="{{ url_for('stock.add_stock') }}">Add New Product</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Product Type</th>
+                <th>Product Lot</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Threshold</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.product_name }}</td>
+                <td>{{ product.product_type }}</td>
+                <td>{{ product.lot_id }}</td>
+                <td>{{ product.product_quantity }}</td>
+                <td>{{ product.product_unit }}</td>
+                <td>{{ product.threshold }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

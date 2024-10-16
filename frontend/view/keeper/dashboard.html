@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keeper Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to the Keeper Dashboard!</h1>
+
+    <p>Logged in as: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</p>
+    <p>Age: {{ current_user.employee.employee_age }}</p>
+    <p>Sex: {{ current_user.employee.employee_sex }}</p>
+    <p>Position: {{ current_user.employee.employee_position }}</p>
+    <p>Address: {{ current_user.employee.employee_address }}</p>
+    <p>Salary: {{ current_user.employee.employee_salary }}</p>
+    <p>Your role: {{ current_user.role }}</p>
+
+    <h2>Stock Alert</h2>
+    <ul>
+        <li><a href="{{ url_for('stock.stock_alert') }}">Stock Alert</a></li>
+    </ul>
+
+    <h2>Purchase Management</h2>
+    <ul>
+        <li><a href="{{ url_for('order.add_order') }}">New Order</a></li>
+        <li><a href="{{ url_for('order.order_history') }}">Order History</a></li>
+    </ul>
+
+    <a href="{{ url_for('auth.logout') }}" class="logout-button">Logout</a>
+</body>
+</html>
