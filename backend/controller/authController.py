@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, logout_user, login_required
 from models.user import User
 from extensions import db, login_manager
@@ -21,23 +21,17 @@ def login():
 
         # ตรวจสอบผู้ใช้ในฐานข้อมูล
         user = User.query.filter_by(username=username).first()
+        
         if user and user.password == password:
             login_user(user)
-            # ตรวจสอบ role ของผู้ใช้และเปลี่ยนเส้นทางไปยังหน้าที่สอดคล้อง
-            if user.role == 'keeper':
-                return redirect(url_for('main.keeper_dashboard'))
-            elif user.role == 'academic':
-                return redirect(url_for('main.academic_dashboard'))
-            elif user.role == 'worker':
-                return redirect(url_for('main.worker_dashboard'))
-            elif user.role == 'clerical':
-                return redirect(url_for('main.clerical_dashboard'))
-            else:
-                flash('Role not recognized.', 'danger')
-                return redirect(url_for('auth.login'))
+
+            # ส่ง JSON กลับมาเมื่อ login สำเร็จ
+            return jsonify({"success": True, "message": "Login successful!", "role": user.role})
+
         else:
-            flash('Invalid username or password', 'danger')
-    
+            # ส่ง JSON กลับมาเมื่อ login ล้มเหลว
+            return jsonify({"success": False, "message": "Invalid username or password"})
+
     return render_template('login.html')
 
 # Route สำหรับ logout
