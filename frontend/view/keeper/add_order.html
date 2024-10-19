@@ -23,9 +23,6 @@
         <label for="product_unit">Unit:</label>
         <input type="text" id="product_unit" name="product_unit" required>
 
-        <label for="lot_exp">Lot Expiration Date:</label>
-        <input type="date" id="lot_exp" name="lot_exp" required>
-
         <button type="submit" name="add_to_cart">Add to Cart</button>
     </form>
 
@@ -35,18 +32,18 @@
         <thead>
             <tr>
                 <th>Product ID</th>
+                <th>Product Name</th>
                 <th>Quantity</th>
                 <th>Unit</th>
-                <th>Expiration Date</th>
             </tr>
         </thead>
         <tbody>
             {% for item in cart %}
             <tr>
                 <td>{{ item.product_id }}</td>
+                <td>{{ item.product_name }}</td>
                 <td>{{ item.product_quantity }}</td>
                 <td>{{ item.product_unit }}</td>
-                <td>{{ item.lot_exp }}</td>
             </tr>
             {% endfor %}
         </tbody>

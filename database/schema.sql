@@ -51,8 +51,6 @@ CREATE TABLE products (
     FOREIGN KEY (product_id) REFERENCES product_lists(product_id),
     FOREIGN KEY (lot_id) REFERENCES product_lots(lot_id),
     PRIMARY KEY (product_id, lot_id)  -- Composite Primary Key
-    -- FOREIGN KEY (product_unit) REFERENCES order_lists(),
-    -- FOREIGN KEY (product_quantity) REFERENCES order_lists()
 );
 
 -- ตารางสำหรับเก็บข้อมูลคำสั่งซื้อ
@@ -67,7 +65,6 @@ CREATE TABLE orders (
 
 -- ตารางสำหรับเก็บข้อมูลรายการคำสั่งซื้อ
 CREATE TABLE order_lists (
-    -- order_list_id VARCHAR(50) PRIMARY KEY,
     order_id VARCHAR(50) NOT NULL,
     product_id VARCHAR(50) NOT NULL,
     product_quantity DECIMAL(10, 2) NOT NULL,
@@ -75,7 +72,7 @@ CREATE TABLE order_lists (
     lot_id VARCHAR(50) NOT NULL,
 
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (product_id) REFERENCES product_lists(product_id),
     FOREIGN KEY (lot_id) REFERENCES product_lots(lot_id)
 );
 

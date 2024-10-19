@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keeper Dashboard</title>
+    <title>View Profile</title>
     <style>
         /* CSS สำหรับการจัดตำแหน่งไอคอนเมนูและข้อความ Home */
         .navbar {
@@ -53,7 +53,7 @@
 <body>
     <!-- แถบด้านบนที่มีข้อความ Home และไอคอนเมนู -->
     <div class="navbar">
-        <h1>Home</h1>
+        <h1>Profile of {{ employee.employee_fname }} {{ employee.employee_lname }}</h1>
         <div class="dropdown">
             <span class="user-icon">👤</span> <!-- ไอคอนเมนูอยู่ด้านขวา -->
             <div class="dropdown-content">
@@ -64,17 +64,13 @@
         </div>
     </div>
 
-    <h2>Welcome to the Keeper Dashboard!</h2>
+    <p><strong>Name:</strong> {{ employee.employee_fname }} {{ employee.employee_lname }}</p>
+    <p><strong>Age:</strong> {{ employee.employee_age }}</p>
+    <p><strong>Sex:</strong> {{ employee.employee_sex }}</p>
+    <p><strong>Position:</strong> {{ employee.employee_position }}</p>
+    <p><strong>Address:</strong> {{ employee.employee_address }}</p>
+    <p><strong>Salary:</strong> {{ employee.employee_salary }}</p>
 
-    <h2>Stock Alert</h2>
-    <ul>
-        <li><a href="{{ url_for('stock.stock_alert') }}">Stock Alert</a></li>
-    </ul>
-
-    <h2>Purchase Management</h2>
-    <ul>
-        <li><a href="{{ url_for('order.add_order') }}">New Order</a></li>
-        <li><a href="{{ url_for('order.order_history') }}">Order History</a></li>
-    </ul>
+    <button onclick="history.back()">Go Back</button>
 </body>
 </html>

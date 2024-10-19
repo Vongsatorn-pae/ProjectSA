@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
 from models.productList import ProductList
 from models.productLot import ProductLot
@@ -42,6 +42,17 @@ def add_order():
         })
         flash('Product added to cart!', 'success')
         return redirect(url_for('order.add_order'))
+    
+    # ดึงข้อมูลชื่อสินค้าใน cart จาก product_lists
+    cart_with_names = []
+    for item in session['cart']:
+        product = ProductList.query.filter_by(product_id=item['product_id']).first()
+        cart_with_names.append({
+            'product_id': item['product_id'],
+            'product_name': product.product_name if product else 'Unknown',
+            'product_quantity': item['product_quantity'],
+            'product_unit': item['product_unit']
+        })
 
     # กรณีบันทึกคำสั่งซื้อทั้งหมด
     if request.method == 'POST' and 'submit_order' in request.form:
@@ -63,14 +74,12 @@ def add_order():
 
         # บันทึกรายการสินค้าที่อยู่ใน session
         for item in session['cart']:
-            # order_list_id = f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}"  # สร้าง order_list_id แบบไม่ซ้ำ
             product_id = item['product_id']
             product_quantity = item['product_quantity']
             product_unit = item['product_unit']
 
             # เพิ่มรายละเอียดคำสั่งซื้อในตาราง order_lists
             new_order_list = OrderList(
-                # order_list_id = order_list_id,
                 order_id=order_id,
                 product_id=product_id,
                 product_quantity=product_quantity,

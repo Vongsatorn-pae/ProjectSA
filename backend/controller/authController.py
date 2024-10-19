@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
-from flask_login import login_user, logout_user, login_required
+from flask_login import current_user, login_user, logout_user, login_required
 from models.user import User
 from extensions import db, login_manager
 
@@ -59,3 +59,9 @@ def register():
         return redirect(url_for('main.index'))
 
     return render_template('register.html')
+
+@authController.route('/profile')
+@login_required
+def view_profile():
+    employee = current_user.employee
+    return render_template('profile.html', employee=employee)

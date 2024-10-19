@@ -4,18 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clerical Dashboard</title>
+    <style>
+        /* CSS สำหรับการจัดตำแหน่งไอคอนเมนูและข้อความ Home */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 1rem;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Clerical Dashboard!</h1>
+    <!-- แถบด้านบนที่มีข้อความ Home และไอคอนเมนู -->
+    <div class="navbar">
+        <h1>Home</h1>
+        <div class="dropdown">
+            <span class="user-icon">👤</span> <!-- ไอคอนเมนูอยู่ด้านขวา -->
+            <div class="dropdown-content">
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+    </div>
 
-    <!-- แสดงข้อมูลของพนักงานที่ล็อกอินอยู่ -->
-    <p>Logged in as: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</p>
-    <p>Age: {{ current_user.employee.employee_age }}</p>
-    <p>Sex: {{ current_user.employee.employee_sex }}</p>
-    <p>Position: {{ current_user.employee.employee_position }}</p>
-    <p>Address: {{ current_user.employee.employee_address }}</p>
-    <p>Salary: {{ current_user.employee.employee_salary }}</p>
-    <p>Your role: {{ current_user.role }}</p>
+    <h2>Welcome to the Clerical Dashboard!</h2>
 
     <!-- เมนูการจัดการสต็อก -->
     <h2>Stock Management</h2>
@@ -23,9 +72,6 @@
         <li><a href="{{ url_for('stock.view_stock') }}">View Stock</a></li> <!-- ลิงก์ดูสต็อกสินค้า -->
         <li><a href="{{ url_for('stock.add_stock') }}">Add New Product</a></li> <!-- ลิงก์เพิ่มสินค้าใหม่ -->
     </ul>
-    
-    <!-- ปุ่ม Logout -->
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
 
 </body>
 </html>
