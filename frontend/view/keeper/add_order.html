@@ -8,12 +8,21 @@
 <body>
     <h1>Add New Order</h1>
 
+    <!-- Dropdown สำหรับเลือกประเภทของสินค้า -->
+    <label for="product_type">Select Type:</label>
+    <select id="product_type" name="product_type" onchange="filterProducts()">
+        <option value="all">-- All Types --</option>
+        <option value="Food">Food</option>
+        <option value="Chemical">Chemical</option>
+    </select>
+
     <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
     <form method="POST">
         <label for="product_id">Select Product:</label>
         <select id="product_id" name="product_id" required>
+            <!-- แสดงสินค้าทั้งหมด -->
             {% for product in product_lists %}
-                <option value="{{ product.product_id }}">{{ product.product_name }} ({{ product.product_type }})</option>
+                <option value="{{ product.product_id }}" data-type="{{ product.product_type }}">{{ product.product_name }} ({{ product.product_type }})</option>
             {% endfor %}
         </select>
 
@@ -21,7 +30,11 @@
         <input type="number" id="product_quantity" name="product_quantity" required>
 
         <label for="product_unit">Unit:</label>
-        <input type="text" id="product_unit" name="product_unit" required>
+        <select id="product_unit" name="product_unit" required>
+            {% for unit in units %}
+                <option value="{{ unit.unit_id }}">{{ unit.unit_name }}</option>
+            {% endfor %}
+        </select>
 
         <button type="submit" name="add_to_cart">Add to Cart</button>
     </form>
@@ -54,5 +67,25 @@
         <button type="submit" name="submit_order">Submit Order</button>
     </form>
 
+    <button onclick="history.back()">Go Back</button>
+
+    <!-- JavaScript สำหรับกรองรายการสินค้า -->
+    <script>
+        function filterProducts() {
+            var selectedType = document.getElementById("product_type").value;
+            var productDropdown = document.getElementById("product_id");
+            var products = productDropdown.getElementsByTagName("option");
+
+            for (var i = 0; i < products.length; i++) {
+                var productType = products[i].getAttribute("data-type");
+
+                if (selectedType === "all" || productType === selectedType) {
+                    products[i].style.display = "block"; // แสดงสินค้า
+                } else {
+                    products[i].style.display = "none"; // ซ่อนสินค้า
+                }
+            }
+        }
+    </script>
 </body>
 </html>

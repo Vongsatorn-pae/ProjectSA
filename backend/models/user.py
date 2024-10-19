@@ -1,27 +1,31 @@
+from models.employee import Employee
 from extensions import db
-from flask_login import UserMixin
+from flask_login import UserMixin  # นำเข้า UserMixin สำหรับการทำงานร่วมกับ Flask-Login
 
-class Employee(db.Model):
-    __tablename__ = 'employees'
-    employee_id = db.Column(db.String(50), primary_key=True)
-    employee_fname = db.Column(db.String(50), nullable=False)
-    employee_lname = db.Column(db.String(50), nullable=False)
-    employee_age = db.Column(db.Integer, nullable=False)
-    employee_sex = db.Column(db.String(5), nullable=False)
-    employee_position = db.Column(db.Enum('worker', 'academic', 'clerical', 'keeper'), nullable=False)
-    employee_address = db.Column(db.String(255), nullable=False)
-    employee_salary = db.Column(db.Numeric(10, 2), nullable=False)
-
-class User(db.Model, UserMixin):
+class User(db.Model, UserMixin):  # สืบทอด UserMixin เพื่อใช้งานแอตทริบิวต์ที่จำเป็น
     __tablename__ = 'users'
-    user_id = db.Column(db.String(50), primary_key=True)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.Enum('worker', 'academic', 'clerical', 'keeper'), nullable=False)
-    employee_id = db.Column(db.String(50), db.ForeignKey('employees.employee_id'), nullable=True)
+    user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), nullable=False, unique=True)
+    password = db.Column(db.String(100), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.employee_id'))
+    employee = db.relationship('Employee', backref='user')
 
-    # ความสัมพันธ์ระหว่าง User และ Employee
-    employee = db.relationship('Employee', backref='user', lazy=True)
+    # ฟังก์ชันที่ Flask-Login ต้องการ
+    @property
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    @property
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return True
+
+    @property
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
 
     def get_id(self):
-        return self.user_id
+        """Return the user_id to satisfy Flask-Login's requirements."""
+        return str(self.user_id)

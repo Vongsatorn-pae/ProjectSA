@@ -4,6 +4,7 @@ from models.productList import ProductList
 from models.productLot import ProductLot
 from models.order import Order
 from models.orderList import OrderList
+from models.unit import Unit
 from extensions import db
 from datetime import datetime
 
@@ -17,12 +18,15 @@ def manage_order():
 @orderController.route('/order/add', methods=['GET', 'POST'])
 @login_required
 def add_order():
-    if current_user.role != 'keeper':
+    if current_user.employee.employee_position != 'keeper':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
     # ดึงรายการสินค้าจากตาราง product_lists
     product_lists = ProductList.query.all()
+
+    # ดึงข้อมูลหน่วยจากตาราง units
+    units = Unit.query.all()
 
     # ตรวจสอบว่ามีการเริ่มต้น session สำหรับรายการสั่งซื้อหรือยัง
     if 'cart' not in session:
@@ -32,13 +36,16 @@ def add_order():
     if request.method == 'POST' and 'add_to_cart' in request.form:
         product_id = request.form['product_id']
         product_quantity = request.form['product_quantity']
-        product_unit = request.form['product_unit']
+        
+        # แทนที่การใช้ ID ด้วยการดึงชื่อหน่วยจากฐานข้อมูล
+        unit_id = request.form['product_unit']
+        product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name  # ดึงชื่อของหน่วยมาแทน
 
         # เพิ่มสินค้าใน cart
         session['cart'].append({
             'product_id': product_id,
             'product_quantity': product_quantity,
-            'product_unit': product_unit
+            'product_unit': product_unit  # บันทึกชื่อของหน่วยแทน
         })
         flash('Product added to cart!', 'success')
         return redirect(url_for('order.add_order'))
@@ -51,7 +58,7 @@ def add_order():
             'product_id': item['product_id'],
             'product_name': product.product_name if product else 'Unknown',
             'product_quantity': item['product_quantity'],
-            'product_unit': item['product_unit']
+            'product_unit': item['product_unit']  # แสดงชื่อของหน่วย
         })
 
     # กรณีบันทึกคำสั่งซื้อทั้งหมด
@@ -69,21 +76,21 @@ def add_order():
         lot_date = datetime.now()
 
         # เพิ่มข้อมูลในตาราง product_lots
-        new_lot = ProductLot(lot_id = lot_id, lot_date = lot_date) # product_id=product_id
+        new_lot = ProductLot(lot_id = lot_id, lot_date = lot_date)
         db.session.add(new_lot)
 
         # บันทึกรายการสินค้าที่อยู่ใน session
         for item in session['cart']:
             product_id = item['product_id']
             product_quantity = item['product_quantity']
-            product_unit = item['product_unit']
+            product_unit = item['product_unit']  # บันทึกชื่อหน่วย
 
             # เพิ่มรายละเอียดคำสั่งซื้อในตาราง order_lists
             new_order_list = OrderList(
                 order_id=order_id,
                 product_id=product_id,
                 product_quantity=product_quantity,
-                product_unit=product_unit,
+                product_unit=product_unit,  # บันทึกชื่อของหน่วย
                 lot_id=lot_id
             )
             db.session.add(new_order_list)
@@ -94,13 +101,13 @@ def add_order():
         flash('Order placed successfully!', 'success')
         return redirect(url_for('order.order_history'))
 
-    return render_template('keeper/add_order.html', product_lists = product_lists, cart = session['cart'])
+    return render_template('keeper/add_order.html', product_lists=product_lists, units=units, cart=session['cart'])
 
 # Route สำหรับแสดงประวัติการซื้อ
 @orderController.route('/order/history', methods=['GET'])
 @login_required
 def order_history():
-    if current_user.role != 'keeper':
+    if current_user.employee.employee_position != 'keeper':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 

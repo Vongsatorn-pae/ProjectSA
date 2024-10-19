@@ -1,4 +1,4 @@
-from app import db
+from extensions import db
 
 class Employee(db.Model):
     __tablename__ = 'employees'
@@ -10,3 +10,4 @@ class Employee(db.Model):
     employee_position = db.Column(db.Enum('worker', 'academic', 'clerical', 'keeper'), nullable=False)
     employee_address = db.Column(db.String(255), nullable=False)
     employee_salary = db.Column(db.Numeric(10, 2), nullable=False)
+    employee_image = db.Column(db.String(255), nullable=False)
