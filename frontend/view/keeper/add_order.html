@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Order</title>
+    <script>
+        // ฟังก์ชันสำหรับตรวจสอบว่าได้เลือกค่าใน dropdown ก่อนกดปุ่ม
+        function validateForm() {
+            var productDropdown = document.getElementById("product_id");
+            var unitDropdown = document.getElementById("product_unit");
+
+            if (productDropdown.value === "") {
+                alert("Please select a product.");
+                return false; // ป้องกันการส่งฟอร์ม
+            }
+
+            if (unitDropdown.value === "") {
+                alert("Please select a unit.");
+                return false; // ป้องกันการส่งฟอร์ม
+            }
+
+            return true; // ถ้าเลือกค่าแล้วให้ส่งฟอร์ม
+        }
+    </script>
 </head>
 <body>
     <h1>Add New Order</h1>
@@ -17,10 +36,10 @@
     </select>
 
     <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
-    <form method="POST">
+    <form method="POST" onsubmit="return validateForm()">
         <label for="product_id">Select Product:</label>
         <select id="product_id" name="product_id" required>
-            <!-- แสดงสินค้าทั้งหมด -->
+            <option value="">-- Please select a product --</option> <!-- ตัวเลือก default -->
             {% for product in product_lists %}
                 <option value="{{ product.product_id }}" data-type="{{ product.product_type }}">{{ product.product_name }} ({{ product.product_type }})</option>
             {% endfor %}
@@ -31,8 +50,9 @@
 
         <label for="product_unit">Unit:</label>
         <select id="product_unit" name="product_unit" required>
+            <option value="">-- Please select a unit --</option> <!-- ตัวเลือก default -->
             {% for unit in units %}
-                <option value="{{ unit.unit_id }}">{{ unit.unit_name }}</option>
+                <option value="{{ unit.unit_id }}" data-type="{{ unit.product_type }}">{{ unit.unit_name }}</option>
             {% endfor %}
         </select>
 
@@ -69,10 +89,12 @@
 
     <button onclick="history.back()">Go Back</button>
 
-    <!-- JavaScript สำหรับกรองรายการสินค้า -->
+    <!-- JavaScript สำหรับกรองรายการสินค้าและหน่วย -->
     <script>
         function filterProducts() {
             var selectedType = document.getElementById("product_type").value;
+            
+            // กรองสินค้าตามประเภทที่เลือก
             var productDropdown = document.getElementById("product_id");
             var products = productDropdown.getElementsByTagName("option");
 
@@ -85,6 +107,26 @@
                     products[i].style.display = "none"; // ซ่อนสินค้า
                 }
             }
+
+            // กรองหน่วยสินค้าตามประเภทที่เลือก
+            var unitDropdown = document.getElementById("product_unit");
+            var units = unitDropdown.getElementsByTagName("option");
+
+            for (var i = 0; i < units.length; i++) {
+                var unitType = units[i].getAttribute("data-type");
+
+                if (selectedType === "all" || unitType === selectedType) {
+                    units[i].style.display = "block"; // แสดงหน่วยสินค้า
+                } else {
+                    units[i].style.display = "none"; // ซ่อนหน่วยสินค้า
+                }
+            }
+
+            var productDropdown = document.getElementById("product_id");
+            productDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
+
+            var unitDropdown = document.getElementById("product_unit");
+            unitDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
         }
     </script>
 </body>
