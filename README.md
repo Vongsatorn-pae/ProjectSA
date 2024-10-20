@@ -25,15 +25,19 @@
     pip install -r requirements.txt
     ```
 
-4. Navigate to backend forder:
+4. Insert database from database forder:
 
     ```bash
-    cd backend
+    cd database
     ```
-5. Start the development server:
+5. Navigate to backend forder:
+
+    ```bash
+    cd ../backend
+    ```
+6. Start the development server:
 
     ```bash
     python app.py
     ```
-
 
