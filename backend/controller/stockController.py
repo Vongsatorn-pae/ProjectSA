@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 from models.productList import ProductList
 from models.productLot import ProductLot
 from models.product import Product
+from models.unit import Unit
+from utils.conversion import convert_to_base_unit
 from extensions import db
 
 stockController = Blueprint('stock', __name__)
@@ -64,7 +66,32 @@ def stock_alert():
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
-    # ดึงสินค้าที่จำนวนในสต็อกต่ำกว่า threshold
-    low_stock_products = Product.query.filter(Product.product_quantity < ProductList.threshold).all()
+    """แสดงรายการสินค้าที่ใกล้จะหมดจากสต็อก"""
+    stock_alerts = []
 
-    return render_template('keeper/stock_alert.html', products=low_stock_products)
+    # ดึงรายการสินค้าทั้งหมดจากตาราง product_lists
+    product_list = ProductList.query.all()
+
+    for product in product_list:
+        # ดึงข้อมูลสินค้าจากตาราง products
+        stock_product = Product.query.filter_by(product_id=product.product_id).first()
+
+        if stock_product:
+            # แปลงหน่วยของสินค้าใน products เป็นหน่วยเล็กที่สุด (เช่น g หรือ mL)
+            total_quantity_in_stock = convert_to_base_unit(
+                stock_product.product_quantity, 
+                stock_product.product_unit,  # หน่วยสินค้า
+                product.product_type  # ประเภทสินค้า
+            )
+
+            # ตรวจสอบว่าปริมาณสินค้าที่เหลือในสต็อกน้อยกว่าค่าที่กำหนดไว้หรือไม่ (threshold อยู่ในหน่วยเล็กที่สุด)
+            if total_quantity_in_stock < product.threshold:
+                stock_alerts.append({
+                    'product_name': product.product_name,
+                    'total_quantity_in_stock': total_quantity_in_stock,  # ปริมาณคงเหลือในหน่วยเล็กที่สุด
+                    'threshold': product.threshold,
+                    'product_type': product.product_type,
+                    'unit_name': 'g' if product.product_type == 'Food' else 'mL'  # หน่วยที่จะแสดงใน stock_alert
+                })
+
+    return render_template('keeper/stock_alert.html', products=stock_alerts)

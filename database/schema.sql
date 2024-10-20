@@ -120,16 +120,16 @@ VALUES
 
 INSERT INTO product_lists (product_id, product_name, product_type, threshold, product_image)
 VALUES
-('F001', 'Shrimp Food A', 'Food', 10.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
-('F002', 'Shrimp Food B', 'Food', 10.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
-('F003', 'Shrimp Food C', 'Food', 10.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
-('F004', 'Shrimp Food D', 'Food', 10.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
-('F005', 'Shrimp Food E', 'Food', 10.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
-('C001', 'Chemical X', 'Chemical', 10.0, 'https://img2.pic.in.th/pic/chemistry.png'),
-('C002', 'Chemical Y', 'Chemical', 10.0, 'https://img2.pic.in.th/pic/chemistry.png'),
-('C003', 'Chemical Z', 'Chemical', 10.0, 'https://img2.pic.in.th/pic/chemistry.png'),
-('C004', 'Chemical Alpha', 'Chemical', 10.0, 'https://img2.pic.in.th/pic/chemistry.png'),
-('C005', 'Chemical Beta', 'Chemical', 10.0, 'https://img2.pic.in.th/pic/chemistry.png');
+('F001', 'Shrimp Food A', 'Food', 2000.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
+('F002', 'Shrimp Food B', 'Food', 2000.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
+('F003', 'Shrimp Food C', 'Food', 2000.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
+('F004', 'Shrimp Food D', 'Food', 2000.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
+('F005', 'Shrimp Food E', 'Food', 2000.0, 'https://img5.pic.in.th/file/secure-sv1/pet-food0808bd428320fded.png'),
+('C001', 'Chemical X', 'Chemical', 2000.0, 'https://img2.pic.in.th/pic/chemistry.png'),
+('C002', 'Chemical Y', 'Chemical', 2000.0, 'https://img2.pic.in.th/pic/chemistry.png'),
+('C003', 'Chemical Z', 'Chemical', 2000.0, 'https://img2.pic.in.th/pic/chemistry.png'),
+('C004', 'Chemical Alpha', 'Chemical', 2000.0, 'https://img2.pic.in.th/pic/chemistry.png'),
+('C005', 'Chemical Beta', 'Chemical', 2000.0, 'https://img2.pic.in.th/pic/chemistry.png');
 
 INSERT INTO product_lots (lot_id, lot_date)
 VALUES

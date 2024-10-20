@@ -51,6 +51,31 @@
             object-fit: cover; /* ปรับให้รูปครอบคลุมพื้นที่ของกรอบ */
             cursor: pointer;
         }
+
+        /* จัดตารางให้ดูสวยงาม */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 <body>
@@ -79,7 +104,7 @@
                 {% for product in products %}
                 <tr>
                     <td>{{ product.product_name }}</td>
-                    <td>{{ product.product_quantity }}</td>
+                    <td>{{ product.total_quantity_in_stock }} {{ product.unit_name }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
