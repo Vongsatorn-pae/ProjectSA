@@ -18,7 +18,8 @@ with open('../database/config.yaml', 'r') as file:
     db_config = yaml.safe_load(file)
 
 # สร้าง SQLALCHEMY_DATABASE_URI
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_config['mysql_user']}:{db_config['mysql_password']}@{db_config['mysql_host']}/{db_config['mysql_db']}"
+# app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_config['mysql_user']}:{db_config['mysql_password']}@{db_config['mysql_host']}/{db_config['mysql_db']}"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/sa_farm_management'
 
 # ตั้งค่า Flask-Login
 db.init_app(app)
