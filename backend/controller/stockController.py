@@ -12,7 +12,7 @@ stockController = Blueprint('stock', __name__)
 @login_required
 def view_stock():
     # ตรวจสอบบทบาทว่าผู้ใช้ต้องเป็นธุรการ (clerical) เท่านั้น
-    if current_user.role != 'clerical':
+    if current_user.employee.employee_position != 'clerical':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
 
@@ -25,7 +25,7 @@ def view_stock():
 @login_required
 def add_stock():
     # ตรวจสอบบทบาทว่าผู้ใช้ต้องเป็นธุรการ (clerical) เท่านั้น
-    if current_user.role != 'clerical':
+    if current_user.employee.employee_position != 'clerical':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
     
@@ -60,7 +60,7 @@ def add_stock():
 @stockController.route('/stock/alert')
 @login_required
 def stock_alert():
-    if current_user.role != 'keeper':
+    if current_user.employee.employee_position != 'keeper':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 

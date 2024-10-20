@@ -139,3 +139,17 @@ def order_history():
 
     orders = Order.query.filter_by(employee_id = current_user.employee.employee_id).all()
     return render_template('keeper/order_history.html', orders=orders)
+
+@orderController.route('/order/<order_id>', methods=['GET'])
+@login_required
+def view_order_details(order_id):
+    """Route สำหรับแสดงรายละเอียดคำสั่งซื้อ"""
+    if current_user.employee.employee_position != 'keeper':
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.index'))
+
+    # ดึงรายละเอียดคำสั่งซื้อจากตาราง order_lists
+    order = Order.query.filter_by(order_id=order_id).first_or_404()
+    order_items = OrderList.query.filter_by(order_id=order_id).all()
+
+    return render_template('keeper/order_details.html', order=order, order_items=order_items)
