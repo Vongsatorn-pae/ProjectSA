@@ -68,6 +68,7 @@
                 <th>Product Name</th>
                 <th>Quantity</th>
                 <th>Unit</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -77,6 +78,18 @@
                 <td>{{ item.product_name }}</td>
                 <td>{{ item.product_quantity }}</td>
                 <td>{{ item.product_unit }}</td>
+                <td>
+                    <!-- ปุ่มสำหรับแก้ไขสินค้า -->
+                    <form method="POST" action="{{ url_for('order.edit_cart_item', index=loop.index0) }}" style="display:inline;">
+                        <input type="number" name="new_quantity" value="{{ item.product_quantity }}" min="1" required>
+                        <button type="submit">Edit</button>
+                    </form>
+    
+                    <!-- ปุ่มสำหรับลบสินค้า -->
+                    <form method="POST" action="{{ url_for('order.remove_cart_item', index=loop.index0) }}" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

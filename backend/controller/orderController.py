@@ -108,6 +108,26 @@ def add_order():
 
     return render_template('keeper/add_order.html', product_lists=product_lists, units=units, cart=session['cart'])
 
+@orderController.route('/order/cart/remove/<int:index>', methods=['POST'])
+@login_required
+def remove_cart_item(index):
+    """Route สำหรับลบรายการใน cart ตาม index ที่กำหนด"""
+    if 'cart' in session and index < len(session['cart']):
+        session['cart'].pop(index)  # ลบรายการที่ index นั้น
+        flash('Item removed from cart!', 'success')
+    return redirect(url_for('order.add_order'))
+
+@orderController.route('/order/cart/edit/<int:index>', methods=['POST'])
+@login_required
+def edit_cart_item(index):
+    """Route สำหรับแก้ไขจำนวนสินค้าใน cart"""
+    new_quantity = request.form['new_quantity']
+    
+    # ตรวจสอบว่ามี cart และ index ที่ถูกต้องหรือไม่
+    if 'cart' in session and index < len(session['cart']):
+        session['cart'][index]['product_quantity'] = new_quantity  # แก้ไขจำนวนสินค้า
+        flash('Item quantity updated!', 'success')
+    return redirect(url_for('order.add_order'))
 
 # Route สำหรับแสดงประวัติการซื้อ
 @orderController.route('/order/history', methods=['GET'])
