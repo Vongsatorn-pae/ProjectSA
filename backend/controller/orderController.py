@@ -129,7 +129,28 @@ def edit_cart_item(index):
         flash('Item quantity updated!', 'success')
     return redirect(url_for('order.add_order'))
 
-# Route สำหรับแสดงประวัติการซื้อ
+@orderController.route('/order/<order_id>/update_status', methods=['POST'])
+@login_required
+def update_order_status(order_id):
+    """Route สำหรับเปลี่ยนสถานะคำสั่งซื้อ"""
+    if current_user.employee.employee_position != 'keeper':
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.index'))
+
+    # ดึงคำสั่งซื้อตาม order_id
+    order = Order.query.filter_by(order_id=order_id).first_or_404()
+
+    if order.order_status:
+        flash('This order has already been marked as delivered.', 'info')
+    else:
+        # อัปเดตสถานะคำสั่งซื้อเป็น true
+        order.order_status = True
+        db.session.commit()
+        flash(f'Order {order_id} status updated to Delivered!', 'success')
+
+    # กลับไปหน้า order_history พร้อมกับตัวกรองและการค้นหาเดิม
+    return redirect(url_for('order.order_history', search=request.args.get('search'), filter_status=request.args.get('filter_status')))
+
 @orderController.route('/order/history', methods=['GET'])
 @login_required
 def order_history():
@@ -137,8 +158,33 @@ def order_history():
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
-    orders = Order.query.filter_by(employee_id = current_user.employee.employee_id).all()
+    # ดึงข้อมูลการค้นหาและตัวกรองจาก query parameters
+    search_query = request.args.get('search', '')
+    filter_status = request.args.get('filter_status', 'all')
+
+    # เริ่มต้น query สำหรับคำสั่งซื้อ
+    query = Order.query.filter_by(employee_id=current_user.employee.employee_id)
+
+    # ถ้ามีการค้นหา ให้ทำการค้นหาจาก order_id หรือ order_date
+    if search_query:
+        query = query.filter(
+            db.or_(
+                Order.order_id.like(f'%{search_query}%'),
+                Order.order_date.like(f'%{search_query}%')
+            )
+        )
+
+    # กรองตามสถานะคำสั่งซื้อ
+    if filter_status == 'delivered':
+        query = query.filter_by(order_status=True)
+    elif filter_status == 'not_delivered':
+        query = query.filter_by(order_status=False)
+
+    # ดึงข้อมูลคำสั่งซื้อที่ค้นหาและกรองแล้ว
+    orders = query.all()
+
     return render_template('keeper/order_history.html', orders=orders)
+
 
 @orderController.route('/order/<order_id>', methods=['GET'])
 @login_required

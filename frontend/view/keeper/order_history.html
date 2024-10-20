@@ -67,11 +67,28 @@
         </div>
     </div>
 
+    <!-- ฟอร์มสำหรับค้นหาและกรอง -->
+    <form method="GET" action="{{ url_for('order.order_history') }}">
+        <label for="search">Search by Order ID or Date:</label>
+        <input type="text" id="search" name="search" value="{{ request.args.get('search', '') }}">
+
+        <label for="filter_status">Filter by Status:</label>
+        <select id="filter_status" name="filter_status">
+            <option value="all" {% if request.args.get('filter_status') == 'all' %}selected{% endif %}>All</option>
+            <option value="delivered" {% if request.args.get('filter_status') == 'delivered' %}selected{% endif %}>Delivered</option>
+            <option value="not_delivered" {% if request.args.get('filter_status') == 'not_delivered' %}selected{% endif %}>Not Delivered</option>
+        </select>
+
+        <button type="submit">Search</button>
+    </form>
+
     <table>
         <thead>
             <tr>
                 <th>Order ID</th>
                 <th>Order Date</th>
+                <th>Order Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -79,6 +96,17 @@
             <tr>
                 <td><a href="{{ url_for('order.view_order_details', order_id=order.order_id) }}">{{ order.order_id }}</a></td> <!-- ลิงก์ไปยังหน้ารายละเอียด -->
                 <td>{{ order.order_date }}</td>
+                <td>{{ 'Delivered' if order.order_status else 'Not Delivered' }}</td> <!-- แสดงสถานะ -->
+                <td>
+                    <!-- ปุ่มเปลี่ยนสถานะถ้าของยังไม่มาส่ง -->
+                    {% if not order.order_status %}
+                    <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
+                        <button type="submit">Mark as Delivered</button>
+                    </form>
+                    {% else %}
+                    <span>Delivered</span> <!-- ถ้าสถานะเป็น Delivered แล้ว ไม่แสดงปุ่ม -->
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
