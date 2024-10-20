@@ -41,9 +41,14 @@ def add_order():
         unit_id = request.form['product_unit']
         product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name  # ดึงชื่อของหน่วยมาแทน
 
-        # เพิ่มสินค้าใน cart
+        # ดึงข้อมูลชื่อสินค้า
+        product = ProductList.query.filter_by(product_id=product_id).first()
+        product_name = product.product_name if product else 'Unknown'
+
+        # เพิ่มสินค้าใน cart โดยเพิ่มชื่อสินค้าเข้าไปด้วย
         session['cart'].append({
             'product_id': product_id,
+            'product_name': product_name,  # เพิ่มชื่อสินค้าเข้าไปใน session
             'product_quantity': product_quantity,
             'product_unit': product_unit  # บันทึกชื่อของหน่วยแทน
         })
@@ -56,7 +61,7 @@ def add_order():
         product = ProductList.query.filter_by(product_id=item['product_id']).first()
         cart_with_names.append({
             'product_id': item['product_id'],
-            'product_name': product.product_name if product else 'Unknown',
+            'product_name': item['product_name'],  # แสดงชื่อของสินค้า
             'product_quantity': item['product_quantity'],
             'product_unit': item['product_unit']  # แสดงชื่อของหน่วย
         })
@@ -69,14 +74,14 @@ def add_order():
         order_status = False
 
         # เพิ่มคำสั่งซื้อในตาราง orders
-        new_order = Order(order_id = order_id, order_date = order_date, employee_id = employee_id, order_status = order_status)
+        new_order = Order(order_id=order_id, order_date=order_date, employee_id=employee_id, order_status=order_status)
         db.session.add(new_order)
 
         lot_id = f"LOT-{datetime.now().strftime('%Y%m%d%H%M%S')}"  # สร้าง lot_id แบบไม่ซ้ำ
         lot_date = datetime.now()
 
         # เพิ่มข้อมูลในตาราง product_lots
-        new_lot = ProductLot(lot_id = lot_id, lot_date = lot_date)
+        new_lot = ProductLot(lot_id=lot_id, lot_date=lot_date)
         db.session.add(new_lot)
 
         # บันทึกรายการสินค้าที่อยู่ใน session
@@ -102,6 +107,7 @@ def add_order():
         return redirect(url_for('order.order_history'))
 
     return render_template('keeper/add_order.html', product_lists=product_lists, units=units, cart=session['cart'])
+
 
 # Route สำหรับแสดงประวัติการซื้อ
 @orderController.route('/order/history', methods=['GET'])
