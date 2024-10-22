@@ -70,6 +70,56 @@
 
             return true; // ถ้าเลือกค่าแล้วให้ส่งฟอร์ม
         }
+
+        // JavaScript สำหรับกรองรายการสินค้าและหน่วย
+        function filterProducts() {
+            var selectedType = document.getElementById("product_type").value;
+            
+            // กรองสินค้าตามประเภทที่เลือก
+            var productDropdown = document.getElementById("product_id");
+            var products = productDropdown.getElementsByTagName("option");
+
+            for (var i = 0; i < products.length; i++) {
+                var productType = products[i].getAttribute("data-type");
+
+                if (selectedType === "all" || productType === selectedType) {
+                    products[i].style.display = "block"; // แสดงสินค้า
+                } else {
+                    products[i].style.display = "none"; // ซ่อนสินค้า
+                }
+            }
+
+            // กรองหน่วยสินค้าตามประเภทที่เลือก
+            var unitDropdown = document.getElementById("product_unit");
+            var units = unitDropdown.getElementsByTagName("option");
+
+            for (var i = 0; i < units.length; i++) {
+                var unitType = units[i].getAttribute("data-type");
+
+                if (selectedType === "all" || unitType === selectedType) {
+                    units[i].style.display = "block"; // แสดงหน่วยสินค้า
+                } else {
+                    units[i].style.display = "none"; // ซ่อนหน่วยสินค้า
+                }
+            }
+
+            var productDropdown = document.getElementById("product_id");
+            productDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
+
+            var unitDropdown = document.getElementById("product_unit");
+            unitDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
+        }
+        
+        function validateCartNotEmpty() {
+            var form = document.querySelector('form');
+            var cartLength = form.getAttribute('data-cart-length'); // อ่านค่าความยาวของ cart
+        
+            if (parseInt(cartLength) === 0) {
+                alert("ไม่สามารถส่งคำสั่งซื้อได้ เนื่องจากไม่มีสินค้าในรายการ");
+                return false; // ป้องกันการส่งฟอร์ม
+            }
+            return true; // อนุญาตให้ส่งฟอร์ม
+        }
     </script>
 </head>
 <body>
@@ -155,51 +205,10 @@
     </table>
 
     <!-- ปุ่มสำหรับบันทึกคำสั่งซื้อทั้งหมด -->
-    <form method="POST">
+    <form method="POST" data-cart-length="{{ cart|length }}" onsubmit="return validateCartNotEmpty();">
         <button type="submit" name="submit_order">Submit Order</button>
-    </form>
+    </form>    
 
     <button onclick="history.back()">Go Back</button>
-
-    <!-- JavaScript สำหรับกรองรายการสินค้าและหน่วย -->
-    <script>
-        function filterProducts() {
-            var selectedType = document.getElementById("product_type").value;
-            
-            // กรองสินค้าตามประเภทที่เลือก
-            var productDropdown = document.getElementById("product_id");
-            var products = productDropdown.getElementsByTagName("option");
-
-            for (var i = 0; i < products.length; i++) {
-                var productType = products[i].getAttribute("data-type");
-
-                if (selectedType === "all" || productType === selectedType) {
-                    products[i].style.display = "block"; // แสดงสินค้า
-                } else {
-                    products[i].style.display = "none"; // ซ่อนสินค้า
-                }
-            }
-
-            // กรองหน่วยสินค้าตามประเภทที่เลือก
-            var unitDropdown = document.getElementById("product_unit");
-            var units = unitDropdown.getElementsByTagName("option");
-
-            for (var i = 0; i < units.length; i++) {
-                var unitType = units[i].getAttribute("data-type");
-
-                if (selectedType === "all" || unitType === selectedType) {
-                    units[i].style.display = "block"; // แสดงหน่วยสินค้า
-                } else {
-                    units[i].style.display = "none"; // ซ่อนหน่วยสินค้า
-                }
-            }
-
-            var productDropdown = document.getElementById("product_id");
-            productDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
-
-            var unitDropdown = document.getElementById("product_unit");
-            unitDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
-        }
-    </script>
 </body>
 </html>

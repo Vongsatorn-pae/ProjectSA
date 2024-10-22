@@ -10,10 +10,9 @@ from datetime import datetime
 
 orderController = Blueprint('order', __name__)
 
-# Route สำหรับการจัดการคำสั่งซื้อ
-@orderController.route('/order')
-def manage_order():
-    return render_template('order.html')
+# @orderController.route('/order')
+# def manage_order():
+#     return render_template('order.html')
 
 @orderController.route('/order/add', methods=['GET', 'POST'])
 @login_required
@@ -41,33 +40,23 @@ def add_order():
         unit_id = request.form['product_unit']
         product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name  # ดึงชื่อของหน่วยมาแทน
 
-        # ดึงข้อมูลชื่อสินค้า
-        product = ProductList.query.filter_by(product_id=product_id).first()
-        product_name = product.product_name if product else 'Unknown'
-
-        # เพิ่มสินค้าใน cart โดยเพิ่มชื่อสินค้าเข้าไปด้วย
+        # เพิ่มสินค้าใน cart
         session['cart'].append({
             'product_id': product_id,
-            'product_name': product_name,  # เพิ่มชื่อสินค้าเข้าไปใน session
             'product_quantity': product_quantity,
             'product_unit': product_unit  # บันทึกชื่อของหน่วยแทน
         })
         flash('Product added to cart!', 'success')
         return redirect(url_for('order.add_order'))
     
-    # ดึงข้อมูลชื่อสินค้าใน cart จาก product_lists
-    cart_with_names = []
-    for item in session['cart']:
-        product = ProductList.query.filter_by(product_id=item['product_id']).first()
-        cart_with_names.append({
-            'product_id': item['product_id'],
-            'product_name': item['product_name'],  # แสดงชื่อของสินค้า
-            'product_quantity': item['product_quantity'],
-            'product_unit': item['product_unit']  # แสดงชื่อของหน่วย
-        })
-
     # กรณีบันทึกคำสั่งซื้อทั้งหมด
     if request.method == 'POST' and 'submit_order' in request.form:
+        # ตรวจสอบว่า cart ว่างหรือไม่
+        if 'cart' not in session or len(session['cart']) == 0:
+            flash('ไม่สามารถส่งคำสั่งซื้อได้ เนื่องจากไม่มีสินค้าในรายการ', 'danger')
+            return redirect(url_for('order.add_order'))
+
+        # ถ้ามีสินค้าใน cart ให้ดำเนินการบันทึกคำสั่งซื้อ
         order_id = f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         order_date = datetime.now()
         employee_id = current_user.employee.employee_id
