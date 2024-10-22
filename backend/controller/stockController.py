@@ -73,25 +73,28 @@ def stock_alert():
     product_list = ProductList.query.all()
 
     for product in product_list:
-        # ดึงข้อมูลสินค้าจากตาราง products
-        stock_product = Product.query.filter_by(product_id=product.product_id).first()
+        # ดึงข้อมูลสินค้าทั้งหมดที่ตรงกับ product_id จากตาราง products (ทุก lot)
+        stock_products = Product.query.filter_by(product_id=product.product_id).all()
 
-        if stock_product:
-            # แปลงหน่วยของสินค้าใน products เป็นหน่วยเล็กที่สุด (เช่น g หรือ mL)
-            total_quantity_in_stock = convert_to_base_unit(
+        total_quantity_in_stock = 0  # เก็บปริมาณสินค้าทั้งหมดจากทุก lot
+
+        # รวมจำนวนสินค้าจากทุก lot
+        for stock_product in stock_products:
+            # แปลงหน่วยสินค้าเป็นหน่วยเล็กที่สุด (g หรือ mL)
+            total_quantity_in_stock += convert_to_base_unit(
                 stock_product.product_quantity, 
                 stock_product.product_unit,  # หน่วยสินค้า
                 product.product_type  # ประเภทสินค้า
             )
 
-            # ตรวจสอบว่าปริมาณสินค้าที่เหลือในสต็อกน้อยกว่าค่าที่กำหนดไว้หรือไม่ (threshold อยู่ในหน่วยเล็กที่สุด)
-            if total_quantity_in_stock < product.threshold:
-                stock_alerts.append({
-                    'product_name': product.product_name,
-                    'total_quantity_in_stock': total_quantity_in_stock,  # ปริมาณคงเหลือในหน่วยเล็กที่สุด
-                    'threshold': product.threshold,
-                    'product_type': product.product_type,
-                    'unit_name': 'g' if product.product_type == 'Food' else 'mL'  # หน่วยที่จะแสดงใน stock_alert
-                })
+        # ตรวจสอบว่าปริมาณสินค้าทั้งหมดจากทุก lot น้อยกว่า threshold หรือไม่
+        if total_quantity_in_stock < product.threshold:
+            stock_alerts.append({
+                'product_name': product.product_name,
+                'total_quantity_in_stock': total_quantity_in_stock,  # ปริมาณคงเหลือรวมจากทุก lot
+                'threshold': product.threshold,
+                'product_type': product.product_type,
+                'unit_name': 'g' if product.product_type == 'Food' else 'mL'  # หน่วยที่แสดงใน stock_alert
+            })
 
     return render_template('keeper/stock_alert.html', products=stock_alerts)
