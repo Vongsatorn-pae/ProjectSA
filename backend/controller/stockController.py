@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 from models.productList import ProductList
 from models.productLot import ProductLot
 from models.product import Product
+from models.order import Order
+from models.orderList import OrderList
 from models.unit import Unit
 from utils.conversion import convert_to_base_unit, convert_to_largest_unit
 from extensions import db
@@ -61,32 +63,40 @@ def add_stock():
         return redirect(url_for('auth.logout'))
     
     product_lists = ProductList.query.all()
-    product_lots = ProductLot.query.all()
+
+    # ดึง lot ที่เกี่ยวข้องกับ order ที่มี order_status = True
+    product_lots = ProductLot.query.join(OrderList, ProductLot.lot_id == OrderList.lot_id)\
+                                   .join(Order, OrderList.order_id == Order.order_id)\
+                                   .filter(Order.order_status == True).all()
+
+    # ดึงข้อมูล units ทั้งหมดและแปลงเป็น dict
+    units = Unit.query.all()
+    unit_list = [
+        {"unit_id": unit.unit_id, "unit_name": unit.unit_name, "product_type": unit.product_type or ""}
+        for unit in units if unit.unit_name is not None
+    ]
 
     if request.method == 'POST':
         product_id = request.form['product_id']  # ดึง id ของสินค้าที่เลือกจาก dropdown
         lot_id = request.form['lot_id']  # ดึง lot_id จาก dropdown
         product_quantity = request.form['product_quantity']
         product_unit = request.form['product_unit']
-
-        # ดึงข้อมูลสินค้าจาก product_lists
-        selected_product = ProductList.query.filter_by(product_id=product_id).first()
+        product_exp = request.form['product_exp']  # ดึงวันที่หมดอายุจากฟอร์ม
 
         # เพิ่มข้อมูลสินค้าพร้อมข้อมูลล็อตเข้าสู่ฐานข้อมูล
         new_product = Product(
-            product_id=selected_product.product_id,  # product_id จาก product_lists
-            product_name=selected_product.product_name,  # ใช้ชื่อจาก product_lists
-            product_type=selected_product.product_type,  # ใช้ประเภทจาก product_lists
+            product_id=product_id,  # ใส่ product_id เท่านั้น
             lot_id=lot_id,  # lot_id จาก product_lots
             product_quantity=product_quantity,
             product_unit=product_unit,
+            product_exp=product_exp  # เพิ่มวันที่หมดอายุ
         )
         db.session.add(new_product)
         db.session.commit()
         flash('Product added successfully!', 'success')
         return redirect(url_for('stock.view_stock'))
 
-    return render_template('clerical/add_stock.html', product_lists=product_lists, product_lots=product_lots)
+    return render_template('clerical/add_stock.html', product_lists=product_lists, product_lots=product_lots, units=unit_list)
 
 @stockController.route('/stock/alert')
 @login_required

@@ -5,33 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Product</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <script>
+        var units = JSON.parse('{{ units|tojson|safe }}');  // ข้อมูลของ units
+    
+        function filterProducts() {
+            var selectedType = document.getElementById("product_type").value;
+    
+            // กรองสินค้าตามประเภทที่เลือก
+            var productDropdown = document.getElementById("product_id");
+            var products = productDropdown.getElementsByTagName("option");
+    
+            for (var i = 0; i < products.length; i++) {
+                var productType = products[i].getAttribute("data-type");
+    
+                if (selectedType === "all" || productType === selectedType) {
+                    products[i].style.display = "block"; // แสดงสินค้าที่ตรงกับประเภทที่เลือก
+                } else {
+                    products[i].style.display = "none"; // ซ่อนสินค้าที่ไม่ตรงกับประเภท
+                }
+            }
+    
+            // อัปเดต dropdown หน่วย
+            updateUnitDropdown(selectedType);
+        }
+    
+        function updateUnitDropdown(selectedType) {
+            var unitDropdown = document.getElementById("product_unit");
+            unitDropdown.innerHTML = "";  // ล้าง dropdown หน่วยก่อน
+    
+            // เพิ่มตัวเลือกที่ตรงกับประเภทที่เลือก
+            units.forEach(function(unit) {
+                if (unit.product_type === selectedType || selectedType === "all") {
+                    var option = document.createElement("option");
+                    option.value = unit.unit_name;
+                    option.text = unit.unit_name;
+                    unitDropdown.appendChild(option);
+                }
+            });
+
+            var productDropdown = document.getElementById("product_id");
+            productDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
+
+            var unitDropdown = document.getElementById("product_unit");
+            unitDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
+        }
+    </script>
 </head>
 <body>
-    <h1>Add New Product</h1>
+    <div class="navbar">
+        <h1>Add New Product</h1>
+        <div class="dropdown">
+            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+        
+            <div class="dropdown-content">
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dropdown สำหรับเลือกประเภทสินค้า -->
+    <label for="product_type">Select Type:</label>
+    <select id="product_type" name="product_type" onchange="filterProducts()">
+        <option value="all">-- All Types --</option>
+        <option value="Food">Food</option>
+        <option value="Chemical">Chemical</option>
+    </select>
+
     <form method="POST">
+        <!-- Dropdown สำหรับเลือก Product -->
         <label for="product_id">Select Product:</label>
-        <!-- Dropdown เลือกสินค้า -->
         <select id="product_id" name="product_id" required>
+            <option value="">-- Please select a product --</option>
             {% for product in product_lists %}
-                <option value="{{ product.product_id }}">{{ product.product_name }} ({{ product.product_type }})</option>
+                <option value="{{ product.product_id }}" data-type="{{ product.product_type }}">
+                    {{ product.product_name }} ({{ product.product_type }})
+                </option>
             {% endfor %}
         </select>
 
+        <!-- เลือก Lot ของสินค้าที่มี order_status เป็น True -->
         <label for="lot_id">Select Lot:</label>
-        <!-- Dropdown เลือก Lot -->
         <select id="lot_id" name="lot_id" required>
             {% for lot in product_lots %}
                 <option value="{{ lot.lot_id }}">Lot ID: {{ lot.lot_id }} - Date: {{ lot.lot_date }}</option>
             {% endfor %}
         </select>
 
+        <!-- กรอกจำนวนสินค้า -->
         <label for="product_quantity">Quantity:</label>
         <input type="number" id="product_quantity" name="product_quantity" required>
 
+        <!-- Dropdown สำหรับเลือก Unit -->
         <label for="product_unit">Unit:</label>
-        <input type="text" id="product_unit" name="product_unit" required>
+        <select id="product_unit" name="product_unit" required>
+            <option value="">-- Please select a unit --</option>
+            {% for unit in units %}
+                <option value="{{ unit.unit_name }}" data-type="{{ unit.product_type }}">
+                    {{ unit.unit_name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- กรอกวันหมดอายุของสินค้า -->
+        <label for="product_exp">Expiration Date:</label>
+        <input type="date" id="product_exp" name="product_exp" required>
 
         <button type="submit">Add Product</button>
-    </form>
+    </form>    
 </body>
 </html>
