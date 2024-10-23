@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Product</title>
+</head>
+<body>
+    <h1>Request Product</h1>
+
+    <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
+    <form method="POST" action="{{ url_for('request.add_to_cart') }}">
+        <label for="product_id">Select Product:</label>
+        <!-- เฉพาะสินค้าที่เป็นประเภท Food เท่านั้น -->
+        <select id="product_id" name="product_id" required>
+            {% for product in product_lists %}
+                {% if product.product_type == 'Food' %}
+                    <option value="{{ product.product_id }}">{{ product.product_name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+
+        <label for="request_quantity">Quantity:</label>
+        <input type="number" id="request_quantity" name="request_quantity" required>
+
+        <label for="request_unit">Select Unit:</label>
+        <!-- หน่วยต้องเป็น kg หรือ g เท่านั้น -->
+        <select id="request_unit" name="request_unit" required>
+            <option value="kg">kg</option>
+            <option value="g">g</option>
+        </select>
+
+        <button type="submit">Add to Cart</button>
+    </form>
+
+    <h2>Current Cart</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in session.cart %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>
+                    <!-- ฟอร์มสำหรับแก้ไขจำนวนสินค้า -->
+                    <form method="POST" action="{{ url_for('request.update_cart_item', index=loop.index0) }}">
+                        <input type="number" name="new_quantity" value="{{ item.request_quantity }}" min="1" required>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+                <td>{{ item.request_unit }}</td>
+                <td>
+                    <!-- ปุ่มสำหรับลบสินค้าออกจาก cart -->
+                    <form method="POST" action="{{ url_for('request.remove_from_cart', index=loop.index0) }}">
+                        <button type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ปุ่มสำหรับส่งคำขอเบิกทั้งหมด -->
+    <form method="POST" action="{{ url_for('request.submit_request') }}">
+        <button type="submit">Submit Request</button>
+    </form>
+
+    <a href="{{ url_for('request.view_history') }}">View Request History</a>
+</body>
+</html>

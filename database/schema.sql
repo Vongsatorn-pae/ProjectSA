@@ -80,28 +80,30 @@ CREATE TABLE order_lists (
 
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (product_id) REFERENCES product_lists(product_id),
-    FOREIGN KEY (lot_id) REFERENCES product_lots(lot_id)
+    FOREIGN KEY (lot_id) REFERENCES product_lots(lot_id),
+    PRIMARY KEY (order_id, product_id)  -- Composite Primary Key
 );
 
 -- ตารางสำหรับเก็บข้อมูลคำขอเบิกสินค้า
 CREATE TABLE requests (
     request_id VARCHAR(50) PRIMARY KEY,
     request_date DATE NOT NULL,
-    request_status BOOLEAN NOT NULL,
     employee_id VARCHAR(50) NOT NULL,
+    request_status BOOLEAN NOT NULL,
 
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
 
 -- ตารางสำหรับเก็บข้อมูลรายการคำขอเบิกสินค้า
 CREATE TABLE request_lists (
-    request_list_id VARCHAR(50) PRIMARY KEY,
     request_id VARCHAR(50) NOT NULL,
     product_id VARCHAR(50) NOT NULL,
     request_quantity DECIMAL(10, 2) NOT NULL,
+    product_unit VARCHAR(50) NOT NULL,
 
     FOREIGN KEY (request_id) REFERENCES requests(request_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    PRIMARY KEY (request_id, product_id)  -- Composite Primary Key
 );
 
 INSERT INTO employees (employee_id, employee_fname, employee_lname, employee_age, employee_sex, employee_position, employee_address, employee_salary, employee_image)
