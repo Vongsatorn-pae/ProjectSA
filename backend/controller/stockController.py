@@ -4,7 +4,7 @@ from models.productList import ProductList
 from models.productLot import ProductLot
 from models.product import Product
 from models.unit import Unit
-from utils.conversion import convert_to_base_unit
+from utils.conversion import convert_to_base_unit, convert_to_largest_unit
 from extensions import db
 
 stockController = Blueprint('stock', __name__)
@@ -18,9 +18,38 @@ def view_stock():
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
 
-    # ดึงข้อมูลสินค้าทั้งหมดจากฐานข้อมูล
-    products = Product.query.all()
-    return render_template('clerical/view_stock.html', products=products)
+    # ดึงข้อมูลจาก product_lists และ products
+    stock_data = db.session.query(
+        ProductList.product_id,
+        ProductList.product_name,
+        ProductList.product_image,
+        Product.product_quantity,
+        Product.product_unit,
+        ProductList.product_type
+    ).join(Product, Product.product_id == ProductList.product_id).all()
+
+    # รวมสินค้าโดย product_id
+    combined_stock = {}
+    for item in stock_data:
+        base_quantity = convert_to_base_unit(item.product_quantity, item.product_unit, item.product_type)
+
+        if item.product_id in combined_stock:
+            combined_stock[item.product_id]['total_quantity'] += base_quantity
+        else:
+            combined_stock[item.product_id] = {
+                'product_name': item.product_name,
+                'product_image': item.product_image,
+                'total_quantity': base_quantity,
+                'product_type': item.product_type
+            }
+
+    # แปลงหน่วยกลับเป็นหน่วยใหญ่ที่สุด
+    for product_id, data in combined_stock.items():
+        total_quantity, unit = convert_to_largest_unit(data['total_quantity'], data['product_type'])
+        data['total_quantity'] = total_quantity
+        data['unit'] = unit
+
+    return render_template('clerical/view_stock.html', products=combined_stock.values())
 
 # Route สำหรับเพิ่มสินค้าใหม่
 @stockController.route('/stock/add', methods=['GET', 'POST'])

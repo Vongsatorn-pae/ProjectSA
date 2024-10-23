@@ -18,3 +18,20 @@ def convert_to_base_unit(quantity, unit, product_type):
     
     else:
         raise ValueError("Unknown product type")
+
+def convert_to_largest_unit(quantity, product_type):
+    """เปลี่ยนหน่วยเป็นหน่วยใหญ่ที่สุด (kg สำหรับ Food และ L สำหรับ Chemical)"""
+    if product_type == 'Food':
+        if quantity >= 1000:
+            return quantity / 1000, 'kg'  # แปลงกลับเป็น kg ถ้าจำนวน >= 1000g
+        else:
+            return quantity, 'g'  # แสดงเป็น g ถ้าน้อยกว่า 1000g
+
+    elif product_type == 'Chemical':
+        if quantity >= 1000:
+            return quantity / 1000, 'L'  # แปลงกลับเป็น L ถ้าจำนวน >= 1000mL
+        else:
+            return quantity, 'mL'  # แสดงเป็น mL ถ้าน้อยกว่า 1000mL
+
+    else:
+        raise ValueError("Unknown product type")
