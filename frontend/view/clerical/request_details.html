@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+</head>
+<body>
+    <h1>Request Details for Request ID: {{ request.request_id }}</h1>
+
+    <!-- ตารางแสดงรายละเอียดสินค้าที่ถูกเบิก -->
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in request_list %}
+            <tr>
+                <td>{{ item.product.product_name }}</td>
+                <td>{{ item.request_quantity }}</td>
+                <td>{{ item.product_unit }}</td>
+                <td><img src="{{ item.product.product_image }}" alt="Product Image" style="width: 50px; height: 50px;"></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button onclick="history.back()">Go Back</button>
+</body>
+</html>

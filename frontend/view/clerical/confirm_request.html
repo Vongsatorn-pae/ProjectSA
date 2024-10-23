@@ -3,19 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approve Request</title>
+    <title>Confirm Request</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+        .confirm-button {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .confirm-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
-    <h1>Approve Request</h1>
-    <form method="POST">
-        <label for="request_id">Select Request:</label>
-        <select id="request_id" name="request_id" required>
-            {% for request in requests %}
-                <option value="{{ request.request_id }}">Request ID: {{ request.request_id }} - Employee: {{ request.employee_id }}</option>
-            {% endfor %}
-        </select>
+    <div class="navbar">
+        <h1>Confirm Request</h1>
+        <div class="dropdown">
+            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <div class="dropdown-content">
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+    </div>
 
-        <button type="submit">Approve Request</button>
-    </form>
+    <!-- ตารางแสดงรายการคำขอเบิกสินค้า -->
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Employee</th>
+                <th>Request Date</th>
+                <th>Confirm Request</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td><a href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a></td>
+                <td>{{ request.employee_id }}</td>
+                <td>{{ request.request_date }}</td>
+                <td>
+                    {% if not request.request_status %}
+                    <form method="POST" action="{{ url_for('request.confirm_request') }}">
+                        <input type="hidden" name="request_id" value="{{ request.request_id }}">
+                        <button type="submit" class="confirm-button">Confirm</button>
+                    </form>
+                    {% else %}
+                    <button class="confirm-button" disabled>Confirmed</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // Optional: Confirm dialog box
+        document.querySelectorAll('.confirm-button').forEach(button => {
+            button.addEventListener('click', function (event) {
+                if (!confirm("Are you sure you want to confirm this request?")) {
+                    event.preventDefault();  // Cancel submit
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -141,7 +141,7 @@ def confirm_request():
         flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
-    # แก้ไขตรงนี้จาก status เป็น request_status
+    # ดึงคำขอเบิกที่ยังไม่ได้รับการอนุมัติ
     requests = Request.query.filter_by(request_status=False).all()
 
     if request.method == 'POST':
@@ -162,3 +162,17 @@ def confirm_request():
         return redirect(url_for('request.confirm_request'))
 
     return render_template('clerical/confirm_request.html', requests=requests)
+
+@requestController.route('/request/<string:request_id>/details', methods=['GET'])
+@login_required
+def request_details(request_id):
+    # ดึงรายการสินค้าที่ถูกเบิกตาม request_id
+    request = Request.query.filter_by(request_id=request_id).first()
+    if not request:
+        flash('ไม่พบคำขอเบิกสินค้านี้', 'danger')
+        return redirect(url_for('request.confirm_request'))
+
+    # ดึงรายการสินค้าที่เกี่ยวข้องกับคำขอเบิกนี้
+    request_list = RequestList.query.filter_by(request_id=request_id).all()
+
+    return render_template('clerical/request_details.html', request=request, request_list=request_list)
