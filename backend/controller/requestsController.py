@@ -134,14 +134,15 @@ def view_history():
 
     return render_template('worker/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
 
-@requestController.route('/request/approve', methods=['GET', 'POST'])
+@requestController.route('/request/confirm', methods=['GET', 'POST'])
 @login_required
-def approve_request():
+def confirm_request():
     if current_user.employee.employee_position != 'clerical':
         flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
-    requests = Request.query.filter_by(status=False).all()
+    # แก้ไขตรงนี้จาก status เป็น request_status
+    requests = Request.query.filter_by(request_status=False).all()
 
     if request.method == 'POST':
         request_id = request.form['request_id']
@@ -154,10 +155,10 @@ def approve_request():
 
         # อัพเดตสถานะของคำขอเบิก
         req = Request.query.filter_by(request_id=request_id).first()
-        req.status = True
+        req.request_status = True  # แก้ไขตรงนี้ด้วย
         db.session.commit()
 
         flash('ยืนยันการเบิกสินค้าสำเร็จ', 'success')
-        return redirect(url_for('request.approve_request'))
+        return redirect(url_for('request.confirm_request'))
 
-    return render_template('request/approve_request.html', requests=requests)
+    return render_template('clerical/confirm_request.html', requests=requests)
