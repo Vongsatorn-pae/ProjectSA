@@ -22,7 +22,10 @@ def add_request():
     if 'cart' not in session:
         session['cart'] = []
 
-    return render_template('worker/add_request.html', product_lists=product_lists)
+    if current_user.employee.employee_position == 'worker':
+        return render_template('worker/add_request.html', product_lists=product_lists)
+    elif current_user.employee.employee_position == 'academic':
+        return render_template('academic/add_request.html', product_lists=product_lists)
 
 @requestController.route('/request/add_to_cart', methods=['POST'])
 @login_required
@@ -131,8 +134,10 @@ def view_history():
         query = query.filter(Request.request_status == False)
 
     requests = query.all()
-
-    return render_template('worker/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
+    if current_user.employee.employee_position == 'worker':
+        return render_template('worker/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
+    elif current_user.employee.employee_position == 'academic':
+        return render_template('academic/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
 
 @requestController.route('/request/confirm', methods=['GET', 'POST'])
 @login_required

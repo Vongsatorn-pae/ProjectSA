@@ -23,10 +23,10 @@
     <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
     <form method="POST" action="{{ url_for('request.add_to_cart') }}">
         <label for="product_id">Select Product:</label>
-        <!-- เฉพาะสินค้าที่เป็นประเภท Food เท่านั้น -->
+        <!-- เฉพาะสินค้าที่เป็นประเภท Chemical เท่านั้น -->
         <select id="product_id" name="product_id" required>
             {% for product in product_lists %}
-                {% if product.product_type == 'Food' %}
+                {% if product.product_type == 'Chemical' %}
                     <option value="{{ product.product_id }}">{{ product.product_name }}</option>
                 {% endif %}
             {% endfor %}
@@ -36,10 +36,10 @@
         <input type="number" id="request_quantity" name="request_quantity" required>
 
         <label for="request_unit">Select Unit:</label>
-        <!-- หน่วยต้องเป็น kg หรือ g เท่านั้น -->
+        <!-- หน่วยต้องเป็น L หรือ mL เท่านั้น -->
         <select id="request_unit" name="request_unit" required>
-            <option value="kg">kg</option>
-            <option value="g">g</option>
+            <option value="L">L</option>
+            <option value="mL">mL</option>
         </select>
 
         <button type="submit">Add to Cart</button>
