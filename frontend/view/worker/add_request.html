@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Product</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <script>
+        // ฟังก์ชันสำหรับแสดง popup
+        function showPopup(message) {
+            alert(message);  // ใช้ alert popup ของ browser
+        }
+
+        // ตรวจสอบว่า Flask ส่ง Flash Message มาหรือไม่
+        window.onload = function() {
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        showPopup("{{ message }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        };
+    </script>
 </head>
 <body>
     <div class="navbar">

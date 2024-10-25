@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 from flask_login import login_required, current_user
+from utils.conversion import convert_to_base_unit
 from models.product import Product
 from models.productList import ProductList
 from models.request import Request
@@ -40,6 +41,26 @@ def add_to_cart():
         flash('ไม่พบสินค้าที่เลือก', 'danger')
         return redirect(url_for('request.add_request'))
 
+    # ดึงข้อมูลหน่วยและปริมาณสินค้าจากตาราง Product
+    product_stock = Product.query.filter_by(product_id=product_id).first()
+    if not product_stock:
+        flash('ไม่พบสินค้าคงคลัง', 'danger')
+        return redirect(url_for('request.add_request'))
+
+    product_unit = product_stock.product_unit
+    total_available_quantity = db.session.query(db.func.sum(Product.product_quantity))\
+        .filter(Product.product_id == product_id).scalar()
+
+    if total_available_quantity is None:
+        total_available_quantity = 0
+
+    requested_quantity_base = convert_to_base_unit(float(request_quantity), request_unit, product.product_type)
+    available_quantity_base = convert_to_base_unit(total_available_quantity, product_unit, product.product_type)
+
+    if requested_quantity_base > available_quantity_base:
+        flash('สินค้ามีจำนวนไม่เพียงพอสำหรับการเบิก', 'danger')
+        return redirect(url_for('request.add_request'))
+
     # เพิ่มสินค้าเข้า cart
     session['cart'].append({
         'product_id': product_id,
@@ -47,6 +68,7 @@ def add_to_cart():
         'request_quantity': request_quantity,
         'request_unit': request_unit
     })
+    
     flash('เพิ่มสินค้าในรายการสำเร็จ', 'success')
     return redirect(url_for('request.add_request'))
 
@@ -108,8 +130,9 @@ def submit_request():
     # ล้าง cart หลังจากบันทึกเสร็จ
     session.pop('cart', None)
     db.session.commit()
+
     flash('ส่งคำขอเบิกสินค้าสำเร็จ', 'success')
-    return redirect(url_for('request.view_history'))
+    return redirect(url_for('request.add_request'))
 
 # หน้าประวัติการขอเบิกสินค้า
 @requestController.route('/request/history', methods=['GET'])
@@ -139,6 +162,8 @@ def view_history():
     elif current_user.employee.employee_position == 'academic':
         return render_template('academic/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
 
+from decimal import Decimal  # เพิ่มการ import decimal
+
 @requestController.route('/request/confirm', methods=['GET', 'POST'])
 @login_required
 def confirm_request():
@@ -154,13 +179,35 @@ def confirm_request():
         request_list = RequestList.query.filter_by(request_id=request_id).all()
 
         for item in request_list:
-            product = Product.query.filter_by(product_id=item.product_id).first()
-            product.product_quantity -= item.request_quantity  # ลดจำนวนสินค้าในสต็อก
-            db.session.commit()
+            # ดึงสินค้าทั้งหมดที่มี product_id เดียวกันจากหลาย lot และทำการ join กับตาราง ProductList เพื่อดึงข้อมูล product_type
+            products = db.session.query(Product, ProductList).join(ProductList, Product.product_id == ProductList.product_id).filter(Product.product_id == item.product_id).all()
 
-        # อัพเดตสถานะของคำขอเบิก
+            if products:
+                # ใช้ products[0].ProductList.product_type แทน products[0].product_list.product_type
+                requested_quantity_base = convert_to_base_unit(float(item.request_quantity), item.product_unit, products[0].ProductList.product_type)
+
+                # ลดจำนวนสินค้าลงจากหลาย lot_id ตามจำนวนที่เบิก
+                remaining_quantity = Decimal(requested_quantity_base)  # แปลง remaining_quantity เป็น Decimal
+                for product, product_list in products:
+                    product_quantity_base = convert_to_base_unit(product.product_quantity, product.product_unit, product_list.product_type)
+
+                    # แปลง product_quantity_base เป็น Decimal เพื่อให้ชนิดข้อมูลตรงกัน
+                    product_quantity_base = Decimal(product_quantity_base)
+
+                    if remaining_quantity <= product_quantity_base:
+                        # หากปริมาณที่เหลือพอ ให้หักจำนวนออก
+                        product.product_quantity -= remaining_quantity
+                        db.session.commit()  # บันทึกการเปลี่ยนแปลงในแต่ละลูป
+                        break
+                    else:
+                        # หากปริมาณไม่พอ ให้หักออกให้หมดและลดจำนวนที่เหลือต่อไปใน lot ถัดไป
+                        remaining_quantity -= product_quantity_base
+                        product.product_quantity = 0
+                        db.session.commit()  # บันทึกการเปลี่ยนแปลง
+
+        # อัพเดตสถานะของคำขอเบิกเป็น "ยืนยัน"
         req = Request.query.filter_by(request_id=request_id).first()
-        req.request_status = True  # แก้ไขตรงนี้ด้วย
+        req.request_status = True
         db.session.commit()
 
         flash('ยืนยันการเบิกสินค้าสำเร็จ', 'success')
