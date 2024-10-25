@@ -35,6 +35,17 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
+        .reject-button {
+            background-color: #f43f3f;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .reject-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -58,6 +69,7 @@
                 <th>Employee</th>
                 <th>Request Date</th>
                 <th>Confirm Request</th>
+                <th>Reject Request</th>
             </tr>
         </thead>
         <tbody>
@@ -76,17 +88,27 @@
                     <button class="confirm-button" disabled>Confirmed</button>
                     {% endif %}
                 </td>
+                <td>
+                    {% if not request.request_status %}
+                    <form method="POST" action="{{ url_for('request.reject_request') }}">
+                        <input type="hidden" name="request_id" value="{{ request.request_id }}">
+                        <button type="submit" class="reject-button">Reject</button>
+                    </form>
+                    {% else %}
+                    <button class="reject-button" disabled>Rejected</button>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
     <script>
-        // Optional: Confirm dialog box
-        document.querySelectorAll('.confirm-button').forEach(button => {
+        document.querySelectorAll('.confirm-button, .reject-button').forEach(button => {
             button.addEventListener('click', function (event) {
-                if (!confirm("Are you sure you want to confirm this request?")) {
-                    event.preventDefault();  // Cancel submit
+                const action = button.classList.contains('confirm-button') ? 'confirm' : 'reject';
+                if (!confirm(`Are you sure you want to ${action} this request?`)) {
+                    event.preventDefault();
                 }
             });
         });

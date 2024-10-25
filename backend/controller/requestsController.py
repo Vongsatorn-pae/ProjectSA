@@ -228,3 +228,23 @@ def request_details(request_id):
     request_list = RequestList.query.filter_by(request_id=request_id).all()
 
     return render_template('clerical/request_details.html', request=request, request_list=request_list)
+
+@requestController.route('/request/reject', methods=['POST'])
+@login_required
+def reject_request():
+    if current_user.employee.employee_position != 'clerical':
+        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        return redirect(url_for('main.index'))
+
+    request_id = request.form['request_id']
+
+    # ลบรายการในตาราง request_lists ที่เชื่อมโยงกับ request_id
+    RequestList.query.filter_by(request_id=request_id).delete()
+
+    # ลบรายการในตาราง requests ที่มี request_id ตรงกัน
+    Request.query.filter_by(request_id=request_id).delete()
+
+    db.session.commit()
+
+    flash(f'Request {request_id} has been rejected successfully.', 'success')
+    return redirect(url_for('request.confirm_request'))
