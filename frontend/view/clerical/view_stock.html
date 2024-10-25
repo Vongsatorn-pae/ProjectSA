@@ -5,14 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Stock</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <style>
-        th {
-            cursor: pointer;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script>
         var sortDirection = { name: false, quantity: false, unit: false };
 
@@ -120,8 +116,8 @@
     <div class="container mt-4">
         <!-- ปุ่ม Add Product -->
         <div class="text-left mb-3">
-            <a href="{{ url_for('stock.add_stock') }}" class="btn btn-primary">Add Product</a>
-            <a href="{{ url_for('request.confirm_request') }}" class="btn btn-primary">Request</a>
+            <a href="{{ url_for('stock.add_stock') }}" class = "button-19">Add Product</a>
+            <a href="{{ url_for('request.confirm_request') }}" class = "button-19">Request</a>
         </div>
 
         <!-- Search Bar -->
@@ -135,7 +131,7 @@
         </select>
 
         <!-- ตารางแสดงข้อมูลสินค้า -->
-        <table id="stockTable" class="table table-bordered">
+        <table id="stockTable" class="table table-striped table-hover">
             <thead>
                 <tr>
                     <th onclick="sortTableByColumn(0, 'string')">Product Name</th>

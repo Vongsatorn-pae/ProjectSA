@@ -1,62 +1,111 @@
-h2 {
-    text-align: center;
-    color: #333;
-}
-
-form {
+.Aform {
     background-color: white;
     padding: 2em;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    width: 30rem;
+    display: flex;
+    flex-direction: column;
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #555;
+
+.box {
+    display: flex;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    justify-content: center;
 }
 
-input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.box1 {
+    margin-right: 2rem;
+}
+
+.text-in-dropdown {
+    left: 0;
+}
+
+.select-product {
+    margin-top: 1rem;
+}
+
+.select-lot {
+    margin-top: 1rem;
+}
+
+.quantity {
+    margin-top: 1rem;
+}
+
+.unit {
+    margin-top: 1rem;
+}
+
+.expiration-date {
+    margin-top: 1rem;
+}
+
+.button-19 {
+    appearance: button;
+    background-color: #1899D6;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
     box-sizing: border-box;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    color: #FFFFFF;
     cursor: pointer;
-    font-weight: bold;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-/* จัดการกับข้อความเตือน */
-ul {
-    padding: 0;
-    list-style-type: none;
-}
-
-li {
-    color: white;
-    background-color: #dc3545;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 4px;
+    display: inline-block;
+    font-family: din-round, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    line-height: 20px;
+    margin: 0;
+    outline: none;
+    overflow: visible;
+    padding: 13px 16px;
     text-align: center;
+    text-transform: uppercase;
+    touch-action: manipulation;
+    transform: translateZ(0);
+    transition: filter .2s;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 100%;
+    margin-top: 1rem;
 }
 
-li.danger {
-    background-color: #dc3545; /* สีแดงสำหรับข้อความ error */
+.button-19:after {
+    background-clip: padding-box;
+    background-color: #1CB0F6;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
+    bottom: -4px;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+}
+
+.button-19,
+.button-19:focus {
+    user-select: auto;
+}
+
+.button-19:hover:not(:disabled) {
+    filter: brightness(1.1);
+    -webkit-filter: brightness(1.1);
+}
+
+.button-19:disabled {
+    cursor: auto;
+}
+
+.button-19:active {
+    border-width: 4px 0 0;
+    background: none;
 }

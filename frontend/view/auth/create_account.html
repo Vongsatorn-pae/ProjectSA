@@ -5,49 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #f8f9fa;
-            padding: 1rem;
-        }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #f1f1f1;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {
-            background-color: #ddd;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        .user-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
     <div class="navbar">
@@ -63,44 +25,44 @@
         </div>
     </div>
 
-    <form id="createAccountForm">
-        <h3>Account Information</h3>
-        <label for="username">Username (optional):</label>
-        <input type="text" id="username" name="username" placeholder="Leave empty to auto-generate">
-
-        <label for="password">Password (optional):</label>
-        <input type="password" id="password" name="password" placeholder="Leave empty to auto-generate">
-
-        <label for="employee_position">Position:</label>
-        <select id="employee_position" name="employee_position" required>
-            <option value="clerical">Clerical</option>
-            <option value="academic">Academic</option>
-            <option value="worker">Worker</option>
-        </select>
-
-        <h3>Employee Information</h3>
-        <label for="employee_fname">First Name:</label>
-        <input type="text" id="employee_fname" name="employee_fname" required>
-
-        <label for="employee_lname">Last Name:</label>
-        <input type="text" id="employee_lname" name="employee_lname" required>
-
-        <label for="employee_age">Age:</label>
-        <input type="number" id="employee_age" name="employee_age" required>
-
-        <label for="employee_sex">Sex:</label>
-        <input type="text" id="employee_sex" name="employee_sex" required>
-
-        <label for="employee_address">Address (optional):</label>
-        <input type="text" id="employee_address" name="employee_address" placeholder="Leave empty to auto-generate">
-
-        <label for="employee_salary">Salary:</label>
-        <input type="number" id="employee_salary" name="employee_salary" required>
-
-        <button type="submit">Create Account</button>
-    </form>
-
-    <button onclick="history.back()">Go Back</button>
+    <div class = "box">
+        <form class="Aform" id="createAccountForm">
+            <h3>Account Information</h3>
+            <label for="username">Username (optional):</label>
+            <input class = "form-control" type="text" id="username" name="username" placeholder="Leave empty to auto-generate">
+    
+            <label for="password">Password (optional):</label>
+            <input class = "form-control" type="password" id="password" name="password" placeholder="Leave empty to auto-generate">
+    
+            <label for="employee_position">Position:</label>
+            <select class = "form-select" id="employee_position" name="employee_position" required>
+                <option value="clerical">Clerical</option>
+                <option value="academic">Academic</option>
+                <option value="worker">Worker</option>
+            </select>
+    
+            <h3>Employee Information</h3>
+            <label for="employee_fname">First Name:</label>
+            <input class = "form-control" type="text" id="employee_fname" name="employee_fname" required>
+    
+            <label for="employee_lname">Last Name:</label>
+            <input class = "form-control" type="text" id="employee_lname" name="employee_lname" required>
+    
+            <label for="employee_age">Age:</label>
+            <input class = "form-control" type="number" id="employee_age" name="employee_age" required>
+    
+            <label for="employee_sex">Sex:</label>
+            <input class = "form-control" type="text" id="employee_sex" name="employee_sex" required>
+    
+            <label for="employee_address">Address (optional):</label>
+            <input class = "form-control" type="text" id="employee_address" name="employee_address" placeholder="Leave empty to auto-generate">
+    
+            <label for="employee_salary">Salary:</label>
+            <input class = "form-control" type="number" id="employee_salary" name="employee_salary" required>
+    
+            <button class = "button-19" type="submit">Create Account</button>
+        </form>
+    </div>
 
     <!-- Popup Modal สำหรับแสดงข้อความ -->
     <div class="modal fade" id="flashMessageModal" tabindex="-1" role="dialog" aria-labelledby="flashMessageLabel" aria-hidden="true">

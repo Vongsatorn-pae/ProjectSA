@@ -1,29 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirm Request</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-        }
         .confirm-button {
             background-color: #28a745;
             color: white;
@@ -31,10 +16,12 @@
             border: none;
             cursor: pointer;
         }
+
         .confirm-button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
+
         .reject-button {
             background-color: #f43f3f;
             color: white;
@@ -42,66 +29,73 @@
             border: none;
             cursor: pointer;
         }
+
         .reject-button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
     </style>
 </head>
+
 <body>
     <div class="navbar">
         <h1>Confirm Request</h1>
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
         </div>
     </div>
 
-    <!-- ตารางแสดงรายการคำขอเบิกสินค้า -->
-    <table>
-        <thead>
-            <tr>
-                <th>Request ID</th>
-                <th>Employee</th>
-                <th>Request Date</th>
-                <th>Confirm Request</th>
-                <th>Reject Request</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for request in requests %}
-            <tr>
-                <td><a href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a></td>
-                <td>{{ request.employee_id }}</td>
-                <td>{{ request.request_date }}</td>
-                <td>
-                    {% if not request.request_status %}
-                    <form method="POST" action="{{ url_for('request.confirm_request') }}">
-                        <input type="hidden" name="request_id" value="{{ request.request_id }}">
-                        <button type="submit" class="confirm-button">Confirm</button>
-                    </form>
-                    {% else %}
-                    <button class="confirm-button" disabled>Confirmed</button>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if not request.request_status %}
-                    <form method="POST" action="{{ url_for('request.reject_request') }}">
-                        <input type="hidden" name="request_id" value="{{ request.request_id }}">
-                        <button type="submit" class="reject-button">Reject</button>
-                    </form>
-                    {% else %}
-                    <button class="reject-button" disabled>Rejected</button>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="container mt-4">
+        <!-- ตารางแสดงรายการคำขอเบิกสินค้า -->
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Employee</th>
+                    <th>Request Date</th>
+                    <th>Confirm Request</th>
+                    <th>Reject Request</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in requests %}
+                <tr>
+                    <td><a
+                            href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a>
+                    </td>
+                    <td>{{ request.employee_id }}</td>
+                    <td>{{ request.request_date }}</td>
+                    <td>
+                        {% if not request.request_status %}
+                        <form method="POST" action="{{ url_for('request.confirm_request') }}">
+                            <input type="hidden" name="request_id" value="{{ request.request_id }}">
+                            <button type="submit" class="confirm-button">Confirm</button>
+                        </form>
+                        {% else %}
+                        <button class="confirm-button" disabled>Confirmed</button>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not request.request_status %}
+                        <form method="POST" action="{{ url_for('request.reject_request') }}">
+                            <input type="hidden" name="request_id" value="{{ request.request_id }}">
+                            <button type="submit" class="reject-button">Reject</button>
+                        </form>
+                        {% else %}
+                        <button class="reject-button" disabled>Rejected</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <script>
         document.querySelectorAll('.confirm-button, .reject-button').forEach(button => {
@@ -114,4 +108,5 @@
         });
     </script>
 </body>
+
 </html>

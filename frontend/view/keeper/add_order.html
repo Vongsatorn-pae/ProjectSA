@@ -1,57 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Order</title>
-    <style>
-        /* CSS สำหรับการจัดตำแหน่งไอคอนเมนูและข้อความ Home */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #f8f9fa;
-            padding: 1rem;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #f1f1f1;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #ddd;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .user-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover; /* ปรับให้รูปครอบคลุมพื้นที่ของกรอบ */
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script>
         // ฟังก์ชันสำหรับตรวจสอบว่าได้เลือกค่าใน dropdown ก่อนกดปุ่ม
         function validateForm() {
@@ -74,7 +30,7 @@
         // JavaScript สำหรับกรองรายการสินค้าและหน่วย
         function filterProducts() {
             var selectedType = document.getElementById("product_type").value;
-            
+
             // กรองสินค้าตามประเภทที่เลือก
             var productDropdown = document.getElementById("product_id");
             var products = productDropdown.getElementsByTagName("option");
@@ -109,11 +65,11 @@
             var unitDropdown = document.getElementById("product_unit");
             unitDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
         }
-        
+
         function validateCartNotEmpty() {
             var form = document.querySelector('form');
             var cartLength = form.getAttribute('data-cart-length'); // อ่านค่าความยาวของ cart
-        
+
             if (parseInt(cartLength) === 0) {
                 alert("ไม่สามารถส่งคำสั่งซื้อได้ เนื่องจากไม่มีสินค้าในรายการ");
                 return false; // ป้องกันการส่งฟอร์ม
@@ -122,55 +78,60 @@
         }
     </script>
 </head>
+
 <body>
     <div class="navbar">
         <h1>Add New Order</h1>
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
-        
+
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
         </div>
     </div>
 
-    <!-- Dropdown สำหรับเลือกประเภทของสินค้า -->
-    <label for="product_type">Select Type:</label>
-    <select id="product_type" name="product_type" onchange="filterProducts()">
-        <option value="all">-- All Types --</option>
-        <option value="Food">Food</option>
-        <option value="Chemical">Chemical</option>
-    </select>
+    <div class="box">
+        <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
+        <form class = "Aform" method="POST" onsubmit="return validateForm()">
+            <!-- Dropdown สำหรับเลือกประเภทของสินค้า -->
+            <label for="product_type">Select Type:</label>
+            <select class="form-select" id="product_type" name="product_type" onchange="filterProducts()">
+                <option value="all">-- All Types --</option>
+                <option value="Food">Food</option>
+                <option value="Chemical">Chemical</option>
+            </select>
 
-    <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
-    <form method="POST" onsubmit="return validateForm()">
-        <label for="product_id">Select Product:</label>
-        <select id="product_id" name="product_id" required>
-            <option value="">-- Please select a product --</option> <!-- ตัวเลือก default -->
-            {% for product in product_lists %}
-                <option value="{{ product.product_id }}" data-type="{{ product.product_type }}">{{ product.product_name }} ({{ product.product_type }})</option>
-            {% endfor %}
-        </select>
+            <label for="product_id">Select Product:</label>
+            <select class="form-select" id="product_id" name="product_id" required>
+                <option value="">-- Please select a product --</option> <!-- ตัวเลือก default -->
+                {% for product in product_lists %}
+                <option value="{{ product.product_id }}" data-type="{{ product.product_type }}">
+                    {{ product.product_name }} ({{ product.product_type }})</option>
+                {% endfor %}
+            </select>
 
-        <label for="product_quantity">Quantity:</label>
-        <input type="number" id="product_quantity" name="product_quantity" required>
+            <label for="product_quantity">Quantity:</label>
+            <input class = "form-control" type="number" id="product_quantity" name="product_quantity" required>
 
-        <label for="product_unit">Unit:</label>
-        <select id="product_unit" name="product_unit" required>
-            <option value="">-- Please select a unit --</option> <!-- ตัวเลือก default -->
-            {% for unit in units %}
+            <label for="product_unit">Unit:</label>
+            <select class="form-select" id="product_unit" name="product_unit" required>
+                <option value="">-- Please select a unit --</option> <!-- ตัวเลือก default -->
+                {% for unit in units %}
                 <option value="{{ unit.unit_id }}" data-type="{{ unit.product_type }}">{{ unit.unit_name }}</option>
-            {% endfor %}
-        </select>
+                {% endfor %}
+            </select>
 
-        <button type="submit" name="add_to_cart">Add to Cart</button>
-    </form>
+            <button class = "button-19" type="submit" name="add_to_cart">Add to Cart</button>
+        </form>
+    </div>
 
     <!-- แสดงรายการสินค้าที่อยู่ใน cart -->
     <h2>Current Order</h2>
-    <table>
+    <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th>Product ID</th>
@@ -189,14 +150,16 @@
                 <td>{{ item.product_unit }}</td>
                 <td>
                     <!-- ปุ่มสำหรับแก้ไขสินค้า -->
-                    <form method="POST" action="{{ url_for('order.edit_cart_item', index=loop.index0) }}" style="display:inline;">
+                    <form method="POST" action="{{ url_for('order.edit_cart_item', index=loop.index0) }}"
+                        style="display:inline;">
                         <input type="number" name="new_quantity" value="{{ item.product_quantity }}" min="1" required>
-                        <button type="submit">Edit</button>
+                        <button class = "button-19-4" type="submit">Edit</button>
                     </form>
-    
+
                     <!-- ปุ่มสำหรับลบสินค้า -->
-                    <form method="POST" action="{{ url_for('order.remove_cart_item', index=loop.index0) }}" style="display:inline;">
-                        <button type="submit">Delete</button>
+                    <form method="POST" action="{{ url_for('order.remove_cart_item', index=loop.index0) }}"
+                        style="display:inline;">
+                        <button class = "button-19-4" type="submit">Delete</button>
                     </form>
                 </td>
             </tr>
@@ -206,9 +169,8 @@
 
     <!-- ปุ่มสำหรับบันทึกคำสั่งซื้อทั้งหมด -->
     <form method="POST" data-cart-length="{{ cart|length }}" onsubmit="return validateCartNotEmpty();">
-        <button type="submit" name="submit_order">Submit Order</button>
-    </form>    
+        <button class = "button-19" type="submit" name="submit_order">Submit Order</button>
+    </form>
 
-    <button onclick="history.back()">Go Back</button>
 </body>
 </html>

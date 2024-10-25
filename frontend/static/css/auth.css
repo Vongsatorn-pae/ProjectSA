@@ -1,0 +1,14 @@
+.Aform {
+    background-color: white;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 30rem;
+    display: flex;
+    flex-direction: column;
+}
+
+h2 {
+    text-align: center;
+    padding-top: 20rem;
+}

@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Product</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script>
         // ฟังก์ชันสำหรับแสดง popup
         function showPopup(message) {
             alert(message);  // ใช้ alert popup ของ browser
         }
-
+    
         // ตรวจสอบว่า Flask ส่ง Flash Message มาหรือไม่
         window.onload = function() {
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -23,83 +26,85 @@
         };
     </script>
 </head>
+
 <body>
     <div class="navbar">
         <h1>Request Product</h1>
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
-        
+
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
         </div>
     </div>
 
-    <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
-    <form method="POST" action="{{ url_for('request.add_to_cart') }}">
-        <label for="product_id">Select Product:</label>
-        <!-- เฉพาะสินค้าที่เป็นประเภท Chemical เท่านั้น -->
-        <select id="product_id" name="product_id" required>
-            {% for product in product_lists %}
+    <div class="container mt-4"> 
+        <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
+        <form method="POST" action="{{ url_for('request.add_to_cart') }}">
+            <label for="product_id">Select Product:</label>
+            <!-- เฉพาะสินค้าที่เป็นประเภท Chemical เท่านั้น -->
+            <select class = "form-select" id="product_id" name="product_id" required>
+                {% for product in product_lists %}
                 {% if product.product_type == 'Chemical' %}
-                    <option value="{{ product.product_id }}">{{ product.product_name }}</option>
+                <option value="{{ product.product_id }}">{{ product.product_name }}</option>
                 {% endif %}
-            {% endfor %}
-        </select>
+                {% endfor %}
+            </select>
 
-        <label for="request_quantity">Quantity:</label>
-        <input type="number" id="request_quantity" name="request_quantity" required>
+            <label for="request_quantity">Quantity:</label>
+            <input class = "form-control" type="number" id="request_quantity" name="request_quantity" required>
 
-        <label for="request_unit">Select Unit:</label>
-        <!-- หน่วยต้องเป็น L หรือ mL เท่านั้น -->
-        <select id="request_unit" name="request_unit" required>
-            <option value="L">L</option>
-            <option value="mL">mL</option>
-        </select>
+            <label for="request_unit">Select Unit:</label>
+            <!-- หน่วยต้องเป็น L หรือ mL เท่านั้น -->
+            <select class = "form-select" id="request_unit" name="request_unit" required>
+                <option value="L">L</option>
+                <option value="mL">mL</option>
+            </select>
 
-        <button type="submit">Add to Cart</button>
-    </form>
+            <button class = "button-19"type="submit">Add to Cart</button>
+        </form>
 
-    <h2>Current Cart</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Product Name</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in session.cart %}
-            <tr>
-                <td>{{ item.product_name }}</td>
-                <td>
-                    <!-- ฟอร์มสำหรับแก้ไขจำนวนสินค้า -->
-                    <form method="POST" action="{{ url_for('request.update_cart_item', index=loop.index0) }}">
-                        <input type="number" name="new_quantity" value="{{ item.request_quantity }}" min="1" required>
-                        <button type="submit">Update</button>
-                    </form>
-                </td>
-                <td>{{ item.request_unit }}</td>
-                <td>
-                    <!-- ปุ่มสำหรับลบสินค้าออกจาก cart -->
-                    <form method="POST" action="{{ url_for('request.remove_from_cart', index=loop.index0) }}">
-                        <button type="submit">Remove</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <h2>Current Cart</h2>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in session.cart %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>
+                        <!-- ฟอร์มสำหรับแก้ไขจำนวนสินค้า -->
+                        <form method="POST" action="{{ url_for('request.update_cart_item', index=loop.index0) }}">
+                            <input type="number" name="new_quantity" value="{{ item.request_quantity }}" min="1" required>
+                            <button type="submit">Update</button>
+                        </form>
+                    </td>
+                    <td>{{ item.request_unit }}</td>
+                    <td>
+                        <!-- ปุ่มสำหรับลบสินค้าออกจาก cart -->
+                        <form method="POST" action="{{ url_for('request.remove_from_cart', index=loop.index0) }}">
+                            <button type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <!-- ปุ่มสำหรับส่งคำขอเบิกทั้งหมด -->
-    <form method="POST" action="{{ url_for('request.submit_request') }}">
-        <button type="submit">Submit Request</button>
-    </form>
-
-    <a href="{{ url_for('request.view_history') }}">View Request History</a>
+        <!-- ปุ่มสำหรับส่งคำขอเบิกทั้งหมด -->
+        <form method="POST" action="{{ url_for('request.submit_request') }}">
+            <button type="submit">Submit Request</button>
+        </form>
+    </div>
 </body>
 </html>
