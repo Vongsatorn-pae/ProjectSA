@@ -34,12 +34,12 @@
                 {% for item in cart %}
                 <tr>
                     <td>{{ item.product_id }}</td>
-                    <td>{{ item.product_quantity }}</td>
+                    <td>{{ item.order_quantity }}</td>
                     <td>{{ item.product_unit }}</td>
                     <td>
                         <!-- ปุ่มแก้ไขสินค้าใน cart -->
                         <form method="POST" action="{{ url_for('order.edit_cart_item', index=loop.index0) }}" style="display:inline;">
-                            <input type="number" name="new_quantity" value="{{ item.product_quantity }}" min="1" required>
+                            <input type="number" name="new_quantity" value="{{ item.order_quantity }}" min="1" required>
                             <button type="submit">Edit</button>
                         </form>
                         <!-- ปุ่มลบสินค้า -->

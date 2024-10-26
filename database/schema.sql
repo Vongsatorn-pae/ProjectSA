@@ -74,7 +74,7 @@ CREATE TABLE orders (
 CREATE TABLE order_lists (
     order_id VARCHAR(50) NOT NULL,
     product_id VARCHAR(50) NOT NULL,
-    product_quantity DECIMAL(10, 2) NOT NULL,
+    order_quantity DECIMAL(10, 2) NOT NULL,
     product_unit VARCHAR(50) NOT NULL,
     lot_id VARCHAR(50) NOT NULL,
 

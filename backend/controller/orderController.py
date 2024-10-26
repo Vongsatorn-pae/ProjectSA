@@ -33,7 +33,7 @@ def product_detail(product_id):
     units = Unit.query.all()
 
     if request.method == 'POST':
-        product_quantity = request.form['product_quantity']
+        order_quantity = request.form['order_quantity']
         unit_id = request.form['product_unit']
         product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name
 
@@ -43,7 +43,7 @@ def product_detail(product_id):
         session['cart'].append({
             'product_id': product_id,
             'product_name': product.product_name,
-            'product_quantity': product_quantity,
+            'order_quantity': order_quantity,
             'product_unit': product_unit
         })
 
@@ -57,7 +57,7 @@ def product_detail(product_id):
 def add_to_cart():
     """ฟังก์ชันสำหรับเพิ่มสินค้าเข้า cart และเปลี่ยนไปหน้า cart"""
     product_id = request.form['product_id']
-    product_quantity = request.form['product_quantity']
+    order_quantity = request.form['order_quantity']
     unit_id = request.form['product_unit']
     product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name  # ดึงชื่อของหน่วยมาแทน
 
@@ -68,7 +68,7 @@ def add_to_cart():
     # เพิ่มสินค้าเข้า cart
     session['cart'].append({
         'product_id': product_id,
-        'product_quantity': product_quantity,
+        'order_quantity': order_quantity,
         'product_unit': product_unit
     })
     flash('Product added to cart!', 'success')
@@ -105,13 +105,13 @@ def view_cart():
 
         for item in session['cart']:
             product_id = item['product_id']
-            product_quantity = item['product_quantity']
+            order_quantity = item['order_quantity']
             product_unit = item['product_unit']
 
             new_order_list = OrderList(
                 order_id=order_id,
                 product_id=product_id,
-                product_quantity=product_quantity,
+                order_quantity=order_quantity,
                 product_unit=product_unit,
                 lot_id=lot_id
             )
@@ -142,7 +142,7 @@ def edit_cart_item(index):
     
     # ตรวจสอบว่ามี cart และ index ที่ถูกต้องหรือไม่
     if 'cart' in session and index < len(session['cart']):
-        session['cart'][index]['product_quantity'] = new_quantity  # แก้ไขจำนวนสินค้า
+        session['cart'][index]['order_quantity'] = new_quantity  # แก้ไขจำนวนสินค้า
         flash('Item quantity updated!', 'success')
     return redirect(url_for('order.add_order'))
 
