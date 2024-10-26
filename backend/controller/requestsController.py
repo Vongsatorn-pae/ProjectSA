@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 from flask_login import login_required, current_user
+from models.unit import Unit
 from utils.conversion import convert_to_base_unit, convert_to_largest_unit
 from models.product import Product
 from models.productList import ProductList
@@ -72,6 +73,65 @@ def add_to_cart():
     
     flash('เพิ่มสินค้าในรายการสำเร็จ', 'success')
     return redirect(url_for('request.add_request'))
+
+@requestController.route('/request/product_detail/<product_id>', methods=['GET', 'POST'])
+@login_required
+def product_detail(product_id):
+    if current_user.employee.employee_position not in ['worker', 'academic']:
+        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        return redirect(url_for('main.index'))
+
+    # ดึงข้อมูลสินค้าและหน่วยที่เกี่ยวข้อง
+    product = ProductList.query.get_or_404(product_id)
+    units = Unit.query.filter_by(product_type=product.product_type).all()
+
+    if request.method == 'POST':
+        request_quantity = request.form['request_quantity']
+        request_unit = request.form['request_unit']
+
+        # เพิ่มสินค้าเข้า cart
+        if 'cart' not in session:
+            session['cart'] = []
+        session['cart'].append({
+            'product_id': product_id,
+            'product_name': product.product_name,
+            'request_quantity': request_quantity,
+            'request_unit': request_unit
+        })
+
+        flash('เพิ่มสินค้าในรายการสำเร็จ', 'success')
+        return redirect(url_for('request.add_request'))
+    
+    if current_user.employee.employee_position == 'worker':
+        return render_template('worker/product_detail.html', product=product, units=units)
+    elif current_user.employee.employee_position == 'academic':
+        return render_template('academic/product_detail.html', product=product, units=units)
+
+@requestController.route('/request/cart', methods=['GET', 'POST'])
+@login_required
+def view_cart():
+    """แสดง cart และฟังก์ชันสำหรับส่งคำขอเบิก"""
+    if current_user.employee.employee_position not in ['worker', 'academic']:
+        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        return redirect(url_for('main.index'))
+
+    # ดึงข้อมูลรายการใน cart พร้อมข้อมูลสินค้า (ถ้าจำเป็น)
+    cart_items = []
+    for item in session.get('cart', []):
+        product = ProductList.query.get(item['product_id'])
+        if product:
+            cart_items.append({
+                'product_id': item['product_id'],
+                'product_name': product.product_name,
+                'product_image': product.product_image,
+                'request_quantity': item['request_quantity'],
+                'request_unit': item['request_unit']
+            })
+
+    if current_user.employee.employee_position == 'worker':
+        return render_template('worker/cart.html', product=product)
+    elif current_user.employee.employee_position == 'academic':
+        return render_template('academic/cart.html', product=product)
 
 @requestController.route('/request/remove_from_cart/<int:index>', methods=['POST'])
 @login_required

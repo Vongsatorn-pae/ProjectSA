@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        .listProduct {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .item img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+        .title {
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <h1>Request Product Details</h1>
+        <div class="dropdown">
+            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <div class="dropdown-content">
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div>
+            <div class="title">PRODUCT DETAILS</div>
+
+            <div class="listProduct" id="product_details">
+                <div class="item">
+                    <img src="{{ product.product_image }}" alt="{{ product.product_name }}">
+                    <h3>{{ product.product_id }}</h3>
+                    <h2>{{ product.product_name }}</h2>
+                    <p>{{ product.product_description }}</p>
+                </div>
+            </div>
+
+            <div class="container mt-4">
+                <form action="{{ url_for('request.add_to_cart') }}" method="POST">
+                    <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                    <label for="request_quantity">Quantity:</label>
+                    <input type="number" id="request_quantity" name="request_quantity" min="1" required>
+    
+                    <label for="request_unit">Unit:</label>
+                    <select id="request_unit" name="request_unit" required>
+                        <option value="">-- Select Unit --</option>
+                        <option value="L">L</option>
+                        <option value="mL">mL</option>
+                    </select>                    
+    
+                    <button class="button-19" type="submit">Add to Cart</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
