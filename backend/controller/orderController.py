@@ -10,77 +10,109 @@ from datetime import datetime
 
 orderController = Blueprint('order', __name__)
 
-@orderController.route('/order/add', methods=['GET', 'POST'])
+@orderController.route('/order/add', methods=['GET'])
 @login_required
 def add_order():
     if current_user.employee.employee_position != 'keeper':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
-    # ดึงรายการสินค้าจากตาราง product_lists
+    # ดึงรายการสินค้าทั้งหมด
     product_lists = ProductList.query.all()
+    return render_template('keeper/add_order.html', product_lists=product_lists)
 
-    # ดึงข้อมูลหน่วยจากตาราง units
+@orderController.route('/order/product_detail/<product_id>', methods=['GET', 'POST'])
+@login_required
+def product_detail(product_id):
+    if current_user.employee.employee_position != 'keeper':
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.index'))
+
+    # ดึงข้อมูลสินค้าและหน่วยที่เกี่ยวข้อง
+    product = ProductList.query.get_or_404(product_id)
     units = Unit.query.all()
 
-    # ตรวจสอบว่ามีการเริ่มต้น session สำหรับรายการสั่งซื้อหรือยัง
+    if request.method == 'POST':
+        product_quantity = request.form['product_quantity']
+        unit_id = request.form['product_unit']
+        product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name
+
+        # เพิ่มสินค้าลงใน session cart
+        if 'cart' not in session:
+            session['cart'] = []
+        session['cart'].append({
+            'product_id': product_id,
+            'product_name': product.product_name,
+            'product_quantity': product_quantity,
+            'product_unit': product_unit
+        })
+
+        flash('Product added to cart!', 'success')
+        return redirect(url_for('order.view_cart'))
+
+    return render_template('keeper/product_detail.html', product=product, units=units)
+
+@orderController.route('/order/add_to_cart', methods=['POST'])
+@login_required
+def add_to_cart():
+    """ฟังก์ชันสำหรับเพิ่มสินค้าเข้า cart และเปลี่ยนไปหน้า cart"""
+    product_id = request.form['product_id']
+    product_quantity = request.form['product_quantity']
+    unit_id = request.form['product_unit']
+    product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name  # ดึงชื่อของหน่วยมาแทน
+
+    # ตรวจสอบว่ามี session cart แล้วหรือยัง
     if 'cart' not in session:
         session['cart'] = []
 
-    # กรณีเพิ่มสินค้าในรายการสั่งซื้อ
-    if request.method == 'POST' and 'add_to_cart' in request.form:
-        product_id = request.form['product_id']
-        product_quantity = request.form['product_quantity']
-        
-        # แทนที่การใช้ ID ด้วยการดึงชื่อหน่วยจากฐานข้อมูล
-        unit_id = request.form['product_unit']
-        product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name  # ดึงชื่อของหน่วยมาแทน
+    # เพิ่มสินค้าเข้า cart
+    session['cart'].append({
+        'product_id': product_id,
+        'product_quantity': product_quantity,
+        'product_unit': product_unit
+    })
+    flash('Product added to cart!', 'success')
+    return redirect(url_for('order.add_order'))
 
-        # เพิ่มสินค้าใน cart
-        session['cart'].append({
-            'product_id': product_id,
-            'product_quantity': product_quantity,
-            'product_unit': product_unit  # บันทึกชื่อของหน่วยแทน
-        })
-        flash('Product added to cart!', 'success')
-        return redirect(url_for('order.add_order'))
-    
-    # กรณีบันทึกคำสั่งซื้อทั้งหมด
+
+@orderController.route('/order/cart', methods=['GET', 'POST'])
+@login_required
+def view_cart():
+    """ฟังก์ชันแสดง cart และยืนยันคำสั่งซื้อ"""
+    if current_user.employee.employee_position != 'keeper':
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.index'))
+
     if request.method == 'POST' and 'submit_order' in request.form:
-        # ตรวจสอบว่า cart ว่างหรือไม่
         if 'cart' not in session or len(session['cart']) == 0:
             flash('ไม่สามารถส่งคำสั่งซื้อได้ เนื่องจากไม่มีสินค้าในรายการ', 'danger')
-            return redirect(url_for('order.add_order'))
+            return redirect(url_for('order.view_cart'))
 
-        # ถ้ามีสินค้าใน cart ให้ดำเนินการบันทึกคำสั่งซื้อ
+        # ดำเนินการบันทึกคำสั่งซื้อ
         order_id = f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         order_date = datetime.now()
         employee_id = current_user.employee.employee_id
         order_status = 'waiting'
 
-        # เพิ่มคำสั่งซื้อในตาราง orders
+        # บันทึกคำสั่งซื้อในตาราง orders
         new_order = Order(order_id=order_id, order_date=order_date, employee_id=employee_id, order_status=order_status)
         db.session.add(new_order)
 
-        lot_id = f"LOT-{datetime.now().strftime('%Y%m%d%H%M%S')}"  # สร้าง lot_id แบบไม่ซ้ำ
+        lot_id = f"LOT-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         lot_date = datetime.now()
-
-        # เพิ่มข้อมูลในตาราง product_lots
         new_lot = ProductLot(lot_id=lot_id, lot_date=lot_date)
         db.session.add(new_lot)
 
-        # บันทึกรายการสินค้าที่อยู่ใน session
         for item in session['cart']:
             product_id = item['product_id']
             product_quantity = item['product_quantity']
-            product_unit = item['product_unit']  # บันทึกชื่อหน่วย
+            product_unit = item['product_unit']
 
-            # เพิ่มรายละเอียดคำสั่งซื้อในตาราง order_lists
             new_order_list = OrderList(
                 order_id=order_id,
                 product_id=product_id,
                 product_quantity=product_quantity,
-                product_unit=product_unit,  # บันทึกชื่อของหน่วย
+                product_unit=product_unit,
                 lot_id=lot_id
             )
             db.session.add(new_order_list)
@@ -91,7 +123,7 @@ def add_order():
         flash('Order placed successfully!', 'success')
         return redirect(url_for('order.order_history'))
 
-    return render_template('keeper/add_order.html', product_lists=product_lists, units=units, cart=session['cart'])
+    return render_template('keeper/cart.html', cart=session.get('cart', []))
 
 @orderController.route('/order/cart/remove/<int:index>', methods=['POST'])
 @login_required

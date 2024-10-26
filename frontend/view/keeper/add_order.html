@@ -5,172 +5,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Order</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script>
-        // ฟังก์ชันสำหรับตรวจสอบว่าได้เลือกค่าใน dropdown ก่อนกดปุ่ม
-        function validateForm() {
-            var productDropdown = document.getElementById("product_id");
-            var unitDropdown = document.getElementById("product_unit");
-
-            if (productDropdown.value === "") {
-                alert("Please select a product.");
-                return false; // ป้องกันการส่งฟอร์ม
-            }
-
-            if (unitDropdown.value === "") {
-                alert("Please select a unit.");
-                return false; // ป้องกันการส่งฟอร์ม
-            }
-
-            return true; // ถ้าเลือกค่าแล้วให้ส่งฟอร์ม
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-select{
+            margin-bottom: 20px;
+            border-radius: 20px;
         }
-
-        // JavaScript สำหรับกรองรายการสินค้าและหน่วย
-        function filterProducts() {
-            var selectedType = document.getElementById("product_type").value;
-
-            // กรองสินค้าตามประเภทที่เลือก
-            var productDropdown = document.getElementById("product_id");
-            var products = productDropdown.getElementsByTagName("option");
-
-            for (var i = 0; i < products.length; i++) {
-                var productType = products[i].getAttribute("data-type");
-
-                if (selectedType === "all" || productType === selectedType) {
-                    products[i].style.display = "block"; // แสดงสินค้า
-                } else {
-                    products[i].style.display = "none"; // ซ่อนสินค้า
-                }
-            }
-
-            // กรองหน่วยสินค้าตามประเภทที่เลือก
-            var unitDropdown = document.getElementById("product_unit");
-            var units = unitDropdown.getElementsByTagName("option");
-
-            for (var i = 0; i < units.length; i++) {
-                var unitType = units[i].getAttribute("data-type");
-
-                if (selectedType === "all" || unitType === selectedType) {
-                    units[i].style.display = "block"; // แสดงหน่วยสินค้า
-                } else {
-                    units[i].style.display = "none"; // ซ่อนหน่วยสินค้า
-                }
-            }
-
-            var productDropdown = document.getElementById("product_id");
-            productDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
-
-            var unitDropdown = document.getElementById("product_unit");
-            unitDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
-        }
-
-        function validateCartNotEmpty() {
-            var form = document.querySelector('form');
-            var cartLength = form.getAttribute('data-cart-length'); // อ่านค่าความยาวของ cart
-
-            if (parseInt(cartLength) === 0) {
-                alert("ไม่สามารถส่งคำสั่งซื้อได้ เนื่องจากไม่มีสินค้าในรายการ");
-                return false; // ป้องกันการส่งฟอร์ม
-            }
-            return true; // อนุญาตให้ส่งฟอร์ม
-        }
-    </script>
+    </style>
 </head>
 
 <body>
     <div class="navbar">
-        <h1>Add New Order</h1>
+        <h1>Stock Management</h1>
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
-
+        
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
         </div>
     </div>
 
-    <div class="box">
-        <!-- Form สำหรับเพิ่มสินค้าเข้า cart -->
-        <form class = "Aform" method="POST" onsubmit="return validateForm()">
-            <!-- Dropdown สำหรับเลือกประเภทของสินค้า -->
-            <label for="product_type">Select Type:</label>
-            <select class="form-select" id="product_type" name="product_type" onchange="filterProducts()">
-                <option value="all">-- All Types --</option>
-                <option value="Food">Food</option>
-                <option value="Chemical">Chemical</option>
-            </select>
+    <div class="container">
+        <header>
+            <div class="title">PRODUCT LIST</div>
 
-            <label for="product_id">Select Product:</label>
-            <select class="form-select" id="product_id" name="product_id" required>
-                <option value="">-- Please select a product --</option> <!-- ตัวเลือก default -->
-                {% for product in product_lists %}
-                <option value="{{ product.product_id }}" data-type="{{ product.product_type }}">
-                    {{ product.product_name }} ({{ product.product_type }})</option>
-                {% endfor %}
-            </select>
+            <div class="icon-cart">
+                <a href="{{ url_for('order.view_cart') }}">
+                    <svg aria-hidden="true" class="icon-cart" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                        <path stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M6 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0h8m-8 0-1-4m9 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-9-4h10l2-7H3m2 7L3 4m0 0-.792-3H1"/>
+                    </svg>                    
+                </a>
+            </div>
+        </header>
 
-            <label for="product_quantity">Quantity:</label>
-            <input class = "form-control" type="number" id="product_quantity" name="product_quantity" required>
+        <label for="product_type">Filter by Type:</label>
+        <select class="form-select" id="product_type" name="product_type" onchange="filterProducts()">
+            <option value="all">All Types</option>
+            <option value="Food">Food</option>
+            <option value="Chemical">Chemical</option>
+        </select>
 
-            <label for="product_unit">Unit:</label>
-            <select class="form-select" id="product_unit" name="product_unit" required>
-                <option value="">-- Please select a unit --</option> <!-- ตัวเลือก default -->
-                {% for unit in units %}
-                <option value="{{ unit.unit_id }}" data-type="{{ unit.product_type }}">{{ unit.unit_name }}</option>
-                {% endfor %}
-            </select>
-
-            <button class = "button-19" type="submit" name="add_to_cart">Add to Cart</button>
-        </form>
+        <div class="listProduct" id="product_list">
+            {% for product in product_lists %}
+            <div class="item" data-type="{{ product.product_type }}">
+                <a href="{{ url_for('order.product_detail', product_id=product.product_id) }}">
+                    <img src="{{ product.product_image }}" alt="{{ product.product_name }}">
+                </a>
+                <h3>{{ product.product_id }}</h3>
+                <h2>{{ product.product_name }}</h2>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 
-    <!-- แสดงรายการสินค้าที่อยู่ใน cart -->
-    <h2>Current Order</h2>
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Product ID</th>
-                <th>Product Name</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart %}
-            <tr>
-                <td>{{ item.product_id }}</td>
-                <td>{{ item.product_name }}</td>
-                <td>{{ item.product_quantity }}</td>
-                <td>{{ item.product_unit }}</td>
-                <td>
-                    <!-- ปุ่มสำหรับแก้ไขสินค้า -->
-                    <form method="POST" action="{{ url_for('order.edit_cart_item', index=loop.index0) }}"
-                        style="display:inline;">
-                        <input type="number" name="new_quantity" value="{{ item.product_quantity }}" min="1" required>
-                        <button class = "button-19-4" type="submit">Edit</button>
-                    </form>
+    <!-- <div class="btn-container">
+        <a class="button-19" href="{{ url_for('order.view_cart') }}">View Cart</a>
+    </div> -->
 
-                    <!-- ปุ่มสำหรับลบสินค้า -->
-                    <form method="POST" action="{{ url_for('order.remove_cart_item', index=loop.index0) }}"
-                        style="display:inline;">
-                        <button class = "button-19-4" type="submit">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <script>
+        function filterProducts() {
+            var selectedType = document.getElementById("product_type").value;
+            var products = document.querySelectorAll("#product_list .item");
 
-    <!-- ปุ่มสำหรับบันทึกคำสั่งซื้อทั้งหมด -->
-    <form method="POST" data-cart-length="{{ cart|length }}" onsubmit="return validateCartNotEmpty();">
-        <button class = "button-19" type="submit" name="submit_order">Submit Order</button>
-    </form>
-
+            products.forEach(function(product) {
+                var type = product.getAttribute("data-type");
+                product.style.display = (selectedType === "all" || type === selectedType) ? "block" : "none";
+            });
+        }
+    </script>
 </body>
 </html>
