@@ -65,7 +65,7 @@ CREATE TABLE orders (
     order_id VARCHAR(50) PRIMARY KEY,
     order_date DATE NOT NULL,
     employee_id VARCHAR(50) NOT NULL,
-    order_status BOOLEAN NOT NULL,
+    order_status VARCHAR(50) NOT NULL,
 
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
@@ -89,7 +89,7 @@ CREATE TABLE requests (
     request_id VARCHAR(50) PRIMARY KEY,
     request_date DATE NOT NULL,
     employee_id VARCHAR(50) NOT NULL,
-    request_status BOOLEAN NOT NULL,
+    request_status VARCHAR(50) NOT NULL,
 
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );

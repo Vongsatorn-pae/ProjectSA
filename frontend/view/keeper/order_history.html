@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,8 +17,7 @@
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
 
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -33,16 +31,14 @@
             <input class="form-control" type="text" id="search" name="search" value="{{ request.args.get('search', '') }}">
 
             <label for="filter_status">Filter by Status:</label>
-            <select class = "form-select" id="filter_status" name="filter_status">
+            <select class="form-select" id="filter_status" name="filter_status">
                 <option value="all" {% if request.args.get('filter_status') == 'all' %}selected{% endif %}>All</option>
-                <option value="delivered" {% if request.args.get('filter_status') == 'delivered' %}selected{% endif %}>
-                    Delivered</option>
-                <option value="not_delivered"
-                    {% if request.args.get('filter_status') == 'not_delivered' %}selected{% endif %}>Not Delivered
-                </option>
+                <option value="accept" {% if request.args.get('filter_status') == 'accept' %}selected{% endif %}>Accepted</option>
+                <option value="reject" {% if request.args.get('filter_status') == 'reject' %}selected{% endif %}>Rejected</option>
+                <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>Waiting</option>
             </select>
 
-            <button class = "button-19" type="submit">Search</button>
+            <button class="button-19" type="submit">Search</button>
         </form>
 
         <table class="table table-striped table-hover">
@@ -57,20 +53,23 @@
             <tbody>
                 {% for order in orders %}
                 <tr>
-                    <td><a
-                            href="{{ url_for('order.view_order_details', order_id=order.order_id) }}">{{ order.order_id }}</a>
-                    </td> <!-- ลิงก์ไปยังหน้ารายละเอียด -->
+                    <td><a href="{{ url_for('order.view_order_details', order_id=order.order_id) }}">{{ order.order_id }}</a></td>
                     <td>{{ order.order_date }}</td>
-                    <td>{{ 'Delivered' if order.order_status else 'Not Delivered' }}</td> <!-- แสดงสถานะ -->
+                    <td>{{ order.order_status.capitalize() }}</td>
                     <td>
-                        <!-- ปุ่มเปลี่ยนสถานะถ้าของยังไม่มาส่ง -->
-                        {% if not order.order_status %}
-                        <form method="POST"
-                            action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
-                            <button type="submit">Mark as Delivered</button>
+                        {% if order.order_status == 'waiting' %}
+                        <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
+                            <input type="hidden" name="new_status" value="accept">
+                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
                         </form>
-                        {% else %}
-                        <span>Delivered</span> <!-- ถ้าสถานะเป็น Delivered แล้ว ไม่แสดงปุ่ม -->
+                        <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
+                            <input type="hidden" name="new_status" value="reject">
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                        {% elif order.order_status == 'accept' %}
+                        <span>Accepted</span>
+                        {% elif order.order_status == 'reject' %}
+                        <span>Rejected</span>
                         {% endif %}
                     </td>
                 </tr>

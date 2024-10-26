@@ -1,14 +1,62 @@
-.Aform {
-    background-color: white;
-    padding: 2em;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 30rem;
-    display: flex;
-    flex-direction: column;
+body {
+    font-family: 'Inter', sans-serif; /* ใช้ฟอนต์ Inter */
 }
 
-h2 {
+.container {
+    height: 100vh; /* ให้เต็มความสูงหน้าจอ */
+}
+
+.row {
+    height: 100%; /* ให้เต็มความสูง */
+}
+
+.box {
+    padding: 20px;
+    background: #F5F5F5; /* สีพื้นหลังของฟอร์ม */
+    border-radius: 10px; /* มุมโค้ง */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* เงา */
+    width: 100%; /* ให้เต็มความกว้าง */
+}
+.label {
+    margin-top: 10px; /* ระยะห่างระหว่าง label และ input */
+}
+
+.button-19 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    width: 100%; /* ปรับให้เต็มความกว้าง */
+    height: 50px; /* ความสูงของปุ่ม */
+    background: linear-gradient(0deg, #4EA68D, #4EA68D);
+    color: #FFFFFF;
+    font-weight: 400;
+    font-size: 20px; /* ขนาดตัวอักษร */
     text-align: center;
-    padding-top: 20rem;
+    border: none; /* ไม่มีขอบ */
+    border-radius: 10px; /* มุมโค้ง */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์ */
+    margin-top: 20px; /* ระยะห่างระหว่างปุ่มและส่วนอื่น ๆ */
+}
+
+/* เปลี่ยนสีเมื่อชี้ */
+.button-19:hover {
+    background: linear-gradient(0deg, #3A8B6F, #3A8B6F);
+}
+
+.forget-password {
+    color: #E70000; /* สีข้อความสำหรับ Forget Password */
+    text-decoration: none; /* ไม่มีขีดเส้นใต้ */
+    margin-left: 10px; /* ระยะห่างจากปุ่ม Show Password */
+}
+
+.col-md-6.p-0 {
+    padding: 0; /* ยกเลิก padding */
+    margin: 0; /* ยกเลิก margin */
+}
+
+.img-fluid {
+    width: 100%; /* ขยายให้เต็มความกว้าง */
+    height: 100%; /* ขยายให้เต็มความสูง */
+    object-fit: cover; /* คงอัตราส่วนและตัดส่วนเกิน */
 }

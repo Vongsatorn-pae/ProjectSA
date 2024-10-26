@@ -28,15 +28,16 @@
     <div class="container mt-4">
         <!-- ฟอร์มสำหรับค้นหาและกรองสถานะ -->
         <form method="GET" action="{{ url_for('request.view_history') }}">
-            <input class = "form-control mb-2" type="text" name="search" placeholder="Search by product name" value="{{ search_query }}">
-
+            <input class="form-control mb-2" type="text" name="search" placeholder="Search by product name" value="{{ search_query }}">
+        
             <label for="status">Filter by Status:</label>
             <select class="form-control" name="status" id="status">
                 <option value="all" {% if filter_status == 'all' %}selected{% endif %}>All</option>
-                <option value="approved" {% if filter_status == 'approved' %}selected{% endif %}>Approved</option>
-                <option value="pending" {% if filter_status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="accept" {% if filter_status == 'accept' %}selected{% endif %}>Accepted</option>
+                <option value="reject" {% if filter_status == 'reject' %}selected{% endif %}>Rejected</option>
+                <option value="waiting" {% if filter_status == 'waiting' %}selected{% endif %}>Waiting</option>
             </select>
-            <button class = "button-19" type="submit">Filter</button>
+            <button class="button-19" type="submit">Filter</button>
         </form>
 
         <!-- ตารางแสดงผลคำขอเบิกสินค้า -->
@@ -60,7 +61,17 @@
                     <td>{{ product.product_name }}</td>
                     <td>{{ req_list.request_quantity }}</td>
                     <td>{{ req_list.product_unit }}</td>
-                    <td>{{ 'Approved' if req.request_status else 'Pending' }}</td>
+                    <td>
+                        {% if req.request_status == 'accept' %}
+                            Accepted
+                        {% elif req.request_status == 'reject' %}
+                            Rejected
+                        {% elif req.request_status == 'waiting' %}
+                            Waiting
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

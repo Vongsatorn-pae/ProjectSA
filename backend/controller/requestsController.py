@@ -7,6 +7,7 @@ from models.request import Request
 from models.requestList import RequestList
 from extensions import db
 from datetime import datetime
+from decimal import Decimal
 
 requestController = Blueprint('request', __name__)
 
@@ -112,7 +113,7 @@ def submit_request():
         request_id=request_id,
         request_date=request_date,
         employee_id=employee_id,
-        request_status=False
+        request_status='waiting'
     )
     db.session.add(new_request)
     db.session.commit()
@@ -150,19 +151,20 @@ def view_history():
     if search_query:
         query = query.filter(ProductList.product_name.ilike(f'%{search_query}%'))
 
-    # ถ้าตัวกรองสถานะถูกเลือก ให้กรองตามสถานะการยืนยัน
-    if filter_status == 'approved':
-        query = query.filter(Request.request_status == True)
-    elif filter_status == 'pending':
-        query = query.filter(Request.request_status == False)
+    # กรองตามสถานะคำขอเบิก
+    if filter_status == 'accept':
+        query = query.filter(Request.request_status == 'accept')
+    elif filter_status == 'reject':
+        query = query.filter(Request.request_status == 'reject')
+    elif filter_status == 'waiting':
+        query = query.filter(Request.request_status == 'waiting')
 
     requests = query.all()
+
     if current_user.employee.employee_position == 'worker':
         return render_template('worker/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
     elif current_user.employee.employee_position == 'academic':
         return render_template('academic/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
-
-from decimal import Decimal  # เพิ่มการ import decimal
 
 @requestController.route('/request/confirm', methods=['GET', 'POST'])
 @login_required
@@ -207,7 +209,7 @@ def confirm_request():
 
         # อัพเดตสถานะของคำขอเบิกเป็น "ยืนยัน"
         req = Request.query.filter_by(request_id=request_id).first()
-        req.request_status = True
+        req.request_status = 'accept'
         db.session.commit()
 
         flash('ยืนยันการเบิกสินค้าสำเร็จ', 'success')
@@ -236,15 +238,18 @@ def reject_request():
         flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
+    # เข้าถึง request_id จากข้อมูลฟอร์ม
     request_id = request.form['request_id']
 
-    # ลบรายการในตาราง request_lists ที่เชื่อมโยงกับ request_id
-    RequestList.query.filter_by(request_id=request_id).delete()
+    # ค้นหาคำขอในตาราง Request ที่ตรงกับ request_id
+    current_request = Request.query.filter_by(request_id=request_id).first()
 
-    # ลบรายการในตาราง requests ที่มี request_id ตรงกัน
-    Request.query.filter_by(request_id=request_id).delete()
+    if current_request:
+        # อัปเดตสถานะ request_status เป็น 'reject'
+        current_request.request_status = 'reject'
+        db.session.commit()
+        flash(f'คำขอ {request_id} ถูกปฏิเสธเรียบร้อยแล้ว', 'success')
+    else:
+        flash(f'ไม่พบคำขอ {request_id}', 'danger')
 
-    db.session.commit()
-
-    flash(f'Request {request_id} has been rejected successfully.', 'success')
     return redirect(url_for('request.confirm_request'))

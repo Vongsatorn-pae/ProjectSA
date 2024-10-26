@@ -10,10 +10,6 @@ from datetime import datetime
 
 orderController = Blueprint('order', __name__)
 
-# @orderController.route('/order')
-# def manage_order():
-#     return render_template('order.html')
-
 @orderController.route('/order/add', methods=['GET', 'POST'])
 @login_required
 def add_order():
@@ -60,7 +56,7 @@ def add_order():
         order_id = f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         order_date = datetime.now()
         employee_id = current_user.employee.employee_id
-        order_status = False
+        order_status = 'waiting'
 
         # เพิ่มคำสั่งซื้อในตาราง orders
         new_order = Order(order_id=order_id, order_date=order_date, employee_id=employee_id, order_status=order_status)
@@ -129,13 +125,17 @@ def update_order_status(order_id):
     # ดึงคำสั่งซื้อตาม order_id
     order = Order.query.filter_by(order_id=order_id).first_or_404()
 
-    if order.order_status:
-        flash('This order has already been marked as delivered.', 'info')
-    else:
-        # อัปเดตสถานะคำสั่งซื้อเป็น true
-        order.order_status = True
-        db.session.commit()
-        flash(f'Order {order_id} status updated to Delivered!', 'success')
+    # อ่านค่าสถานะใหม่จากฟอร์ม
+    new_status = request.form.get('new_status')
+    
+    if new_status not in ['accept', 'reject', 'waiting']:
+        flash('Invalid status update.', 'danger')
+        return redirect(url_for('order.order_history'))
+
+    # อัปเดตสถานะคำสั่งซื้อ
+    order.order_status = new_status
+    db.session.commit()
+    flash(f'Order {order_id} status updated to {new_status.capitalize()}!', 'success')
 
     # กลับไปหน้า order_history พร้อมกับตัวกรองและการค้นหาเดิม
     return redirect(url_for('order.order_history', search=request.args.get('search'), filter_status=request.args.get('filter_status')))
@@ -152,7 +152,7 @@ def order_history():
     filter_status = request.args.get('filter_status', 'all')
 
     # เริ่มต้น query สำหรับคำสั่งซื้อ
-    query = Order.query.filter_by(employee_id=current_user.employee.employee_id)
+    query = Order.query
 
     # ถ้ามีการค้นหา ให้ทำการค้นหาจาก order_id หรือ order_date
     if search_query:
@@ -164,16 +164,17 @@ def order_history():
         )
 
     # กรองตามสถานะคำสั่งซื้อ
-    if filter_status == 'delivered':
-        query = query.filter_by(order_status=True)
-    elif filter_status == 'not_delivered':
-        query = query.filter_by(order_status=False)
+    if filter_status == 'accept':
+        query = query.filter_by(order_status='accept')
+    elif filter_status == 'reject':
+        query = query.filter_by(order_status='reject')
+    elif filter_status == 'waiting':
+        query = query.filter_by(order_status='waiting')
 
     # ดึงข้อมูลคำสั่งซื้อที่ค้นหาและกรองแล้ว
     orders = query.all()
 
     return render_template('keeper/order_history.html', orders=orders)
-
 
 @orderController.route('/order/<order_id>', methods=['GET'])
 @login_required

@@ -66,28 +66,26 @@
             <tbody>
                 {% for request in requests %}
                 <tr>
-                    <td><a
-                            href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a>
-                    </td>
+                    <td><a href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a></td>
                     <td>{{ request.employee_id }}</td>
                     <td>{{ request.request_date }}</td>
                     <td>
-                        {% if not request.request_status %}
+                        {% if request.request_status == 'waiting' %}
                         <form method="POST" action="{{ url_for('request.confirm_request') }}">
                             <input type="hidden" name="request_id" value="{{ request.request_id }}">
                             <button type="submit" class="confirm-button">Confirm</button>
                         </form>
-                        {% else %}
-                        <button class="confirm-button" disabled>Confirmed</button>
+                        {% elif request.request_status == 'accept' %}
+                        <button class="confirm-button" disabled>Accepted</button>
                         {% endif %}
                     </td>
                     <td>
-                        {% if not request.request_status %}
+                        {% if request.request_status == 'waiting' %}
                         <form method="POST" action="{{ url_for('request.reject_request') }}">
                             <input type="hidden" name="request_id" value="{{ request.request_id }}">
                             <button type="submit" class="reject-button">Reject</button>
                         </form>
-                        {% else %}
+                        {% elif request.request_status == 'reject' %}
                         <button class="reject-button" disabled>Rejected</button>
                         {% endif %}
                     </td>
@@ -108,5 +106,4 @@
         });
     </script>
 </body>
-
 </html>
