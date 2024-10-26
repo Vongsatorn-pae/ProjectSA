@@ -8,6 +8,7 @@ from controller.authController import authController
 from controller.stockController import stockController
 from controller.orderController import orderController
 from controller.requestsController import requestController
+from controller.auditController import auditController
 
 app = Flask(__name__, static_folder = "../frontend/static", template_folder="../frontend/view")
 
@@ -33,6 +34,7 @@ app.register_blueprint(authController)
 app.register_blueprint(stockController)
 app.register_blueprint(orderController)
 app.register_blueprint(requestController)
+app.register_blueprint(auditController)
 
 if __name__ == '__main__':
     app.run(debug=True)

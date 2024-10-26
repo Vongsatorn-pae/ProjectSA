@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audit History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Audit History</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Audit ID</th>
+                    <th>Payment Due Date</th>
+                    <th>Payment Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for audit in audits %}
+                <tr>
+                    <td>{{ audit.audit_id }}</td>
+                    <td>{{ audit.payment_due_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ "Paid" if audit.payment_status else "Unpaid" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

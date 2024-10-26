@@ -107,14 +107,14 @@ CREATE TABLE request_lists (
 );
 
 CREATE TABLE audit (
-    audit_id INT PRIMARY KEY,
+    audit_id VARCHAR(50) PRIMARY KEY,
     payment_due_date DATE NOT NULL,
     payment_status BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE audit_list (
-    audit_list_id INT PRIMARY KEY,
-    audit_id INT NOT NULL,
+    audit_list_id VARCHAR(50) PRIMARY KEY,
+    audit_id VARCHAR(50) NOT NULL,
     order_id VARCHAR(50) NOT NULL,
     order_amount DECIMAL(10, 2) NOT NULL,
 

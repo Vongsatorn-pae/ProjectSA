@@ -11,6 +11,7 @@ class Order(db.Model):
 
     # ความสัมพันธ์กับ OrderList (รายการคำสั่งซื้อ)
     order_lists = db.relationship('OrderList', backref='order', lazy=True)
+    audit_lists = db.relationship('AuditList', backref='order_reference', lazy=True, overlaps="order")
 
     def __repr__(self):
         return f'<Order {self.order_id}>'

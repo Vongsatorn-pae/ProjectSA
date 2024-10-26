@@ -125,6 +125,51 @@ def view_cart():
 
     return render_template('keeper/cart.html', cart=session.get('cart', []))
 
+@orderController.route('/order/submit_order', methods=['POST'])
+@login_required
+def submit_order():
+    """บันทึกคำสั่งซื้อจากข้อมูลใน cart"""
+    if 'cart' not in session or len(session['cart']) == 0:
+        flash('ไม่สามารถส่งคำสั่งซื้อได้ เนื่องจากไม่มีสินค้าในรายการ', 'danger')
+        return redirect(url_for('order.view_cart'))
+
+    # เริ่มบันทึกคำสั่งซื้อ
+    order_id = f"ORD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    order_date = datetime.now()
+    employee_id = current_user.employee.employee_id
+    order_status = 'waiting'
+
+    # สร้างรายการคำสั่งซื้อใหม่ในตาราง orders
+    new_order = Order(order_id=order_id, order_date=order_date, employee_id=employee_id, order_status=order_status)
+    db.session.add(new_order)
+
+    # สร้างข้อมูล lot ที่เกี่ยวข้อง
+    lot_id = f"LOT-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    lot_date = datetime.now()
+    new_lot = ProductLot(lot_id=lot_id, lot_date=lot_date)
+    db.session.add(new_lot)
+
+    # เพิ่มสินค้าจาก cart ไปยัง order_list
+    for item in session['cart']:
+        product_id = item['product_id']
+        order_quantity = item['order_quantity']
+        product_unit = item['product_unit']
+
+        new_order_list = OrderList(
+            order_id=order_id,
+            product_id=product_id,
+            order_quantity=order_quantity,
+            product_unit=product_unit,
+            lot_id=lot_id
+        )
+        db.session.add(new_order_list)
+
+    # เคลียร์ cart หลังจากบันทึกเสร็จ
+    session.pop('cart', None)
+    db.session.commit()
+    flash('Order placed successfully!', 'success')
+    return redirect(url_for('order.order_history'))
+
 @orderController.route('/order/cart/remove/<int:index>', methods=['POST'])
 @login_required
 def remove_cart_item(index):

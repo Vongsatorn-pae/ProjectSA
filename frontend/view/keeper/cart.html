@@ -56,7 +56,7 @@
         <p class="text-center mt-4">ไม่พบสินค้า</p>
         {% endif %}
 
-        <form method="POST" action="{{ url_for('request.submit_request') }}">
+        <form method="POST" action="{{ url_for('order.submit_order') }}">
             <button type="submit" {% if not session.cart or session.cart|length == 0 %}disabled{% endif %}>
                 Submit Request
             </button>
