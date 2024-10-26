@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 from flask_login import login_required, current_user
-from utils.conversion import convert_to_base_unit
+from utils.conversion import convert_to_base_unit, convert_to_largest_unit
 from models.product import Product
 from models.productList import ProductList
 from models.request import Request
@@ -174,7 +174,7 @@ def confirm_request():
         return redirect(url_for('main.index'))
 
     # ดึงคำขอเบิกที่ยังไม่ได้รับการอนุมัติ
-    requests = Request.query.filter_by(request_status=False).all()
+    requests = Request.query.filter_by(request_status='waiting').all()
 
     if request.method == 'POST':
         request_id = request.form['request_id']
@@ -185,29 +185,32 @@ def confirm_request():
             products = db.session.query(Product, ProductList).join(ProductList, Product.product_id == ProductList.product_id).filter(Product.product_id == item.product_id).all()
 
             if products:
-                # ใช้ products[0].ProductList.product_type แทน products[0].product_list.product_type
+                # แปลง requested_quantity_base เป็นหน่วยฐาน (g หรือ mL)
                 requested_quantity_base = convert_to_base_unit(float(item.request_quantity), item.product_unit, products[0].ProductList.product_type)
+                remaining_quantity = Decimal(requested_quantity_base)
 
-                # ลดจำนวนสินค้าลงจากหลาย lot_id ตามจำนวนที่เบิก
-                remaining_quantity = Decimal(requested_quantity_base)  # แปลง remaining_quantity เป็น Decimal
                 for product, product_list in products:
-                    product_quantity_base = convert_to_base_unit(product.product_quantity, product.product_unit, product_list.product_type)
-
-                    # แปลง product_quantity_base เป็น Decimal เพื่อให้ชนิดข้อมูลตรงกัน
+                    # แปลง product_quantity เป็นหน่วยฐานเพื่อลบจำนวนออก
+                    product_quantity_base = convert_to_base_unit(float(product.product_quantity), product.product_unit, product_list.product_type)
                     product_quantity_base = Decimal(product_quantity_base)
 
                     if remaining_quantity <= product_quantity_base:
-                        # หากปริมาณที่เหลือพอ ให้หักจำนวนออก
-                        product.product_quantity -= remaining_quantity
-                        db.session.commit()  # บันทึกการเปลี่ยนแปลงในแต่ละลูป
+                        # หักจำนวนสินค้าที่เบิกออกจากสินค้าจาก lot นี้
+                        updated_quantity_base = product_quantity_base - remaining_quantity
+                        updated_quantity, updated_unit = convert_to_largest_unit(float(updated_quantity_base), product_list.product_type)
+
+                        # อัปเดตจำนวนสินค้าในหน่วยที่ต้องการและ commit
+                        product.product_quantity = updated_quantity
+                        product.product_unit = updated_unit
+                        db.session.commit()
                         break
                     else:
-                        # หากปริมาณไม่พอ ให้หักออกให้หมดและลดจำนวนที่เหลือต่อไปใน lot ถัดไป
+                        # หากสินค้าจาก lot นี้ไม่พอ ให้ใช้จำนวนที่มีทั้งหมด และหัก remaining_quantity ต่อไปใน lot ถัดไป
                         remaining_quantity -= product_quantity_base
                         product.product_quantity = 0
-                        db.session.commit()  # บันทึกการเปลี่ยนแปลง
+                        db.session.commit()
 
-        # อัพเดตสถานะของคำขอเบิกเป็น "ยืนยัน"
+        # อัปเดตสถานะคำขอเบิกเป็น 'accept'
         req = Request.query.filter_by(request_id=request_id).first()
         req.request_status = 'accept'
         db.session.commit()
