@@ -127,11 +127,11 @@ def view_cart():
                 'request_quantity': item['request_quantity'],
                 'request_unit': item['request_unit']
             })
-
+            
     if current_user.employee.employee_position == 'worker':
-        return render_template('worker/cart.html', product=product)
+        return render_template('worker/cart.html', cart=cart_items)
     elif current_user.employee.employee_position == 'academic':
-        return render_template('academic/cart.html', product=product)
+        return render_template('academic/cart.html', cart=cart_items)
 
 @requestController.route('/request/remove_from_cart/<int:index>', methods=['POST'])
 @login_required

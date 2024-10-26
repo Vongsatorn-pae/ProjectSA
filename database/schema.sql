@@ -106,6 +106,22 @@ CREATE TABLE request_lists (
     PRIMARY KEY (request_id, product_id)  -- Composite Primary Key
 );
 
+CREATE TABLE audit (
+    audit_id INT PRIMARY KEY,
+    payment_due_date DATE NOT NULL,
+    payment_status BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE audit_list (
+    audit_list_id INT PRIMARY KEY,
+    audit_id INT NOT NULL,
+    order_id VARCHAR(50) NOT NULL,
+    order_amount DECIMAL(10, 2) NOT NULL,
+
+    FOREIGN KEY (audit_id) REFERENCES audit(audit_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+
 INSERT INTO employees (employee_id, employee_fname, employee_lname, employee_age, employee_sex, employee_position, employee_address, employee_salary, employee_image)
 VALUES 
 ('E001', 'John', 'Doe', 30, 'M', 'worker', '123 Main St', 50000.00, 'https://img5.pic.in.th/file/secure-sv1/userd91ca9a3c145868a.png'),
