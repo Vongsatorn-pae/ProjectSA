@@ -170,7 +170,7 @@ def remove_from_cart(index):
     if 'cart' in session and len(session['cart']) > index:
         session['cart'].pop(index)
         flash('ลบสินค้าออกจากรายการสำเร็จ', 'success')
-    return redirect(url_for('request.add_request'))
+    return redirect(url_for('request.view_cart'))
 
 @requestController.route('/request/update_cart_item/<int:index>', methods=['POST'])
 @login_required
@@ -184,7 +184,7 @@ def update_cart_item(index):
     else:
         flash('ไม่พบสินค้าที่ต้องการแก้ไข', 'danger')
 
-    return redirect(url_for('request.add_request'))
+    return redirect(url_for('request.view_cart'))
 
 @requestController.route('/request/submit_request', methods=['POST'])
 @login_required
