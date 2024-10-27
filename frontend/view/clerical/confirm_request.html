@@ -59,8 +59,9 @@
                     <th>Request ID</th>
                     <th>Employee</th>
                     <th>Request Date</th>
-                    <th>Confirm Request</th>
-                    <th>Reject Request</th>
+                    <th>Request Status</th>
+                    <!-- <th>Confirm Request</th>
+                    <th>Reject Request</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -69,7 +70,8 @@
                     <td><a href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a></td>
                     <td>{{ request.employee_id }}</td>
                     <td>{{ request.request_date }}</td>
-                    <td>
+                    <td>{{ request.request_status }}</td>
+                    <!-- <td>
                         {% if request.request_status == 'waiting' %}
                         <form method="POST" action="{{ url_for('request.confirm_request') }}">
                             <input type="hidden" name="request_id" value="{{ request.request_id }}">
@@ -88,7 +90,7 @@
                         {% elif request.request_status == 'reject' %}
                         <button class="reject-button" disabled>Rejected</button>
                         {% endif %}
-                    </td>
+                    </td> -->
                 </tr>
                 {% endfor %}
             </tbody>

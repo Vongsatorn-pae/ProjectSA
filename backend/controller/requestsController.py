@@ -264,7 +264,8 @@ def confirm_request():
         return redirect(url_for('main.index'))
 
     # ดึงคำขอเบิกที่ยังไม่ได้รับการอนุมัติ
-    requests = Request.query.filter_by(request_status='waiting').all()
+    # requests = Request.query.filter_by(request_status='waiting').all()
+    requests = Request.query.all()
 
     if request.method == 'POST':
         request_id = request.form['request_id']
