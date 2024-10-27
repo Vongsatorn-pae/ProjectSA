@@ -1,0 +1,30 @@
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+.navBar {
+    background-color: #4EA68D;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    position: relative;
+}
+
+.navBar .menu-icon {
+    margin-right: auto;
+    text-decoration: none;
+}
+
+.navBar .dropdown {
+    margin-left: auto;
+}
+
+.navBar a {
+    color: #000000;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.navBar a:hover {
+    color: #F5F5F5;
+}

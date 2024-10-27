@@ -12,6 +12,36 @@ from decimal import Decimal
 
 requestController = Blueprint('request', __name__)
 
+# ควรนำเข้า model RequestList ด้วยในกรณีนี้
+from models.requestList import RequestList
+
+@requestController.route('/dashboard', methods=['GET'])
+@login_required
+def dashboard():
+    # Query ดึงข้อมูลโดยเชื่อมต่อกับ RequestList และ ProductList
+    requests = (
+        db.session.query(Request, RequestList, ProductList)
+        .join(RequestList, Request.request_id == RequestList.request_id)
+        .join(ProductList, RequestList.product_id == ProductList.product_id)
+        .filter(Request.employee_id == current_user.employee_id)
+        .all()
+    )
+
+    # แปลงข้อมูลเพื่อใช้ใน HTML
+    request_data = []
+    for req, req_list, prod in requests:
+        request_data.append({
+            'request_id': req.request_id,
+            'product_name': prod.product_name,
+            'quantity': req_list.request_quantity,  # ดึง quantity จาก RequestList
+            'unit': req_list.product_unit,
+            'status': req.request_status,
+            'date': req.request_date
+        })
+
+    # ส่งข้อมูลไปยัง template
+    return render_template('worker/dashboard.html', requests=request_data)
+
 @requestController.route('/request/add', methods=['GET', 'POST'])
 @login_required
 def add_request():

@@ -1,0 +1,42 @@
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+.tab-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 200px;
+    background-color: #F2994B;
+    padding-top: 60px;
+    transition: 0.3s;
+    transform: translateX(-100%);
+    z-index: 1000;
+}
+
+.tab-menu.open {
+    transform: translateX(0);
+}
+
+.tab-menu a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+}
+
+.tab-menu h1 {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 16px;
+    display: block;
+    text-transform: uppercase;
+}
+
+.menu-icon {
+    font-size: 30px;
+    cursor: pointer;
+    position: absolute;
+    align-items: center;
+}

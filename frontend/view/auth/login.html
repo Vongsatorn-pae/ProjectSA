@@ -105,7 +105,7 @@
                         } else if (response.employee_position == 'academic') {
                             redirectUrl = "{{ url_for('main.academic_dashboard') }}";
                         } else if (response.employee_position == 'worker') {
-                            redirectUrl = "{{ url_for('main.worker_dashboard') }}";
+                            redirectUrl = "{{ url_for('request.dashboard') }}";
                         } else if (response.employee_position == 'clerical') {
                             redirectUrl = "{{ url_for('stock.view_stock') }}";
                         }

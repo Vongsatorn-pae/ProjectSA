@@ -1,3 +1,7 @@
+body {
+    font-family: 'Inter', sans-serif; /* ใช้ฟอนต์ Inter */
+}
+
 .Aform {
     background-color: white;
     padding: 2em;
@@ -7,7 +11,6 @@
     display: flex;
     flex-direction: column;
 }
-
 
 .box {
     display: flex;
@@ -108,4 +111,27 @@
 .button-19:active {
     border-width: 4px 0 0;
     background: none;
+}
+
+.button-20 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    width: 100%; /* ปรับให้เต็มความกว้าง */
+    height: 50px; /* ความสูงของปุ่ม */
+    background: linear-gradient(0deg, #4EA68D, #4EA68D);
+    color: #FFFFFF;
+    font-weight: 400;
+    font-size: 20px; /* ขนาดตัวอักษร */
+    text-align: center;
+    border: none; /* ไม่มีขอบ */
+    border-radius: 10px; /* มุมโค้ง */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์ */
+    margin-top: 20px; /* ระยะห่างระหว่างปุ่มและส่วนอื่น ๆ */
+}
+
+/* เปลี่ยนสีเมื่อชี้ */
+.button-20:hover {
+    background: linear-gradient(0deg, #3A8B6F, #3A8B6F);
 }
