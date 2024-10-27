@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purchase History</title>
+    <title>Confirm Order</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -47,7 +47,7 @@
                     <th>Order ID</th>
                     <th>Order Date</th>
                     <th>Order Status</th>
-                    <!-- <th>Actions</th> -->
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -56,7 +56,7 @@
                     <td><a href="{{ url_for('order.view_order_details', order_id=order.order_id) }}">{{ order.order_id }}</a></td>
                     <td>{{ order.order_date }}</td>
                     <td>{{ order.order_status.capitalize() }}</td>
-                    <!-- <td>
+                    <td>
                         {% if order.order_status == 'waiting' %}
                         <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
                             <input type="hidden" name="new_status" value="accept">
@@ -71,7 +71,7 @@
                         {% elif order.order_status == 'reject' %}
                         <span>Rejected</span>
                         {% endif %}
-                    </td> -->
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

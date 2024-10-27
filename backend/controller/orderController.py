@@ -177,7 +177,7 @@ def remove_cart_item(index):
     if 'cart' in session and index < len(session['cart']):
         session['cart'].pop(index)  # ลบรายการที่ index นั้น
         flash('Item removed from cart!', 'success')
-    return redirect(url_for('order.add_order'))
+    return redirect(url_for('order.view_cart'))
 
 @orderController.route('/order/cart/edit/<int:index>', methods=['POST'])
 @login_required
@@ -189,13 +189,13 @@ def edit_cart_item(index):
     if 'cart' in session and index < len(session['cart']):
         session['cart'][index]['order_quantity'] = new_quantity  # แก้ไขจำนวนสินค้า
         flash('Item quantity updated!', 'success')
-    return redirect(url_for('order.add_order'))
+    return redirect(url_for('order.view_cart'))
 
 @orderController.route('/order/<order_id>/update_status', methods=['POST'])
 @login_required
 def update_order_status(order_id):
     """Route สำหรับเปลี่ยนสถานะคำสั่งซื้อ"""
-    if current_user.employee.employee_position != 'keeper':
+    if current_user.employee.employee_position != 'clerical':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
@@ -220,7 +220,8 @@ def update_order_status(order_id):
 @orderController.route('/order/history', methods=['GET'])
 @login_required
 def order_history():
-    if current_user.employee.employee_position != 'keeper':
+    # if current_user.employee.employee_position != 'keeper':
+    if current_user.employee.employee_position not in ['keeper', 'clerical']:
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
@@ -251,13 +252,17 @@ def order_history():
     # ดึงข้อมูลคำสั่งซื้อที่ค้นหาและกรองแล้ว
     orders = query.all()
 
-    return render_template('keeper/order_history.html', orders=orders)
+    if current_user.employee.employee_position == 'keeper':
+        return render_template('keeper/order_history.html', orders=orders)
+    elif current_user.employee.employee_position == 'clerical':
+        return render_template('clerical/confirm_order.html', orders=orders)
 
 @orderController.route('/order/<order_id>', methods=['GET'])
 @login_required
 def view_order_details(order_id):
     """Route สำหรับแสดงรายละเอียดคำสั่งซื้อ"""
-    if current_user.employee.employee_position != 'keeper':
+    # if current_user.employee.employee_position != 'keeper':
+    if current_user.employee.employee_position not in ['keeper', 'clerical']:
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
