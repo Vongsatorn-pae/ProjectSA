@@ -136,4 +136,28 @@ def stock_alert():
                 'unit_name': 'g' if product.product_type == 'Food' else 'mL'  # หน่วยที่แสดงใน stock_alert
             })
 
+    stock_alerts = get_stock_alerts()
     return render_template('keeper/stock_alert.html', products=stock_alerts)
+
+# ฟังก์ชันช่วยเหลือในการดึงข้อมูลสินค้าที่ใกล้หมด
+def get_stock_alerts(limit=None):
+    stock_alerts = []
+    product_list = ProductList.query.all()
+
+    for product in product_list:
+        stock_products = Product.query.filter_by(product_id=product.product_id).all()
+        total_quantity_in_stock = sum(
+            convert_to_base_unit(stock_product.product_quantity, stock_product.product_unit, product.product_type)
+            for stock_product in stock_products
+        )
+
+        if total_quantity_in_stock < product.threshold:
+            stock_alerts.append({
+                'product_name': product.product_name,
+                'total_quantity_in_stock': total_quantity_in_stock,
+                'threshold': product.threshold,
+                'unit_name': 'g' if product.product_type == 'Food' else 'mL'
+            })
+
+    # จำกัดจำนวนข้อมูลหากมีการระบุ limit
+    return stock_alerts[:limit] if limit else stock_alerts

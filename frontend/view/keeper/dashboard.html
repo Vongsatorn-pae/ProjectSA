@@ -1,89 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keeper Dashboard</title>
-    <style>
-        /* CSS สำหรับการจัดตำแหน่งไอคอนเมนูและข้อความ Home */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #f8f9fa;
-            padding: 1rem;
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        function toggleMenu() {
+            document.getElementById("tabMenu").classList.toggle("open");
         }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #f1f1f1;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #ddd;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .user-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover; /* ปรับให้รูปครอบคลุมพื้นที่ของกรอบ */
-            cursor: pointer;
-        }
-    </style>
+    </script>
 </head>
+
 <body>
-    <!-- แถบด้านบนที่มีข้อความ Home และไอคอนเมนู -->
-    <div class="navbar">
-        <h1>Home</h1>
+    <div class="navBar">
+        <a class="menu-icon" onclick="toggleMenu()">Home</a>
+
+        <div id="tabMenu" class="tab-menu">
+            <h1>Menu</h1>
+            <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
+            <a href="{{ url_for('stock.stock_alert') }}">Stock Alert</a>
+            <a href="{{ url_for('order.add_order') }}">New Order</a>
+            <a href="{{ url_for('auth.create_account') }}">Create Account</a>
+        </div>
+
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
-        
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
         </div>
     </div>
 
-    <h2>Welcome to the Keeper Dashboard!</h2>
+    <!-- <div class="container mt-4">
+        <h2>Welcome to the Keeper Dashboard!</h2>
 
-    <h2>Stock Alert</h2>
-    <ul>
-        <li><a href="{{ url_for('stock.stock_alert') }}">Stock Alert</a></li>
-    </ul>
+        <div class="notification-section">
+            <span>Notification: Your Request</span>
+        </div>
 
-    <h2>Purchase Management</h2>
-    <ul>
-        <li><a href="{{ url_for('order.add_order') }}">New Order</a></li>
-        <li><a href="{{ url_for('order.order_history') }}">Order History</a></li>
-    </ul>
+        <div class="filter-container">
+            <label for="status-filter">Filter by Status:</label>
+            <select id="status-filter" onchange="filterStatus()">
+                <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All</option>
+                <option value="accept" {% if selected_status == 'accept' %}selected{% endif %}>Accept</option>
+                <option value="reject" {% if selected_status == 'reject' %}selected{% endif %}>Reject</option>
+                <option value="waiting" {% if selected_status == 'waiting' %}selected{% endif %}>Waiting</option>
+            </select>
+        </div>
 
-    <h2>Create Account</h2>
-    <ul>
-        <li><a href="{{ url_for('auth.create_account') }}">Create Account</a></li>
-    </ul>
+        <div id="notification-container">
+            {% for request in requests %}
+            <div class="notification-card">
+                <div class="notification-text">
+                    Request id: {{ request.request_id }} <br>
+                    {% if request.status == 'accept' %}
+                    <span class="status-accept">Accept</span>
+                    {% elif request.status == 'reject' %}
+                    <span class="status-reject">Reject</span>
+                    {% else %}
+                    <span class="status-waiting">Waiting</span>
+                    {% endif %}
+                </div>
+                <div class="notification-timestamp">
+                    <p>{{ request.date.strftime('%A, %d %B %Y') }}<br>
+                        {{ request.date.strftime('%H:%M') }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h2>Purchase Management</h2>
+        <ul>
+            <li><a href="{{ url_for('order.order_history') }}">Order History</a></li>
+        </ul> 
+
+        <script>
+            // JavaScript to handle the status filter change
+            function filterStatus() {
+                const status = document.getElementById('status-filter').value;
+                window.location.href = `/dashboard?status=${status}`;
+            }
+        </script>
+    </div> -->
+
+    <div class="container mt-4">
+        <h2>Welcome to the Keeper Dashboard!</h2>
+
+        <!-- Notification Section -->
+        <div class="notification-section">
+            <span>Notification: Accepted Orders</span>
+        </div>
+
+        <!-- Accepted Orders Cards -->
+        <div id="accepted-orders-container">
+            {% for order in accepted_orders %}
+            <div class="notification-card">
+                <div class="notification-text">
+                    Order ID: {{ order.order_id }} <br>
+                    <span class="status-accept">Accept</span>
+                </div>
+                <div class="notification-timestamp">
+                    <p>{{ order.order_date.strftime('%A, %d %B %Y') }}<br>
+                        {{ order.order_date.strftime('%H:%M') }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Stock Alerts Section -->
+        <div class="notification-section">
+            <span>Stock Alerts</span>
+        </div>
+
+        <!-- Stock Alerts Cards -->
+        <div id="stock-alerts-container">
+            {% for stock in stock_alerts %}
+            <div class="notification-card">
+                <div class="notification-text">
+                    Product: {{ stock.product_name }} <br>
+                    <span>Quantity: {{ stock.total_quantity_in_stock }} {{ stock.unit_name }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
 </body>
+
 </html>

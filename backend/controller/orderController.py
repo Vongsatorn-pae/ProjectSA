@@ -40,7 +40,7 @@ def product_detail(product_id):
         # เพิ่มสินค้าลงใน session cart
         if 'cart' not in session:
             session['cart'] = []
-        session['cart'].append({
+            session['cart'].append({
             'product_id': product_id,
             'product_name': product.product_name,
             'order_quantity': order_quantity,
@@ -74,7 +74,6 @@ def add_to_cart():
     flash('Product added to cart!', 'success')
     return redirect(url_for('order.add_order'))
 
-
 @orderController.route('/order/cart', methods=['GET', 'POST'])
 @login_required
 def view_cart():
@@ -83,6 +82,13 @@ def view_cart():
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
+    # Query `ProductList` เพื่อดึง `product_name` ตาม `product_id`
+    for item in session.get('cart', []):
+        product = ProductList.query.filter_by(product_id=item['product_id']).first()
+        if product:
+            item['product_name'] = product.product_name  # เพิ่ม `product_name` ใน cart item
+
+    # ส่วนที่เหลือของฟังก์ชัน `view_cart`
     if request.method == 'POST' and 'submit_order' in request.form:
         if 'cart' not in session or len(session['cart']) == 0:
             flash('ไม่สามารถส่งคำสั่งซื้อได้ เนื่องจากไม่มีสินค้าในรายการ', 'danger')
@@ -94,7 +100,6 @@ def view_cart():
         employee_id = current_user.employee.employee_id
         order_status = 'waiting'
 
-        # บันทึกคำสั่งซื้อในตาราง orders
         new_order = Order(order_id=order_id, order_date=order_date, employee_id=employee_id, order_status=order_status)
         db.session.add(new_order)
 

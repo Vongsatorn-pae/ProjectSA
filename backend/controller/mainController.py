@@ -1,15 +1,37 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, flash, redirect, render_template, abort, request, url_for
 from flask_login import login_required, current_user
+from controller.orderController import order_history
+from controller.stockController import stock_alert
+from models.order import Order
+from models.product import Product
+from models.productList import ProductList
+from models.request import Request
+from models.requestList import RequestList
+from extensions import db
 
 mainController = Blueprint('main', __name__)
 
-# หน้าแดชบอร์ดของผู้ดูแล (keeper)
+from controller.stockController import stock_alert  # นำเข้า stock_alert
+
+from controller.stockController import get_stock_alerts
+
 @mainController.route('/keeper_dashboard')
 @login_required
 def keeper_dashboard():
     if current_user.employee.employee_position != 'keeper':
         return abort(403)
-    return render_template('keeper/dashboard.html')
+
+    # ดึงข้อมูล order ที่สถานะเป็น accept (จำกัด 3 รายการ)
+    accepted_orders = db.session.query(Order).filter_by(order_status='accept').limit(3).all()
+
+    # ดึงข้อมูล stock alert (จำกัด 3 รายการ)
+    stock_alerts = get_stock_alerts(limit=3)
+
+    return render_template(
+        'keeper/dashboard.html', 
+        accepted_orders=accepted_orders, 
+        stock_alerts=stock_alerts
+    )
 
 # หน้าแดชบอร์ดของนักวิชาการ (academic)
 @mainController.route('/academic_dashboard')
