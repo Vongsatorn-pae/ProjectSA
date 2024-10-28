@@ -96,11 +96,11 @@
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
-            <li>Product In Stock</li>
+            <a href="{{ url_for('stock.view_stock') }}">Product In Stock</a>
             <a href="{{ url_for('order.add_order') }}">New Order</a>
             <a href="{{ url_for('order.order_history') }}">Order History</a>
-            <li>Request History</li>
-            <li>Audit</li>
+            <a href="{{ url_for('request.confirm_request') }}">Request History</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
             <li>Employees</li>
             <a href="{{ url_for('auth.create_account') }}">Create Account</a>
         </div>

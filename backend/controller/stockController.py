@@ -16,7 +16,8 @@ stockController = Blueprint('stock', __name__)
 @login_required
 def view_stock():
     # ตรวจสอบบทบาทว่าผู้ใช้ต้องเป็นธุรการ (clerical) เท่านั้น
-    if current_user.employee.employee_position != 'clerical':
+    # if current_user.employee.employee_position != 'clerical':
+    if current_user.employee.employee_position not in ['keeper', 'clerical']:
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
 
@@ -50,8 +51,10 @@ def view_stock():
         total_quantity, unit = convert_to_largest_unit(data['total_quantity'], data['product_type'])
         data['total_quantity'] = total_quantity
         data['unit'] = unit
-
-    return render_template('clerical/view_stock.html', products=combined_stock.values())
+    if current_user.employee.employee_position == 'clerical':
+        return render_template('clerical/view_stock.html', products=combined_stock.values())
+    elif current_user.employee.employee_position == 'keeper':
+        return render_template('keeper/view_stock.html', products=combined_stock.values())
 
 # Route สำหรับเพิ่มสินค้าใหม่
 @stockController.route('/stock/add', methods=['GET', 'POST'])

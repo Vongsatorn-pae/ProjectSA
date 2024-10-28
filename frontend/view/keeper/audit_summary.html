@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Audit Summary</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .button-20 {
+            width: 200px;
+            height: 40px;
+        }
+    </style>
+    <script>
+        function toggleMenu() {
+            document.getElementById("tabMenu").classList.toggle("open");
+        }
+    </script>
+</head>
+
+<body>
+    <div class="navBar">
+        <a class="menu-icon" onclick="toggleMenu()">Audit Summary</a>
+
+        <div id="tabMenu" class="tab-menu">
+            <h1>Menu</h1>
+            <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
+            <a href="{{ url_for('main.keeper_dashboard') }}">Home</a>
+            <a href="{{ url_for('stock.view_stock') }}">Product In Stock</a>
+            <a href="{{ url_for('order.add_order') }}">New Order</a>
+            <a href="{{ url_for('order.order_history') }}">Order History</a>
+            <a href="{{ url_for('request.confirm_request') }}">Request History</a>
+            <li>Employees</li>
+            <a href="{{ url_for('auth.create_account') }}">Create Account</a>
+        </div>
+
+        <div class="dropdown">
+            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <div class="dropdown-content">
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
+                <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <h1>Audit Summary</h1>
+
+        <!-- Dropdown สำหรับเลือก audit_id -->
+        <form method="POST" action="{{ url_for('audit.audit_summary') }}">
+            <label for="audit_id">Select Payment Due Date:</label>
+            <select class="form-select" name="selected_audit_id" onchange="this.form.submit()">
+                <option value="">-- Select Payment Due Date --</option>
+                {% for audit in audit_ids %}
+                <option value="{{ audit.audit_id }}" {% if audit.audit_id == selected_audit_id %}selected{% endif %}>
+                    {{ audit.payment_due_date }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+
+
+        {% if selected_audit_id %}
+        <div class="mt-4">
+            <p><strong>Audit ID:</strong> {{ selected_audit_id }}</p>
+            <p><strong>Payment Due Date:</strong> {{ payment_due_date }}</p>
+            <p><strong>Payment Status:</strong> {{ "Paid" if payment_status else "Unpaid" }}</p>
+            <p><strong>Total Amount:</strong> {{ total_amount }} THB</p>
+
+            <!-- {% if not payment_status %}
+            <form method="POST" action="{{ url_for('audit.mark_as_paid', audit_id=selected_audit_id) }}">
+                <button class="btn btn-success mt-2" type="submit">Mark as Paid</button>
+            </form>
+            {% endif %} -->
+        </div>
+
+        <!-- ตารางแสดงรายการ order ที่เกี่ยวข้องกับ audit_id ที่เลือก -->
+        <table class="table table-striped table-hover mt-4">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order_id, order_date, amount in orders_in_audit %}
+                <tr>
+                    <td>{{ order_id }}</td>
+                    <td>{{ order_date }}</td>
+                    <td>{{ amount if amount else "ยังไม่ได้กรอกราคาสินค้า" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="mt-4">กรุณาเลือก Audit ID เพื่อแสดงรายการ</p>
+        {% endif %}
+
+        <!-- <a href="{{ url_for('audit.add_price') }}">Add Prices to Orders</a> -->
+        <!-- <button class="button-20" onclick="location.href='{{ url_for('audit.add_price') }}'">Add Prices to Orders</button> -->
+    </div>
+</body>
+
+</html>

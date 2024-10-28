@@ -15,9 +15,13 @@ def is_clerical():
 @auditController.route('/audit/summary', methods=['GET', 'POST'])
 @login_required
 def audit_summary():
-    if not is_clerical():
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
-        return redirect(url_for('main.index'))
+    # if not is_clerical():
+    #     flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+    #     return redirect(url_for('main.index'))
+    
+    if current_user.employee.employee_position not in ['keeper', 'clerical']:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('auth.logout'))
 
     # ดึงรายการ audit_id และ payment_due_date จากตาราง Audit สำหรับ dropdown
     audit_ids = Audit.query.with_entities(Audit.audit_id, Audit.payment_due_date).all()
@@ -43,15 +47,26 @@ def audit_summary():
         # คำนวณยอดรวมสำหรับ audit_id ที่เลือก
         total_amount = sum(order[2] for order in orders_in_audit if order[2] is not None)
 
-    return render_template(
-        'clerical/audit_summary.html',
-        audit_ids=audit_ids,  # ส่งข้อมูล audit_id และ payment_due_date ไปยัง dropdown
-        orders_in_audit=orders_in_audit,
-        total_amount=total_amount,
-        selected_audit_id=selected_audit_id,
-        payment_status=payment_status,
-        payment_due_date=payment_due_date
-    )
+    if current_user.employee.employee_position == 'clerical':
+        return render_template(
+            'clerical/audit_summary.html',
+            audit_ids=audit_ids,
+            orders_in_audit=orders_in_audit,
+            total_amount=total_amount,
+            selected_audit_id=selected_audit_id,
+            payment_status=payment_status,
+            payment_due_date=payment_due_date
+        )
+    elif current_user.employee.employee_position == 'keeper':
+                return render_template(
+            'keeper/audit_summary.html',
+            audit_ids=audit_ids,
+            orders_in_audit=orders_in_audit,
+            total_amount=total_amount,
+            selected_audit_id=selected_audit_id,
+            payment_status=payment_status,
+            payment_due_date=payment_due_date
+        )
 
 # หน้ากรอกราคาสินค้าสำหรับคำสั่งซื้อที่ยังไม่กำหนดราคา
 @auditController.route('/audit/add_price', methods=['GET', 'POST'])

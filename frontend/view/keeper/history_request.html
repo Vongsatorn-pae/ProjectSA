@@ -51,16 +51,20 @@
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
-            <a href="{{ url_for('stock.view_stock') }}">Home</a>
-            <a href="{{ url_for('stock.add_stock') }}" >Add Product</a>
-            <a href="{{ url_for('request.confirm_request') }}" >Request</a>
-            <a href="{{ url_for('audit.audit_summary') }}">Create Audit</a>
+            <a href="{{ url_for('main.keeper_dashboard') }}">Home</a>
+            <a href="{{ url_for('stock.view_stock') }}">Product In Stock</a>
+            <a href="{{ url_for('order.add_order') }}">New Order</a>
+            <a href="{{ url_for('order.order_history') }}">Order History</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
+            <li>Employees</li>
+            <a href="{{ url_for('auth.create_account') }}">Create Account</a>
         </div>
 
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -96,10 +100,12 @@
                     <th>Request Status</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="requestTable">
                 {% for request in requests %}
                 <tr>
-                    <td><a href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a></td>
+                    <td><a
+                            href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a>
+                    </td>
                     <td>{{ request.employee_id }}</td>
                     <td>{{ request.request_date }}</td>
                     <td>{{ request.request_status }}</td>
@@ -143,4 +149,5 @@
         });
     </script>
 </body>
+
 </html>

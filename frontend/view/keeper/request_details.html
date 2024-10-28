@@ -3,41 +3,56 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Cart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .confirm-button {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .confirm-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .reject-button {
+            background-color: #f43f3f;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .reject-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .confirm-reject {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+    </style>
+    <script>
+        function toggleMenu() {
+            document.getElementById("tabMenu").classList.toggle("open");
+        }
+    </script>
 </head>
-<style>
-    .button-20 {
-        width: 150px;
-        font-size: 16px;
-    }
-    .button-update {
-        background-color: #4EA68D;
-        border: none;
-        outline: none;
-        border-radius: 5px;
-        color: #FFFFFF;
-    }
-    .button-remove {
-        background-color: #ba1111;
-        border: none;
-        outline: none;
-        border-radius: 5px;
-        color: #FFFFFF;
-    }
-</style>
-<script>
-    function toggleMenu() {
-        document.getElementById("tabMenu").classList.toggle("open");
-    }
-</script>
+
 <body>
     <div class="navBar">
-        <a class="menu-icon" onclick="toggleMenu()">Cart</a>
+        <a class="menu-icon" onclick="toggleMenu()">Request Details: {{ request.request_id }}</a>
 
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
@@ -55,8 +70,7 @@
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -64,44 +78,29 @@
     </div>
 
     <div class="container mt-4">
-        {% if session.cart and session.cart|length > 0 %}
+        <!-- ตารางแสดงรายละเอียดสินค้าที่ถูกเบิก -->
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
                     <th>Product Name</th>
                     <th>Quantity</th>
                     <th>Unit</th>
-                    <th>Actions</th>
+                    <th>Image</th>
                 </tr>
             </thead>
             <tbody>
-                {% for item in session.cart %}
+                {% for item in request_list %}
                 <tr>
-                    <td>{{ item.product_name }}</td>
-                    <td>
-                        <form method="POST" action="{{ url_for('order.edit_cart_item', index=loop.index0) }}" style="display:inline;">
-                            <input type="number" name="new_quantity" value="{{ item.order_quantity }}" min="1" required>
-                            <button class = "button-update" type="submit">Update</button>
-                        </form>
-                    </td>
+                    <td>{{ item.product.product_name }}</td>
+                    <td>{{ item.request_quantity }}</td>
                     <td>{{ item.product_unit }}</td>
-                    <td>
-                        <form method="POST" action="{{ url_for('order.remove_cart_item', index=loop.index0) }}" style="display:inline;">
-                            <button class = "button-remove" type="submit">Remove</button>
-                        </form>
-                    </td>
+                    <td><img src="{{ item.product.product_image }}" alt="Product Image"
+                            style="width: 50px; height: 50px;"></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <form method="POST" action="{{ url_for('order.submit_order') }}">
-            <button class="button-20" type="submit" {% if not session.cart or session.cart|length == 0 %}disabled{% endif %}>
-                Submit Order
-            </button>
-        </form>
-        {% else %}
-        <p class="text-center mt-4">ไม่พบสินค้า</p>
-        {% endif %}
     </div>
 </body>
+
 </html>
