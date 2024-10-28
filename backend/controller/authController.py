@@ -2,6 +2,7 @@ import random
 import string
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
+from werkzeug.security import generate_password_hash
 from models.user import Employee, User
 from extensions import db, login_manager
 
@@ -124,3 +125,43 @@ def create_account():
 def view_profile():
     employee = current_user.employee
     return render_template('profile.html', employee=employee)
+
+@authController.route('/auth/update_password', methods=['POST'])
+@login_required
+def update_password():
+    data = request.get_json()
+    new_password = data.get('password')
+
+    # ตรวจสอบความยาวรหัสผ่าน (ถ้าต้องการ)
+    if not new_password or len(new_password) < 8:
+        return jsonify({"status": "error", "message": "Password must be at least 8 characters"}), 400
+
+    try:
+        # บันทึกรหัสผ่านเป็นข้อความธรรมดา
+        current_user.password = new_password
+        db.session.commit()
+        flash('Password updated successfully', 'success')
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        db.session.rollback()
+        flash('Failed to update password', 'danger')
+        return jsonify({"status": "error", "message": str(e)}), 400
+    
+@authController.route('/auth/update_address', methods=['POST'])
+@login_required
+def update_address():
+    data = request.get_json()
+    new_address = data.get('address')
+
+    if not new_address:
+        return jsonify({"status": "error", "message": "Address is required"}), 400
+
+    try:
+        current_user.employee.employee_address = new_address
+        db.session.commit()
+        flash('Address updated successfully', 'success')
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        db.session.rollback()
+        flash('Failed to update address', 'danger')
+        return jsonify({"status": "error", "message": str(e)}), 400
