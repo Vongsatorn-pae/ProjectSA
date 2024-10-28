@@ -41,58 +41,6 @@
         </div>
     </div>
 
-    <!-- <div class="container mt-4">
-        <h2>Welcome to the Keeper Dashboard!</h2>
-
-        <div class="notification-section">
-            <span>Notification: Your Request</span>
-        </div>
-
-        <div class="filter-container">
-            <label for="status-filter">Filter by Status:</label>
-            <select id="status-filter" onchange="filterStatus()">
-                <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All</option>
-                <option value="accept" {% if selected_status == 'accept' %}selected{% endif %}>Accept</option>
-                <option value="reject" {% if selected_status == 'reject' %}selected{% endif %}>Reject</option>
-                <option value="waiting" {% if selected_status == 'waiting' %}selected{% endif %}>Waiting</option>
-            </select>
-        </div>
-
-        <div id="notification-container">
-            {% for request in requests %}
-            <div class="notification-card">
-                <div class="notification-text">
-                    Request id: {{ request.request_id }} <br>
-                    {% if request.status == 'accept' %}
-                    <span class="status-accept">Accept</span>
-                    {% elif request.status == 'reject' %}
-                    <span class="status-reject">Reject</span>
-                    {% else %}
-                    <span class="status-waiting">Waiting</span>
-                    {% endif %}
-                </div>
-                <div class="notification-timestamp">
-                    <p>{{ request.date.strftime('%A, %d %B %Y') }}<br>
-                        {{ request.date.strftime('%H:%M') }}</p>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <h2>Purchase Management</h2>
-        <ul>
-            <li><a href="{{ url_for('order.order_history') }}">Order History</a></li>
-        </ul> 
-
-        <script>
-            // JavaScript to handle the status filter change
-            function filterStatus() {
-                const status = document.getElementById('status-filter').value;
-                window.location.href = `/dashboard?status=${status}`;
-            }
-        </script>
-    </div> -->
-
     <div class="container mt-4">
         <h2>Welcome to the Keeper Dashboard!</h2>
 
