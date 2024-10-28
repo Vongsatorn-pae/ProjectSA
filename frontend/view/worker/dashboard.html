@@ -57,24 +57,28 @@
 
     <!-- Notification Cards -->
     <div id="notification-container">
-        {% for request in requests %}
-        <div class="notification-card">
-            <div class="notification-text">
-                Request id: {{ request.request_id }} <br>
-                {% if request.status == 'accept' %}
-                <span class="status-accept">Accept</span>
-                {% elif request.status == 'reject' %}
-                <span class="status-reject">Reject</span>
-                {% else %}
-                <span class="status-waiting">Waiting</span>
-                {% endif %}
+        {% if requests %}
+            {% for request in requests %}
+            <div class="notification-card">
+                <div class="notification-text">
+                    Request id: {{ request.request_id }} <br>
+                    {% if request.status == 'accept' %}
+                    <span class="status-accept">Accept</span>
+                    {% elif request.status == 'reject' %}
+                    <span class="status-reject">Reject</span>
+                    {% else %}
+                    <span class="status-waiting">Waiting</span>
+                    {% endif %}
+                </div>
+                <div class="notification-timestamp">
+                    <p>{{ request.date.strftime('%A, %d %B %Y') }}<br>
+                    {{ request.date.strftime('%H:%M') }}</p>
+                </div>
             </div>
-            <div class="notification-timestamp">
-                <p>{{ request.date.strftime('%A, %d %B %Y') }}<br>
-                {{ request.date.strftime('%H:%M') }}</p>
-            </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p>ไม่มีการเบิกสินค้า</p>
+        {% endif %}
     </div>
 
     <script>
