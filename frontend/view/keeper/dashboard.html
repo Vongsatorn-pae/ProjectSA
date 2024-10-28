@@ -16,11 +16,75 @@
         }
     </script>
     <style>
-        .no-order-accept {
-            color: red;
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
         }
-        .no-stock-alerts {
-            color: red;
+
+        .container {
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .notification-card {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+
+        .notification-card:hover {
+            transform: scale(1.02);
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .notification-text {
+            flex-grow: 1;
+        }
+
+        .notification-text strong {
+            font-size: 16px;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .notification-text span {
+            font-size: 16px;
+            color: #28a745;
+            display: block;
+        }
+
+        .notification-text span1 {
+            font-size: 16px;
+            color: #444444;
+            display: block;
+        }
+
+        .order-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .order-button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -32,9 +96,12 @@
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
-            <a href="{{ url_for('stock.stock_alert') }}">Stock Alert</a>
+            <li>Product In Stock</li>
             <a href="{{ url_for('order.add_order') }}">New Order</a>
             <a href="{{ url_for('order.order_history') }}">Order History</a>
+            <li>Request History</li>
+            <li>Audit</li>
+            <li>Employees</li>
             <a href="{{ url_for('auth.create_account') }}">Create Account</a>
         </div>
 
@@ -59,45 +126,45 @@
 
         <!-- Accepted Orders Cards -->
         <div id="accepted-orders-container">
-            {% if accepted_orders %}
-                {% for order in accepted_orders %}
-                <div class="notification-card">
-                    <div class="notification-text">
-                     Order ID: {{ order.order_id }} <br>
-                        <span class="status-accept">Accept</span>
-                    </div>
-                    <div class="notification-timestamp">
-                        <p>{{ order.order_date.strftime('%A, %d %B %Y') }}<br>
-                            {{ order.order_date.strftime('%H:%M') }}</p>
-                    </div>
+            {% for order in accepted_orders %}
+            <div class="notification-card">
+                <div class="notification-text">
+                    Order ID: {{ order.order_id }} <br>
+                    <span class="status-accept">Accept</span>
                 </div>
-                {% endfor %}
-            {% else %}
-                <p class = "no-order-accept">ยังไม่มีสินค้าที่ยืนยัน</p>
-            {% endif %}
+                <div class="notification-timestamp">
+                    <p>{{ order.order_date.strftime('%A, %d %B %Y') }}<br>
+                        {{ order.order_date.strftime('%H:%M') }}</p>
+                </div>
+            </div>
+            {% endfor %}
         </div>
 
-        <!-- Stock Alerts Section -->
-        <div class="notification-section">
-            <span>Stock Alerts</span>
-        </div>
+        <div class="container mt-4">
+            <div class="notification-section1">
+                <span>Stock Alerts: Products Below Minimum</span>
+            </div>
 
-        <!-- Stock Alerts Cards -->
-        <div id="stock-alerts-container">
-            {% if stock_alerts %}
+            <div id="stock-alerts-container">
+                {% if stock_alerts %}
                 {% for stock in stock_alerts %}
                 <div class="notification-card">
+                    <img src="{{ stock.image_url }}" alt="Product Image" class="product-image">
                     <div class="notification-text">
-                        Product: {{ stock.product_name }} <br>
-                        <span>Quantity: {{ stock.total_quantity_in_stock }} {{ stock.unit_name }}</span>
+                        <strong>{{ stock.product_name }}</strong>
+                        <span1>Quantity: {{ stock.total_quantity_in_stock }} (Min: {{ stock.threshold }})</span1>
+                        <span1>Unit: {{ stock.unit_name }}</span1>
                     </div>
+                    <a href="{{ url_for('stock.product_detail', product_id=stock.product_id) }}" class="order-button">
+                        Order
+                    </a>
                 </div>
                 {% endfor %}
-            {% else %}
-                <p class = "no-stock-alerts">ยังไม่มีสินค้าที่ต่ำกว่าที่กำหนด</p>
-            {% endif %}
+                {% else %}
+                <p class="text-center">No products below the threshold.</p>
+                {% endif %}
+            </div>
         </div>
-    </div>
 
 </body>
 

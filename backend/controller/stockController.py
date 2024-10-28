@@ -98,66 +98,69 @@ def add_stock():
 
     return render_template('clerical/add_stock.html', product_lists=product_lists, product_lots=product_lots, units=unit_list)
 
+def get_stock_alerts(limit=None):
+    """Fetch stock alerts for products below the threshold."""
+    stock_alerts = []
+
+    # Fetch all products from ProductList
+    product_list = ProductList.query.all()
+
+    for product in product_list:
+        # Fetch all stock entries with the same product_id
+        stock_products = Product.query.filter_by(product_id=product.product_id).all()
+
+        total_quantity_in_stock = 0  # Initialize total quantity
+
+        # Debugging: Output for product processing
+        # print(f"Processing Product ID: {product.product_id}")
+
+        # Sum up all quantities for the product
+        for stock_product in stock_products:
+            converted_quantity = convert_to_base_unit(
+                stock_product.product_quantity,
+                stock_product.product_unit,
+                product.product_type
+            )
+            total_quantity_in_stock += converted_quantity  # Accumulate quantity
+
+            # Debugging: Print out converted quantity
+            # print(f"Product ID: {product.product_id}, "
+            #       f"Original Quantity: {stock_product.product_quantity}, "
+            #       f"Converted Quantity: {converted_quantity}")
+
+        # Add to alerts if total quantity <= threshold
+        if total_quantity_in_stock <= float(product.threshold):
+            alert = {
+                'product_id': product.product_id,
+                'product_name': product.product_name,
+                'total_quantity_in_stock': total_quantity_in_stock,
+                'threshold': float(product.threshold),
+                'unit_name': 'g' if product.product_type == 'Food' else 'mL',
+                'image_url': product.product_image
+            }
+            stock_alerts.append(alert)
+
+            # Debugging: Confirm the alert was added
+            # print(f"Added Alert: {alert}")
+
+    # Ensure no limit is applied unintentionally
+    return stock_alerts
+
 @stockController.route('/stock/alert')
 @login_required
 def stock_alert():
-    if current_user.employee.employee_position != 'keeper':
-        flash('You do not have permission to access this page.', 'danger')
-        return redirect(url_for('main.index'))
+    """Render the stock alert page."""
+    stock_data = get_stock_alerts()  # Fetch all alerts
 
-    """แสดงรายการสินค้าที่ใกล้จะหมดจากสต็อก"""
-    stock_alerts = []
+    # Debugging: Output the complete stock data
+    print("Final Stock Data:", stock_data)
 
-    # ดึงรายการสินค้าทั้งหมดจากตาราง product_lists
-    product_list = ProductList.query.all()
+    return render_template('dashboard.html', stock_alerts=stock_data)
 
-    for product in product_list:
-        # ดึงข้อมูลสินค้าทั้งหมดที่ตรงกับ product_id จากตาราง products (ทุก lot)
-        stock_products = Product.query.filter_by(product_id=product.product_id).all()
+@stockController.route('/product_detail/<product_id>')
+@login_required
+def product_detail(product_id):
+    product = ProductList.query.filter_by(product_id=product_id).first_or_404()
+    units = Unit.query.all()  # Assuming you need units for the dropdown
 
-        total_quantity_in_stock = 0  # เก็บปริมาณสินค้าทั้งหมดจากทุก lot
-
-        # รวมจำนวนสินค้าจากทุก lot
-        for stock_product in stock_products:
-            # แปลงหน่วยสินค้าเป็นหน่วยเล็กที่สุด (g หรือ mL)
-            total_quantity_in_stock += convert_to_base_unit(
-                stock_product.product_quantity, 
-                stock_product.product_unit,  # หน่วยสินค้า
-                product.product_type  # ประเภทสินค้า
-            )
-
-        # ตรวจสอบว่าปริมาณสินค้าทั้งหมดจากทุก lot น้อยกว่า threshold หรือไม่
-        if total_quantity_in_stock < product.threshold:
-            stock_alerts.append({
-                'product_name': product.product_name,
-                'total_quantity_in_stock': total_quantity_in_stock,  # ปริมาณคงเหลือรวมจากทุก lot
-                'threshold': product.threshold,
-                'product_type': product.product_type,
-                'unit_name': 'g' if product.product_type == 'Food' else 'mL'  # หน่วยที่แสดงใน stock_alert
-            })
-
-    stock_alerts = get_stock_alerts()
-    return render_template('keeper/stock_alert.html', products=stock_alerts)
-
-# ฟังก์ชันช่วยเหลือในการดึงข้อมูลสินค้าที่ใกล้หมด
-def get_stock_alerts(limit=None):
-    stock_alerts = []
-    product_list = ProductList.query.all()
-
-    for product in product_list:
-        stock_products = Product.query.filter_by(product_id=product.product_id).all()
-        total_quantity_in_stock = sum(
-            convert_to_base_unit(stock_product.product_quantity, stock_product.product_unit, product.product_type)
-            for stock_product in stock_products
-        )
-
-        if total_quantity_in_stock < product.threshold:
-            stock_alerts.append({
-                'product_name': product.product_name,
-                'total_quantity_in_stock': total_quantity_in_stock,
-                'threshold': product.threshold,
-                'unit_name': 'g' if product.product_type == 'Food' else 'mL'
-            })
-
-    # จำกัดจำนวนข้อมูลหากมีการระบุ limit
-    return stock_alerts[:limit] if limit else stock_alerts
+    return render_template('keeper/product_detail.html', product=product, units=units)
