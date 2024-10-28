@@ -67,7 +67,7 @@ def add_stock():
     # ดึง lot ที่เกี่ยวข้องกับ order ที่มี order_status = True
     product_lots = ProductLot.query.join(OrderList, ProductLot.lot_id == OrderList.lot_id)\
                                    .join(Order, OrderList.order_id == Order.order_id)\
-                                   .filter(Order.order_status == True).all()
+                                   .filter(Order.order_status == 'accept').all()
 
     # ดึงข้อมูล units ทั้งหมดและแปลงเป็น dict
     units = Unit.query.all()

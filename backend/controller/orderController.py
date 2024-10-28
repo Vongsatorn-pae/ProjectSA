@@ -270,4 +270,7 @@ def view_order_details(order_id):
     order = Order.query.filter_by(order_id=order_id).first_or_404()
     order_items = OrderList.query.filter_by(order_id=order_id).all()
 
-    return render_template('keeper/order_details.html', order=order, order_items=order_items)
+    if current_user.employee.employee_position == 'keeper':
+        return render_template('keeper/order_details.html', order=order, order_items=order_items)
+    elif current_user.employee.employee_position == 'clerical':
+        return render_template('clerical/order_details.html', order=order, order_items=order_items)

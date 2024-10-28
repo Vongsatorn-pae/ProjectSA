@@ -3,23 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Add Price to Orders</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .confirm-reject {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+    </style>
     <script>
         function toggleMenu() {
             document.getElementById("tabMenu").classList.toggle("open");
         }
     </script>
-    <style>
-        .button-20 {
-            width: 150px;
-            height: 40px;
-        }
-    </style>
 </head>
 
 <body>
@@ -48,36 +50,45 @@
     </div>
 
     <div class="container mt-4">
-        <h1 class="mb-4">Add Price to Orders</h1>
-        {% if orders %}
-        <form>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">Order ID</th>
-                        <th scope="col">Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                    <tr>
-                        <td>
-                            {{ order.order_id }}
-                            <input type="hidden" name="order_id" value="{{ order.order_id }}">
-                        </td>
-                        <td>
-                            <input type="number" class="form-control" step="0.01" name="order_price"
-                                placeholder="Enter price">
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button class="button-20" type="submit">Save Prices</button>
-        </form>
-        {% else %}
-        <p class="text-danger">ยังไม่มี order</p>
-        {% endif %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Lot ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.product.product_name }}</td>
+                    <td>{{ item.order_quantity }}</td>
+                    <td>{{ item.product_unit }}</td>
+                    <td>{{ item.lot_id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="confirm-reject">
+
+            {% if order.order_status == 'waiting' %}
+            <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
+                <input type="hidden" name="new_status" value="accept">
+                <button type="submit" class="btn btn-success btn-sm">Accept</button>
+            </form>
+            <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
+                <input type="hidden" name="new_status" value="reject">
+                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+            </form>
+            {% elif order.order_status == 'accept' %}
+            <span>Accepted</span>
+            {% elif order.order_status == 'reject' %}
+            <span>Rejected</span>
+            {% endif %}
+    
+        </div>
     </div>
 </body>
 

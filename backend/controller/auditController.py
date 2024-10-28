@@ -19,8 +19,8 @@ def audit_summary():
         flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
-    # ดึงรายการ audit_id ทั้งหมดจากตาราง Audit สำหรับ dropdown
-    audit_ids = Audit.query.with_entities(Audit.audit_id).all()
+    # ดึงรายการ audit_id และ payment_due_date จากตาราง Audit สำหรับ dropdown
+    audit_ids = Audit.query.with_entities(Audit.audit_id, Audit.payment_due_date).all()
 
     selected_audit_id = request.form.get('selected_audit_id')  # อ่าน audit_id ที่เลือกจาก dropdown
     orders_in_audit = []
@@ -45,7 +45,7 @@ def audit_summary():
 
     return render_template(
         'clerical/audit_summary.html',
-        audit_ids=[audit_id[0] for audit_id in audit_ids],  # ส่ง audit_id ไปยัง dropdown
+        audit_ids=audit_ids,  # ส่งข้อมูล audit_id และ payment_due_date ไปยัง dropdown
         orders_in_audit=orders_in_audit,
         total_amount=total_amount,
         selected_audit_id=selected_audit_id,
