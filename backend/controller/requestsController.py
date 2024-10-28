@@ -12,35 +12,41 @@ from decimal import Decimal
 
 requestController = Blueprint('request', __name__)
 
-# ควรนำเข้า model RequestList ด้วยในกรณีนี้
-from models.requestList import RequestList
-
 @requestController.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
-    # Query ดึงข้อมูลโดยเชื่อมต่อกับ RequestList และ ProductList
-    requests = (
+    # Get the selected status from the dropdown filter (default to 'all')
+    selected_status = request.args.get('status', 'all').lower()
+
+    # Base query to retrieve requests for the current user
+    base_query = (
         db.session.query(Request, RequestList, ProductList)
         .join(RequestList, Request.request_id == RequestList.request_id)
         .join(ProductList, RequestList.product_id == ProductList.product_id)
         .filter(Request.employee_id == current_user.employee_id)
-        .all()
+        .order_by(Request.request_date.desc())
     )
 
-    # แปลงข้อมูลเพื่อใช้ใน HTML
-    request_data = []
-    for req, req_list, prod in requests:
-        request_data.append({
+    # Filter by status if it's not 'all'
+    if selected_status != 'all':
+        base_query = base_query.filter(Request.request_status.ilike(f'%{selected_status}%'))
+
+    # Get the latest 3 requests
+    requests = base_query.limit(3).all()
+
+    request_data = [
+        {
             'request_id': req.request_id,
             'product_name': prod.product_name,
-            'quantity': req_list.request_quantity,  # ดึง quantity จาก RequestList
+            'quantity': req_list.request_quantity,
             'unit': req_list.product_unit,
             'status': req.request_status,
-            'date': req.request_date
-        })
+            'date': req.request_date,
+        }
+        for req, req_list, prod in requests
+    ]
 
-    # ส่งข้อมูลไปยัง template
-    return render_template('worker/dashboard.html', requests=request_data)
+    return render_template('worker/dashboard.html', requests=request_data, selected_status=selected_status)
 
 @requestController.route('/request/add', methods=['GET', 'POST'])
 @login_required

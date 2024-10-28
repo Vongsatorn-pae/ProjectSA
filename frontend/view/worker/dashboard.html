@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +9,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        h2 {
-            font-family: 'Inter', sans-serif;
-            font-size: 20px;
-        }
-    </style>
     <script>
         function toggleMenu() {
             document.getElementById("tabMenu").classList.toggle("open");
@@ -36,42 +29,61 @@
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
         </div>
     </div>
 
-    <!-- ตารางรายการการเบิกสินค้า -->
     <div class="container mt-4">
         <h2>Welcome to the Worker Dashboard!</h2>
 
-        {% if requests %}
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>Product Name</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for request in requests %}
-                <tr>
-                    <td>{{ request.request_id }}</td>
-                    <td>{{ request.product_name }}</td>
-                    <td>{{ request.status }}</td>
-                    <td>{{ request.date }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>No request history found.</p>
-        {% endif %}
+        <!-- Notification Section -->
+        <div class="notification-section">
+            <span>Notification: Your Request</span>
+        </div>
+        
+    <!-- Filter by Status Dropdown -->
+    <div class="filter-container">
+        <label for="status-filter">Filter by Status:</label>
+        <select id="status-filter" onchange="filterStatus()">
+            <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All</option>
+            <option value="accept" {% if selected_status == 'accept' %}selected{% endif %}>Accept</option>
+            <option value="reject" {% if selected_status == 'reject' %}selected{% endif %}>Reject</option>
+            <option value="waiting" {% if selected_status == 'waiting' %}selected{% endif %}>Waiting</option>
+        </select>
+    </div>
+
+    <!-- Notification Cards -->
+    <div id="notification-container">
+        {% for request in requests %}
+        <div class="notification-card">
+            <div class="notification-text">
+                Request id: {{ request.request_id }} <br>
+                {% if request.status == 'accept' %}
+                <span class="status-accept">Accept</span>
+                {% elif request.status == 'reject' %}
+                <span class="status-reject">Reject</span>
+                {% else %}
+                <span class="status-waiting">Waiting</span>
+                {% endif %}
+            </div>
+            <div class="notification-timestamp">
+                <p>{{ request.date.strftime('%A, %d %B %Y') }}<br>
+                {{ request.date.strftime('%H:%M') }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // JavaScript to handle the status filter change
+        function filterStatus() {
+            const status = document.getElementById('status-filter').value;
+            window.location.href = `/dashboard?status=${status}`;
+        }
+    </script>
     </div>
 </body>
 </html>

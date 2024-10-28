@@ -10,7 +10,7 @@
     width: 200px;
     background-color: #F2994B;
     padding-top: 60px;
-    transition: 0.3s;
+    transition: 0.3s ease-in-out;
     transform: translateX(-100%);
     z-index: 1000;
 }
@@ -19,24 +19,27 @@
     transform: translateX(0);
 }
 
-.tab-menu a {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 14px;
-    display: block;
+.tab-menu h1 {
+    padding: 15px;
+    font-size: 18px;
+    color: white;
 }
 
-.tab-menu h1 {
+.tab-menu h1:hover {
+    padding: 15px;
+    font-size: 18px;
+    color: black;
+}
+
+.tab-menu a {
     padding: 10px 15px;
     text-decoration: none;
     font-size: 16px;
     display: block;
-    text-transform: uppercase;
+    color: white;
 }
 
-.menu-icon {
-    font-size: 30px;
-    cursor: pointer;
-    position: absolute;
-    align-items: center;
+.tab-menu a:hover {
+    background-color: #4EA68D;
+    color: black;
 }

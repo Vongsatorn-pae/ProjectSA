@@ -135,3 +135,143 @@ body {
 .button-20:hover {
     background: linear-gradient(0deg, #3A8B6F, #3A8B6F);
 }
+
+/* home worker */
+/* General Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F5F5F5;
+}
+
+.container {
+    max-width: 1169px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Navigation Bar */
+.navBar {
+    display: flex;
+    align-items: center;
+    background-color: #4EA68D;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.menu-icon {
+    font-size: 24px;
+    color: white;
+    margin-right: auto;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-left: auto;
+}
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar input {
+    width: 85%;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    outline: none;
+}
+
+.search-bar button {
+    width: 15%;
+    background-color: #4EA68D;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 0 10px 10px 0;
+}
+
+/* Notification Section */
+.notification-section {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #4EA68D;
+    color: white;
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Notification Cards */
+.notification-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Status Colors */
+.status-accept {
+    color: green;
+    font-weight: bold;
+}
+
+.status-reject {
+    color: red;
+    font-weight: bold;
+}
+
+.status-waiting {
+    color: gray;
+    font-weight: bold;
+}
+
+/* Timestamp Styling */
+.notification-timestamp {
+    text-align: right;
+    font-size: 14px;
+}
+
+.filter-container {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-container label {
+    margin-right: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#status-filter {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+
