@@ -165,3 +165,13 @@ def update_address():
         db.session.rollback()
         flash('Failed to update address', 'danger')
         return jsonify({"status": "error", "message": str(e)}), 400
+    
+@authController.route('/employees', methods=['GET'])
+@login_required
+def view_employees():
+    try:
+        employees = Employee.query.all()  # ดึงข้อมูลพนักงานทั้งหมดจากฐานข้อมูล
+        return render_template('keeper/all_employee.html', employees=employees)
+    except Exception as e:
+        flash(f"Error fetching employees: {str(e)}", "danger")
+        return redirect(url_for('main.index'))

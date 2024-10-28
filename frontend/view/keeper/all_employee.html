@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order History</title>
+    <title>Employee List</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
@@ -13,12 +14,29 @@
         function toggleMenu() {
             document.getElementById("tabMenu").classList.toggle("open");
         }
+
+        function filterEmployees() {
+            const searchInput = document.getElementById('searchBar').value.toLowerCase();
+            const table = document.getElementById('employeeTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                let cells = rows[i].getElementsByTagName('td');
+                let rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+
+                if (rowText.includes(searchInput)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
     </script>
 </head>
 
 <body>
     <div class="navBar">
-        <a class="menu-icon" onclick="toggleMenu()">Order History</a>
+        <a class="menu-icon" onclick="toggleMenu()">Employee List</a>
 
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
@@ -26,9 +44,9 @@
             <a href="{{ url_for('main.keeper_dashboard') }}">Home</a>
             <a href="{{ url_for('stock.view_stock') }}">Product In Stock</a>
             <a href="{{ url_for('order.add_order') }}">New Order</a>
+            <a href="{{ url_for('order.order_history') }}">Order History</a>
             <a href="{{ url_for('request.confirm_request') }}">Request History</a>
             <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
-            <a href="{{ url_for('auth.view_employees') }}">Employee List</a>
             <a href="{{ url_for('auth.create_account') }}">Create Account</a>
         </div>
 
@@ -44,38 +62,40 @@
     </div>
 
     <div class="container mt-4">
-        <!-- ฟอร์มสำหรับค้นหาและกรอง -->
-        <form method="GET" action="{{ url_for('order.order_history') }}">
-            <label for="search">Search by Order ID or Date:</label>
-            <input class="form-control" type="text" id="search" name="search" value="{{ request.args.get('search', '') }}">
+        <h1>Employee List</h1>
 
-            <label for="filter_status">Filter by Status:</label>
-            <select class="form-select" id="filter_status" name="filter_status" onchange="this.form.submit()">
-                <option value="all" {% if request.args.get('filter_status') == 'all' %}selected{% endif %}>All</option>
-                <option value="accept" {% if request.args.get('filter_status') == 'accept' %}selected{% endif %}>Accepted</option>
-                <option value="reject" {% if request.args.get('filter_status') == 'reject' %}selected{% endif %}>Rejected</option>
-                <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>Waiting</option>
-            </select>    
-        </form>
+        <!-- Search Bar -->
+        <input type="text" id="searchBar" placeholder="Search employees..." class="form-control mb-3"
+            onkeyup="filterEmployees()">
 
-        <table class="table table-striped table-hover">
+        {% if employees %}
+        <table class="table table-striped table-hover" id="employeeTable">
             <thead>
                 <tr>
-                    <th>Order ID</th>
-                    <th>Order Date</th>
-                    <th>Order Status</th>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Age</th>
                 </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
+                {% for employee in employees %}
                 <tr>
-                    <td><a href="{{ url_for('order.view_order_details', order_id=order.order_id) }}">{{ order.order_id }}</a></td>
-                    <td>{{ order.order_date }}</td>
-                    <td>{{ order.order_status.capitalize() }}</td>
+                    <td>{{ employee.employee_id }}</td>
+                    <td><img src="{{ employee.employee_image }}" alt="Employee Image" width="50" height="50"></td>
+                    <td>{{ employee.employee_fname }} {{ employee.employee_lname }}</td>
+                    <td>{{ employee.employee_position }}</td>
+                    <td>{{ employee.employee_age }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <p>No employees found.</p>
+        {% endif %}
     </div>
+
 </body>
+
 </html>
