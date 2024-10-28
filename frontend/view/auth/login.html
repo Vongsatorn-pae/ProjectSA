@@ -107,7 +107,7 @@
                         } else if (response.employee_position == 'worker') {
                             redirectUrl = "{{ url_for('request.dashboard') }}";
                         } else if (response.employee_position == 'clerical') {
-                            redirectUrl = "{{ url_for('stock.view_stock') }}";
+                            redirectUrl = "{{ url_for('main.clerical_dashboard') }}";
                         }
                     } else {
                         // แสดงข้อความผิดพลาดใน popup

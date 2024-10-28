@@ -55,4 +55,10 @@ def worker_dashboard():
 def clerical_dashboard():
     if current_user.employee.employee_position != 'clerical':
         return abort(403)
-    return render_template('clerical/dashboard.html')
+
+    waiting_request = db.session.query(Request).filter_by(request_status='waiting').limit(3).all()
+
+    return render_template(
+        'clerical/dashboard.html', 
+        waiting_request=waiting_request
+    )

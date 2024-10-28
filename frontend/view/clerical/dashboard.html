@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keeper Dashboard</title>
+    <title>Clerical Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
@@ -100,13 +100,12 @@
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
-            <a href="{{ url_for('stock.view_stock') }}">Product In Stock</a>
-            <a href="{{ url_for('order.add_order') }}">New Order</a>
-            <a href="{{ url_for('order.order_history') }}">Order History</a>
-            <a href="{{ url_for('request.confirm_request') }}">Request History</a>
-            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
-            <a href="{{ url_for('auth.view_employees') }}">Employee List</a>
-            <a href="{{ url_for('auth.create_account') }}">Create Account</a>
+            <a href="{{ url_for('main.clerical_dashboard') }}">Home</a>
+            <a href="{{ url_for('order.order_history') }}">Confirm Order</a> 
+            <a href="{{ url_for('stock.view_stock') }}">Product in Stock </a>
+            <a href="{{ url_for('stock.add_stock') }}" >Add Product</a>
+            <a href="{{ url_for('request.confirm_request') }}" >Request</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Create Audit</a>
         </div>
 
         <div class="dropdown">
@@ -121,59 +120,30 @@
     </div>
 
     <div class="container mt-4">
-        <h2>Welcome to the Keeper Dashboard!</h2>
+        <h2>Welcome to the Clerical Dashboard!</h2>
 
-        <!-- Notification Section -->
         <div class="notification-section">
-            <span>Notification: Accepted Orders</span>
+            <span>Notification: Waiting Request</span>
         </div>
 
-        <!-- Accepted Orders Cards -->
         <div id="accepted-orders-container">
-            {% if accepted_orders %}
-                {% for order in accepted_orders %}
+            {% if waiting_request %}
+                {% for request in waiting_request %}
                 <div class="notification-card">
                     <div class="notification-text">
-                        Order ID: {{ order.order_id }} <br>
-                        <span class="status-accept">Accept</span>
+                        Request ID: {{ request.request_id }} <br>
+                        <span class="status-{{ request.request_status }}">Waiting</span>
                     </div>
                     <div class="notification-timestamp">
-                        <p>{{ order.order_date.strftime('%A, %d %B %Y') }}<br>
-                            {{ order.order_date.strftime('%H:%M') }}</p>
+                        <p>{{ request.request_date.strftime('%A, %d %B %Y') }}<br>
+                            {{ request.request_date.strftime('%H:%M') }}</p>
                     </div>
                 </div>
-            {% endfor %}
-                {% else %}
-            <p class="button-alert">ยังไม่มีรายที่ยืนยัน</p>
-    {% endif %}
-        </div>
-
-        <div class="container mt-4">
-            <div class="notification-section1">
-                <span>Stock Alerts: Products Below Minimum</span>
-            </div>
-
-            <div id="stock-alerts-container">
-                {% if stock_alerts %}
-                    {% for stock in stock_alerts %}
-                    <div class="notification-card">
-                        <img src="{{ stock.image_url }}" alt="Product Image" class="product-image">
-                        <div class="notification-text">
-                            <strong>{{ stock.product_name }}</strong>
-                            <span1>Quantity: {{ stock.total_quantity_in_stock }} (Min: {{ stock.threshold }})</span1>
-                            <span1>Unit: {{ stock.unit_name }}</span1>
-                        </div>
-                        <a href="{{ url_for('stock.product_detail', product_id=stock.product_id) }}" class="order-button">
-                            Order
-                        </a>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                <p class="text-center">ยังไม่มีสินค้าที่ต่ำกว่าที่กำหนด</p>
-                {% endif %}
-            </div>
-        </div>
-
+                {% endfor %}
+            {% else %}
+                <p class="button-alert">ไม่มีรายการเบิก</p>
+            {% endif %}
+        </div>        
 </body>
 
 </html>
