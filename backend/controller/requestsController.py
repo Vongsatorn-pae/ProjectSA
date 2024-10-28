@@ -15,6 +15,10 @@ requestController = Blueprint('request', __name__)
 @requestController.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
+    if current_user.employee.employee_position not in ['worker', 'academic']:
+        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        return redirect(url_for('main.index'))
+    
     # Get the selected status from the dropdown filter (default to 'all')
     selected_status = request.args.get('status', 'all').lower()
 
@@ -45,8 +49,10 @@ def dashboard():
         }
         for req, req_list, prod in requests
     ]
-
-    return render_template('worker/dashboard.html', requests=request_data, selected_status=selected_status)
+    if current_user.employee.employee_position == 'worker':
+        return render_template('worker/dashboard.html', requests=request_data, selected_status=selected_status)
+    elif current_user.employee.employee_position == 'academic':
+        return render_template('academic/dashboard.html', requests=request_data, selected_status=selected_status)
 
 @requestController.route('/request/add', methods=['GET', 'POST'])
 @login_required
