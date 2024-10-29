@@ -292,13 +292,14 @@ def view_history():
     filter_status = request.args.get('status', 'all')  # ดึงค่าจากตัวกรองสถานะ
     
     # Query พื้นฐานสำหรับดึงข้อมูล request ทั้งหมด
-    query = db.session.query(Request, RequestList, ProductList).join(RequestList, Request.request_id == RequestList.request_id)\
-        .join(ProductList, RequestList.product_id == ProductList.product_id)\
-        .filter(Request.employee_id == current_user.employee.employee_id)
+    # query = db.session.query(Request, RequestList, ProductList).join(RequestList, Request.request_id == RequestList.request_id)\
+    #     .join(ProductList, RequestList.product_id == ProductList.product_id)\
+    #     .filter(Request.employee_id == current_user.employee.employee_id)
+    query = db.session.query(Request).filter(Request.employee_id == current_user.employee.employee_id)
 
     # ถ้ามีการค้นหา ให้กรองข้อมูลตามชื่อสินค้า
     if search_query:
-        query = query.filter(ProductList.product_name.ilike(f'%{search_query}%'))
+        query = query.filter(Request.request_id.ilike(f'%{search_query}%'))
 
     # กรองตามสถานะคำขอเบิก
     if filter_status == 'accept':
@@ -394,9 +395,9 @@ def confirm_request():
 @requestController.route('/request/<string:request_id>/details', methods=['GET'])
 @login_required
 def request_details(request_id):
-    if current_user.employee.employee_position not in ['clerical', 'keeper']:
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
-        return redirect(url_for('main.index'))
+    # if current_user.employee.employee_position not in ['clerical', 'keeper']:
+    #     flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+    #     return redirect(url_for('main.index'))
     
     # ดึงรายการสินค้าที่ถูกเบิกตาม request_id
     request = Request.query.filter_by(request_id=request_id).first()
@@ -412,6 +413,10 @@ def request_details(request_id):
         return render_template('clerical/request_details.html', request=request, request_list=request_list)
     elif current_user.employee.employee_position == 'keeper':
         return render_template('keeper/request_details.html', request=request, request_list=request_list)
+    elif current_user.employee.employee_position == 'worker':
+        return render_template('worker/history_request_detail.html', request=request, request_list=request_list)
+    elif current_user.employee.employee_position == 'academic':
+        return render_template('academic/history_request_detail.html', request=request, request_list=request_list)
 
 @requestController.route('/request/reject', methods=['POST'])
 @login_required
