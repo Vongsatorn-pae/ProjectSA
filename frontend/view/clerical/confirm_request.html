@@ -125,7 +125,7 @@
 
     <div class="container mt-4">
         <!-- ฟอร์มสำหรับค้นหาและกรอง -->
-        <form method="GET" action="{{ url_for('order.order_history') }}">
+        <form method="GET" action="{{ url_for('request.confirm_request') }}">
             <label for="search" class="form-label">Search by Request ID or Date:</label>
             <input class="form-control" type="text" id="search" name="search" value="{{ request.args.get('search', '') }}" placeholder="Enter Request ID or Date">
 

@@ -308,9 +308,26 @@ def confirm_request():
         flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
-    # ดึงคำขอเบิกที่ยังไม่ได้รับการอนุมัติ
-    # requests = Request.query.filter_by(request_status='waiting').all()
-    requests = Request.query.all()
+    # รับค่า search และ filter_status จาก query string
+    search_query = request.args.get('search', '')
+    filter_status = request.args.get('filter_status', 'all')
+
+    # สร้าง query เบื้องต้น
+    query = Request.query
+
+    # ถ้ามีค่า search ให้กรองตาม Request ID หรือ Request Date
+    if search_query:
+        query = query.filter(
+            (Request.request_id.ilike(f"%{search_query}%")) |
+            (Request.request_date.ilike(f"%{search_query}%"))
+        )
+
+    # ถ้า filter_status ไม่ใช่ all ให้กรองตาม request_status
+    if filter_status != 'all':
+        query = query.filter_by(request_status=filter_status)
+
+    # ดึงข้อมูลตามเงื่อนไข
+    requests = query.all()
 
     if request.method == 'POST':
         request_id = request.form['request_id']
