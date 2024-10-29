@@ -124,15 +124,17 @@
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
             <a href="{{ url_for('stock.view_stock') }}">Home</a>
+            <a href="{{ url_for('order.order_history') }}">Confirm Order</a>
+            <a href="{{ url_for('stock.view_stock') }}">Product in Stock </a>
             <a href="{{ url_for('stock.add_stock') }}">Add Product</a>
-            <a href="{{ url_for('request.confirm_request') }}">Request</a>
             <a href="{{ url_for('audit.audit_summary') }}">Create Audit</a>
         </div>
 
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image">
             <div class="dropdown-content">
-                <a href="#"><strong>Name:</strong> {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#"><strong>Name:</strong> {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>

@@ -48,6 +48,14 @@ def convert_to_largest_unit(quantity, product_type):
 
     else:
         raise ValueError("Unknown product type")
+    
+def convert_to_base_unit1(quantity, unit, product_type):
+    """Convert quantities to a base unit."""
+    if product_type == 'Food' and unit == 'kg':
+        return quantity * 1000  # Convert kg to grams
+    elif product_type == 'Liquid' and unit == 'L':
+        return quantity * 1000  # Convert liters to milliliters
+    return quantity  # No conversion needed for other units
 
 # Route สำหรับดูรายการสินค้าในสต็อก
 @stockController.route('/stock')
@@ -150,24 +158,13 @@ def get_stock_alerts(limit=None):
         # Fetch all stock entries with the same product_id
         stock_products = Product.query.filter_by(product_id=product.product_id).all()
 
-        total_quantity_in_stock = 0  # Initialize total quantity
-
-        # Debugging: Output for product processing
-        # print(f"Processing Product ID: {product.product_id}")
-
-        # Sum up all quantities for the product
-        for stock_product in stock_products:
-            converted_quantity = convert_to_base_unit(
+        total_quantity_in_stock = sum(
+            convert_to_base_unit1(
                 stock_product.product_quantity,
                 stock_product.product_unit,
                 product.product_type
-            )
-            total_quantity_in_stock += converted_quantity  # Accumulate quantity
-
-            # Debugging: Print out converted quantity
-            # print(f"Product ID: {product.product_id}, "
-            #       f"Original Quantity: {stock_product.product_quantity}, "
-            #       f"Converted Quantity: {converted_quantity}")
+            ) for stock_product in stock_products
+        )
 
         # Add to alerts if total quantity <= threshold
         if total_quantity_in_stock <= float(product.threshold):
@@ -181,9 +178,6 @@ def get_stock_alerts(limit=None):
             }
             stock_alerts.append(alert)
 
-            # Debugging: Confirm the alert was added
-            # print(f"Added Alert: {alert}")
-
     # Ensure no limit is applied unintentionally
     return stock_alerts
 
@@ -192,16 +186,13 @@ def get_stock_alerts(limit=None):
 def stock_alert():
     """Render the stock alert page."""
     stock_data = get_stock_alerts()  # Fetch all alerts
-
-    # Debugging: Output the complete stock data
-    print("Final Stock Data:", stock_data)
-
     return render_template('dashboard.html', stock_alerts=stock_data)
+
 
 @stockController.route('/product_detail/<product_id>')
 @login_required
 def product_detail(product_id):
     product = ProductList.query.filter_by(product_id=product_id).first_or_404()
-    units = Unit.query.all()  # Assuming you need units for the dropdown
+    units = Unit.query.all()  # Fetch units if required
 
     return render_template('keeper/product_detail.html', product=product, units=units)
