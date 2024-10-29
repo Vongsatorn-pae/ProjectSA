@@ -29,6 +29,21 @@
         .search-container {
             margin-bottom: 20px;
         }
+
+        .in-box {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .image-in-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 10%;
+            object-fit: cover;
+            margin-left: auto;
+        }
     </style>
 
     <script>
@@ -84,13 +99,20 @@
             {% for employee in employees %}
             <div class="employee-card">
                 <a href="{{ url_for('auth.view_employee_detail', employee_id=employee.employee_id) }}" class="text-decoration-none">
-                    <span>ID: {{ employee.employee_id }}</span>
-                    <p class="mb-0 text-muted">Name: {{ employee.employee_fname }} {{ employee.employee_lname }}</p>
+                    <div class = "in-box">
+                        <div>
+                            <p class="mb-0 text-muted">Name: {{ employee.employee_fname }} {{ employee.employee_lname }}</p>
+                            <p class="mb-0 text-muted">Position: {{ employee.employee_position }}</p>
+                            <p class="mb-0 text-muted">ID: {{ employee.employee_id }}</p>
+                            <!-- <span>ID: {{ employee.employee_id }}</span> -->
+                        </div>
+                        <img src="{{ employee.employee_image }}" alt="Employee Image" class="image-in-box" />
+                    </div>
                 </a>
             </div>
             {% endfor %}
         {% else %}
-        <p>ไม่พบพนักงาน</p>
+            <p>ไม่พบพนักงาน</p>
         {% endif %}
     </div>
 </body>
