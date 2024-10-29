@@ -327,6 +327,14 @@ def confirm_request():
     # รับค่า search และ filter_status จาก query string
     search_query = request.args.get('search', '')
     filter_status = request.args.get('filter_status', 'all')
+    filter_type = request.args.get('filter_type', 'all')
+
+    # ตรวจสอบตำแหน่งของ employee เพื่อกำหนด filter_type อัตโนมัติ
+    if filter_type == 'all':  # กำหนดเฉพาะกรณีที่ยังไม่มีการกรองประเภทจากผู้ใช้
+        if current_user.employee.employee_position == 'worker':
+            filter_type = 'food'
+        elif current_user.employee.employee_position == 'academic':
+            filter_type = 'chemical'
 
     # สร้าง query เบื้องต้น
     query = Request.query
@@ -341,6 +349,13 @@ def confirm_request():
     # ถ้า filter_status ไม่ใช่ all ให้กรองตาม request_status
     if filter_status != 'all':
         query = query.filter_by(request_status=filter_status)
+
+    # กรองตาม filter_type ที่กำหนดจากตำแหน่ง employee
+    if filter_type != 'all':
+        query = query.join(RequestList, Request.request_id == RequestList.request_id)\
+                    .join(ProductList, RequestList.product_id == ProductList.product_id)\
+                    .filter(ProductList.product_type == filter_type)
+
 
     # ดึงข้อมูลตามเงื่อนไข
     requests = query.all()

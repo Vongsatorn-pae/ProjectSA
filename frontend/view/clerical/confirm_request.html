@@ -43,7 +43,8 @@
             margin: auto;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             margin-top: 10px;
             margin-bottom: 20px;
             border-radius: 8px;
@@ -116,7 +117,8 @@
         <div class="dropdown">
             <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -127,21 +129,34 @@
         <!-- ฟอร์มสำหรับค้นหาและกรอง -->
         <form method="GET" action="{{ url_for('request.confirm_request') }}">
             <label for="search" class="form-label">Search by Request ID or Date:</label>
-            <input class="form-control" type="text" id="search" name="search" value="{{ request.args.get('search', '') }}" placeholder="Enter Request ID or Date">
+            <input class="form-control" type="text" id="search" name="search"
+                value="{{ request.args.get('search', '') }}" placeholder="Enter Request ID or Date">
 
             <label for="filter_status" class="form-label">Filter by Status:</label>
             <select class="form-select" id="filter_status" name="filter_status" onchange="this.form.submit()">
                 <option value="all" {% if request.args.get('filter_status') == 'all' %}selected{% endif %}>All</option>
-                <option value="accept" {% if request.args.get('filter_status') == 'accept' %}selected{% endif %}>Accepted</option>
-                <option value="reject" {% if request.args.get('filter_status') == 'reject' %}selected{% endif %}>Rejected</option>
-                <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>Waiting</option>
+                <option value="accept" {% if request.args.get('filter_status') == 'accept' %}selected{% endif %}>
+                    Accepted</option>
+                <option value="reject" {% if request.args.get('filter_status') == 'reject' %}selected{% endif %}>
+                    Rejected</option>
+                <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>
+                    Waiting</option>
+            </select>
+
+            <label for="filter_type" class="form-label">Filter by Type:</label>
+            <select class="form-select" id="filter_type" name="filter_type" onchange="this.form.submit()">
+                <option value="all" {% if request.args.get('filter_type') == 'all' %}selected{% endif %}>All</option>
+                <option value="food" {% if request.args.get('filter_type') == 'food' %}selected{% endif %}>Food</option>
+                <option value="chemical" {% if request.args.get('filter_type') == 'chemical' %}selected{% endif %}>
+                    Chemical</option>
             </select>
         </form>
 
         {% for request in requests %}
         <div class="request-card">
             <div class="request-header">
-                <a href="{{ url_for('request.request_details', request_id=request.request_id) }}" class="text-decoration-none">
+                <a href="{{ url_for('request.request_details', request_id=request.request_id) }}"
+                    class="text-decoration-none">
                     <span>Request ID: {{ request.request_id }}</span>
                 </a>
                 <span class="request-status {{ request.request_status }}">
