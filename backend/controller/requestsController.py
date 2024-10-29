@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 from flask_login import login_required, current_user
 from models.unit import Unit
-from utils.conversion import convert_to_base_unit, convert_to_largest_unit
+# from utils.conversion import convert_to_base_unit, convert_to_largest_unit
 from models.product import Product
 from models.productList import ProductList
 from models.request import Request
@@ -11,6 +11,44 @@ from datetime import datetime
 from decimal import Decimal
 
 requestController = Blueprint('request', __name__)
+
+def convert_to_base_unit(quantity, unit, product_type):
+    """แปลงหน่วยสินค้าเป็นหน่วยเล็กที่สุด (g สำหรับ Food และ mL สำหรับ Chemical)"""
+    if product_type == 'Food':
+        if unit == 'kg':
+            return quantity * 1000  # แปลง kg เป็น g
+        elif unit == 'g':
+            return quantity  # ถ้าเป็น g อยู่แล้วไม่ต้องแปลง
+        else:
+            raise ValueError("Unknown unit for Food")
+    
+    elif product_type == 'Chemical':
+        if unit == 'L':
+            return quantity * 1000  # แปลง L เป็น mL
+        elif unit == 'mL':
+            return quantity  # ถ้าเป็น mL อยู่แล้วไม่ต้องแปลง
+        else:
+            raise ValueError("Unknown unit for Chemical")
+    
+    else:
+        raise ValueError("Unknown product type")
+
+def convert_to_largest_unit(quantity, product_type):
+    """เปลี่ยนหน่วยเป็นหน่วยใหญ่ที่สุด (kg สำหรับ Food และ L สำหรับ Chemical)"""
+    if product_type == 'Food':
+        if quantity >= 1000:
+            return quantity / 1000, 'kg'  # แปลงกลับเป็น kg ถ้าจำนวน >= 1000g
+        else:
+            return quantity, 'g'  # แสดงเป็น g ถ้าน้อยกว่า 1000g
+
+    elif product_type == 'Chemical':
+        if quantity >= 1000:
+            return quantity / 1000, 'L'  # แปลงกลับเป็น L ถ้าจำนวน >= 1000mL
+        else:
+            return quantity, 'mL'  # แสดงเป็น mL ถ้าน้อยกว่า 1000mL
+
+    else:
+        raise ValueError("Unknown product type")
 
 @requestController.route('/dashboard', methods=['GET'])
 @login_required
@@ -79,42 +117,28 @@ def add_to_cart():
     request_quantity = request.form['request_quantity']
     request_unit = request.form['request_unit']
 
-    # ตรวจสอบสินค้าจากฐานข้อมูล
+    # Query the selected product from the ProductList table
     product = ProductList.query.filter_by(product_id=product_id).first()
     if not product:
         flash('ไม่พบสินค้าที่เลือก', 'danger')
         return redirect(url_for('request.add_request'))
 
-    # ดึงข้อมูลหน่วยและปริมาณสินค้าจากตาราง Product
-    product_stock = Product.query.filter_by(product_id=product_id).first()
-    if not product_stock:
-        flash('ไม่พบสินค้าคงคลัง', 'danger')
-        return redirect(url_for('request.add_request'))
+    # Ensure cart session is initialized
+    if 'cart' not in session:
+        session['cart'] = []
 
-    product_unit = product_stock.product_unit
-    total_available_quantity = db.session.query(db.func.sum(Product.product_quantity))\
-        .filter(Product.product_id == product_id).scalar()
-
-    if total_available_quantity is None:
-        total_available_quantity = 0
-
-    requested_quantity_base = convert_to_base_unit(float(request_quantity), request_unit, product.product_type)
-    available_quantity_base = convert_to_base_unit(total_available_quantity, product_unit, product.product_type)
-
-    if requested_quantity_base > available_quantity_base:
-        flash('สินค้ามีจำนวนไม่เพียงพอสำหรับการเบิก', 'danger')
-        return redirect(url_for('request.add_request'))
-
-    # เพิ่มสินค้าเข้า cart
+    # Add product with image to the cart session
     session['cart'].append({
         'product_id': product_id,
         'product_name': product.product_name,
+        'product_image': product.product_image,  # Store product image URL
         'request_quantity': request_quantity,
         'request_unit': request_unit
     })
-    
+
     flash('เพิ่มสินค้าในรายการสำเร็จ', 'success')
     return redirect(url_for('request.add_request'))
+
 
 @requestController.route('/request/product_detail/<product_id>', methods=['GET', 'POST'])
 @login_required
@@ -267,13 +291,11 @@ def view_history():
         return render_template('worker/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
     elif current_user.employee.employee_position == 'academic':
         return render_template('academic/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
-    elif current_user.employee.employee_position == 'keeper':
-        return render_template('keeper/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
 
 @requestController.route('/request/confirm', methods=['GET', 'POST'])
 @login_required
 def confirm_request():
-    if current_user.employee.employee_position not in ['clerical', 'keeper']:
+    if current_user.employee.employee_position != 'clerical':
         flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
@@ -322,11 +344,8 @@ def confirm_request():
 
         flash('ยืนยันการเบิกสินค้าสำเร็จ', 'success')
         return redirect(url_for('request.confirm_request'))
-    
-    if current_user.employee.employee_position == 'clerical':
-        return render_template('clerical/confirm_request.html', requests=requests)
-    elif current_user.employee.employee_position == 'keeper':
-        return render_template('keeper/history_request.html', requests=requests)
+
+    return render_template('clerical/confirm_request.html', requests=requests)
 
 @requestController.route('/request/<string:request_id>/details', methods=['GET'])
 @login_required
@@ -340,10 +359,7 @@ def request_details(request_id):
     # ดึงรายการสินค้าที่เกี่ยวข้องกับคำขอเบิกนี้
     request_list = RequestList.query.filter_by(request_id=request_id).all()
 
-    if current_user.employee.employee_position == 'clerical':
-        return render_template('clerical/request_details.html', request=request, request_list=request_list)
-    elif current_user.employee.employee_position == 'keeper':
-        return render_template('keeper/request_details.html', request=request, request_list=request_list)
+    return render_template('clerical/request_details.html', request=request, request_list=request_list)
 
 @requestController.route('/request/reject', methods=['POST'])
 @login_required
