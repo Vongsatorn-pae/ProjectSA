@@ -125,7 +125,7 @@
     </div>
 
     <div class="container mt-4">
-        <form method="GET" action="{{ url_for('order.order_history') }}">
+        <form method="GET" action="{{ url_for('request.confirm_request') }}">
             <div class="mb-3">
                 <label for="search" class="form-label">Search by Request ID or Date:</label>
                 <input type="text" class="form-control" id="search" name="search" value="{{ request.args.get('search', '') }}" placeholder="Enter Request ID or Date">

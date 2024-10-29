@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +17,7 @@
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
     <div class="navBar">
         <a class="menu-icon" onclick="toggleMenu()">Create a New Employee Account</a>
@@ -43,77 +45,85 @@
         </div>
     </div>
 
-    <div class = "box">
+    <div class="box">
         <form class="Aform" id="createAccountForm">
             <h3>Account Information</h3>
             <label for="username">Username (optional):</label>
-            <input class = "form-control" type="text" id="username" name="username" placeholder="Leave empty to auto-generate">
-    
+            <input class="form-control" type="text" id="username" name="username"
+                placeholder="Leave empty to auto-generate">
+
             <label for="password">Password (optional):</label>
-            <input class = "form-control" type="password" id="password" name="password" placeholder="Leave empty to auto-generate">
-    
+            <input class="form-control" type="password" id="password" name="password"
+                placeholder="Leave empty to auto-generate">
+
             <label for="employee_position">Position:</label>
-            <select class = "form-select" id="employee_position" name="employee_position" required>
+            <select class="form-select" id="employee_position" name="employee_position" required>
                 <option value="clerical">Clerical</option>
                 <option value="academic">Academic</option>
                 <option value="worker">Worker</option>
             </select>
-    
+
             <h3>Employee Information</h3>
             <label for="employee_fname">First Name:</label>
-            <input class = "form-control" type="text" id="employee_fname" name="employee_fname" required>
-    
+            <input class="form-control" type="text" id="employee_fname" name="employee_fname" required>
+
             <label for="employee_lname">Last Name:</label>
-            <input class = "form-control" type="text" id="employee_lname" name="employee_lname" required>
-    
+            <input class="form-control" type="text" id="employee_lname" name="employee_lname" required>
+
             <label for="employee_age">Age:</label>
-            <input class = "form-control" type="number" id="employee_age" name="employee_age" required>
-    
+            <input class="form-control" type="number" id="employee_age" name="employee_age" required>
+
             <label for="employee_sex">Sex:</label>
-            <input class = "form-control" type="text" id="employee_sex" name="employee_sex" required>
-    
+            <select class="form-select" id="employee_sex" name="employee_sex" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
             <label for="employee_address">Address (optional):</label>
-            <input class = "form-control" type="text" id="employee_address" name="employee_address" placeholder="Leave empty to auto-generate">
-    
+            <input class="form-control" type="text" id="employee_address" name="employee_address"
+                placeholder="Leave empty to auto-generate">
+
             <label for="employee_salary">Salary:</label>
-            <input class = "form-control" type="number" id="employee_salary" name="employee_salary" required>
-    
-            <button class = "button-20" type="submit">Create Account</button>
+            <input class="form-control" type="number" id="employee_salary" name="employee_salary" required>
+
+            <button class="button-20" type="submit">Create Account</button>
         </form>
     </div>
 
     <!-- Popup Modal สำหรับแสดงข้อความ -->
-    <div class="modal fade" id="flashMessageModal" tabindex="-1" role="dialog" aria-labelledby="flashMessageLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="flashMessageLabel">Notification</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body" id="flashMessageBody">
-            <!-- ข้อความจะแสดงที่นี่ -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-success" id="closeBtn" data-dismiss="modal">Close</button>
-          </div>
+    <div class="modal fade" id="flashMessageModal" tabindex="-1" role="dialog" aria-labelledby="flashMessageLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="flashMessageLabel">Notification</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="flashMessageBody">
+                    <!-- ข้อความจะแสดงที่นี่ -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="closeBtn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
     <!-- เพิ่ม Bootstrap JS และ jQuery -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        $("#createAccountForm").submit(function(e){
+        $("#createAccountForm").submit(function (e) {
             e.preventDefault(); // ป้องกันการส่งฟอร์มแบบปกติ
 
             $.ajax({
                 type: "POST",
                 url: "{{ url_for('auth.create_account') }}", // URL ของ route create_account
                 data: $(this).serialize(), // ส่งข้อมูลฟอร์มทั้งหมด
-                success: function(response){
+                success: function (response) {
                     // แสดง popup เมื่อสร้างบัญชีสำเร็จ
                     $("#flashMessageBody").html(`
                         <div class="alert alert-success">
@@ -122,7 +132,7 @@
                     `);
                     $('#flashMessageModal').modal('show');
                 },
-                error: function() {
+                error: function () {
                     // แสดง popup เมื่อเกิดข้อผิดพลาด
                     $("#flashMessageBody").html(`
                         <div class="alert alert-danger">
@@ -134,9 +144,10 @@
             });
         });
         // เมื่อผู้ใช้กดปุ่ม Close ใน modal จะล้างข้อมูลฟอร์ม
-        $("#closeBtn").click(function(){
+        $("#closeBtn").click(function () {
             document.getElementById('createAccountForm').reset(); // ล้างข้อมูลฟอร์ม
         });
     </script>
 </body>
+
 </html>
