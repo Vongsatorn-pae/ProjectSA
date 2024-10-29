@@ -155,56 +155,27 @@ def change_password_page():
         except Exception as e:
             db.session.rollback()
             return jsonify({"status": "error", "message": "Failed to update password"}), 500
-
-# @authController.route('/auth/change_password', methods=['POST'])
-# @login_required
-# def change_password():
-#     data = request.get_json()
-#     current_password = data.get('current_password')
-#     new_password = data.get('new_password')
-#     confirm_password = data.get('confirm_password')
-
-#     # ตรวจสอบว่ารหัสผ่านปัจจุบันตรงกับที่บันทึกในฐานข้อมูลหรือไม่
-#     if current_user.password != current_password:
-#         return jsonify({"status": "error", "message": "Current password is incorrect"}), 400
-
-#     # ตรวจสอบว่ารหัสผ่านใหม่และการยืนยันรหัสผ่านใหม่ตรงกันหรือไม่
-#     if new_password != confirm_password:
-#         return jsonify({"status": "error", "message": "New passwords do not match"}), 400
-
-#     # ตรวจสอบความยาวของรหัสผ่านใหม่
-#     if len(new_password) < 8:
-#         return jsonify({"status": "error", "message": "Password must be at least 8 characters"}), 400
-
-#     try:
-#         # อัปเดตรหัสผ่านใหม่
-#         current_user.password = new_password
-#         db.session.commit()
-#         flash('Password updated successfully', 'success')
-#         return jsonify({"status": "success"}), 200
-#     except Exception as e:
-#         db.session.rollback()
-#         flash('Failed to update password', 'danger')
-#         return jsonify({"status": "error", "message": str(e)}), 400
     
-@authController.route('/auth/update_address', methods=['POST'])
+@authController.route('/auth/edit_address', methods=['GET', 'POST'])
 @login_required
-def update_address():
-    data = request.get_json()
-    new_address = data.get('address')
+def edit_address():
+    if request.method == 'POST':
+        data = request.get_json()
+        new_address = data.get('address')
 
-    if not new_address:
-        return jsonify({"status": "error", "message": "Address is required"}), 400
+        if not new_address:
+            return jsonify({"status": "error", "message": "Address is required"}), 400
 
-    try:
-        current_user.employee.employee_address = new_address
-        db.session.commit()
-        flash('Address updated successfully', 'success')
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        db.session.rollback()
-        flash('Failed to update address', 'danger')
-        return jsonify({"status": "error", "message": str(e)}), 400
+        try:
+            current_user.employee.employee_address = new_address
+            db.session.commit()
+            flash('Address updated successfully', 'success')
+            return jsonify({"status": "success"}), 200
+        except Exception as e:
+            db.session.rollback()
+            flash('Failed to update address', 'danger')
+            return jsonify({"status": "error", "message": str(e)}), 400
+    return render_template('auth/edit_address.html')
     
 @authController.route('/employees', methods=['GET'])
 @login_required

@@ -31,26 +31,26 @@
                     .message);
             }
 
-            async function updateAddress() {
-                const address = document.querySelector("#addressInput").value;
+            // async function updateAddress() {
+            //     const address = document.querySelector("#addressInput").value;
 
-                const response = await fetch('/auth/update_address', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        address
-                    })
-                });
+            //     const response = await fetch('/auth/update_address', {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json'
+            //         },
+            //         body: JSON.stringify({
+            //             address
+            //         })
+            //     });
 
-                const result = await response.json();
-                alert(result.status === "success" ? "Address updated successfully" : "Error: " + result
-                    .message);
-            }
+            //     const result = await response.json();
+            //     alert(result.status === "success" ? "Address updated successfully" : "Error: " + result
+            //         .message);
+            // }
 
-            document.querySelector(".button-save-password").addEventListener("click", updatePassword);
-            document.querySelector(".button-save-address").addEventListener("click", updateAddress);
+            // document.querySelector(".button-save-password").addEventListener("click", updatePassword);
+            // document.querySelector(".button-save-address").addEventListener("click", updateAddress);
         });
 
         function toggleMenu() {
@@ -58,6 +58,12 @@
         }
     </script>
     <style>
+        .button-group {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
         .button-save-password,
         .button-save-address,
         .button-go-back {
@@ -73,13 +79,13 @@
         }
 
         .button-save-password:hover,
-        .button-save-address,
+        .button-save-address:hover,
         .button-go-back:hover {
             background-color: #3A8B6F;
         }
 
         .button-save-password:active,
-        .button-save-address,
+        .button-save-address:active,
         .button-go-back:active {
             background-color: #3A8B6F;
         }
@@ -154,13 +160,12 @@
 
         <div class="input-group">
             <label>Address:</label>
-            <textarea id="addressInput">{{ employee.employee_address }}</textarea>
+            <textarea id="addressInput" readonly value>{{ employee.employee_address }}</textarea>
         </div>
 
         <div class="button-group">
-            <!-- <button class="button-save-password">Save Password</button> -->
-            <a href="{{ url_for('auth.change_password_page') }}" class="button-save-password">Edit</a>
-            <button class="button-save-address">Save Address</button>
+            <button onclick="window.location.href='{{ url_for('auth.change_password_page') }}'" class="button-save-password">Change Password</button>
+            <button onclick="window.location.href='{{ url_for('auth.edit_address') }}'" class="button-save-address">Change Address</button>
             <button type="button" class="button-go-back" onclick="window.history.back()">Back</button>
         </div>
     </div>

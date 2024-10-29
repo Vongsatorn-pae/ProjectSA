@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Address</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .button-save-address,
+        .button-go-back {
+            background-color: #4EA68D;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .button-save-address:hover,
+        .button-go-back:hover {
+            background-color: #3A8B6F;
+        }
+
+        .button-save-address:active,
+        .button-go-back:active {
+            background-color: #3A8B6F;
+        }
+    </style>
+    <script>
+        function toggleMenu() {
+            document.getElementById("tabMenu").classList.toggle("open");
+        }
+
+        async function updateAddress() {
+            const address = document.getElementById("addressInput").value;
+
+            const response = await fetch('/auth/edit_address', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ address })
+            });
+
+            const result = await response.json();
+            alert(result.status === "success" ? "Address updated successfully" : "Error: " + result.message);
+            if (result.status === "success") {
+                window.location.href = '/profile';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="navBar">
+        <a class="menu-icon" onclick="toggleMenu()">Edit Address</a>
+
+        <div id="tabMenu" class="tab-menu">
+            <h1>Menu</h1>
+            <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
+            <a href="javascript:window.history.back()">Back</a>
+        </div>
+
+        <div class="dropdown">
+            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <div class="dropdown-content">
+                <a href="#">Name: {{ current_user.employee.employee_fname }}
+                    {{ current_user.employee.employee_lname }}</a>
+                <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Edit Address</h2>
+        <form id="editAddressForm">
+            <div class="mb-3">
+                <label for="addressInput" class="form-label">Address</label>
+                <textarea id="addressInput" class="form-control">{{ current_user.employee.employee_address }}</textarea>
+            </div>
+            <button type="button" class="button-save-address" onclick="updateAddress()">Save Address</button>
+            <button type="button" class="button-go-back" onclick="window.history.back()">Back</button>
+        </form>
+    </div>
+</body>
+</html>

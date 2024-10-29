@@ -125,28 +125,42 @@ def add_to_cart():
     request_quantity = request.form['request_quantity']
     request_unit = request.form['request_unit']
 
-    # Query the selected product from the ProductList table
+    # ตรวจสอบสินค้าจากฐานข้อมูล
     product = ProductList.query.filter_by(product_id=product_id).first()
     if not product:
         flash('ไม่พบสินค้าที่เลือก', 'danger')
         return redirect(url_for('request.add_request'))
 
-    # Ensure cart session is initialized
-    if 'cart' not in session:
-        session['cart'] = []
+    # ดึงข้อมูลหน่วยและปริมาณสินค้าจากตาราง Product
+    product_stock = Product.query.filter_by(product_id=product_id).first()
+    if not product_stock:
+        flash('ไม่พบสินค้าคงคลัง', 'danger')
+        return redirect(url_for('request.add_request'))
 
-    # Add product with image to the cart session
+    product_unit = product_stock.product_unit
+    total_available_quantity = db.session.query(db.func.sum(Product.product_quantity))\
+        .filter(Product.product_id == product_id).scalar()
+
+    if total_available_quantity is None:
+        total_available_quantity = 0
+
+    requested_quantity_base = convert_to_base_unit(float(request_quantity), request_unit, product.product_type)
+    available_quantity_base = convert_to_base_unit(total_available_quantity, product_unit, product.product_type)
+
+    if requested_quantity_base > available_quantity_base:
+        flash('สินค้ามีจำนวนไม่เพียงพอสำหรับการเบิก', 'danger')
+        return redirect(url_for('request.add_request'))
+
+    # เพิ่มสินค้าเข้า cart
     session['cart'].append({
         'product_id': product_id,
         'product_name': product.product_name,
-        'product_image': product.product_image,  # Store product image URL
         'request_quantity': request_quantity,
         'request_unit': request_unit
     })
-
+    
     flash('เพิ่มสินค้าในรายการสำเร็จ', 'success')
     return redirect(url_for('request.add_request'))
-
 
 @requestController.route('/request/product_detail/<product_id>', methods=['GET', 'POST'])
 @login_required
