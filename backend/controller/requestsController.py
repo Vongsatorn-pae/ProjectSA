@@ -156,6 +156,7 @@ def add_to_cart():
         'product_id': product_id,
         'product_name': product.product_name,
         'request_quantity': request_quantity,
+        'product_image': product.product_image,
         'request_unit': request_unit
     })
     
