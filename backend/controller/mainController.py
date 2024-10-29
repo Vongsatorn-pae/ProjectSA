@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, redirect, render_template, abort, request, url_for
-from flask_login import login_required, current_user
+from flask_login import logout_user, login_required, current_user
 from controller.orderController import order_history
 from controller.stockController import stock_alert
 from models.order import Order
@@ -8,12 +8,18 @@ from models.productList import ProductList
 from models.request import Request
 from models.requestList import RequestList
 from extensions import db
+from controller.stockController import stock_alert
+from controller.stockController import get_stock_alerts
 
 mainController = Blueprint('main', __name__)
 
-from controller.stockController import stock_alert  # นำเข้า stock_alert
-
-from controller.stockController import get_stock_alerts
+@mainController.route('/index', methods=['GET'])
+@login_required
+def index():
+    # Log out user
+    logout_user()
+    flash('You have been logged out successfully.', 'success')
+    return redirect(url_for('auth.login'))
 
 @mainController.route('/keeper_dashboard')
 @login_required

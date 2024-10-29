@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>Employee Profile</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
@@ -59,8 +59,7 @@
     </script>
     <style>
         .button-save-password,
-        .button-save-address,
-        .button-go-back {
+        .button-save-address {
             background-color: #4EA68D;
             color: white;
             border: none;
@@ -69,18 +68,15 @@
             font-size: 1em;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            text-decoration: none;
         }
 
         .button-save-password:hover,
-        .button-save-address,
-        .button-go-back:hover {
+        .button-save-address:hover {
             background-color: #3A8B6F;
         }
 
         .button-save-password:active,
-        .button-save-address,
-        .button-go-back:active {
+        .button-save-address:active {
             background-color: #3A8B6F;
         }
     </style>
@@ -88,12 +84,19 @@
 
 <body>
     <div class="navBar">
-        <a class="menu-icon" onclick="toggleMenu()">Profile</a>
+        <a class="menu-icon" onclick="toggleMenu()">Employee Profile</a>
 
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
-            <a href="javascript:window.history.back()">Back</a>
+            <a href="{{ url_for('main.keeper_dashboard') }}">Home</a>
+            <a href="{{ url_for('stock.view_stock') }}">Product In Stock</a>
+            <a href="{{ url_for('order.add_order') }}">New Order</a>
+            <a href="{{ url_for('order.order_history') }}">Order History</a>
+            <a href="{{ url_for('request.confirm_request') }}">Request History</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
+            <a href="{{ url_for('auth.view_employees') }}">Employee List</a>
+            <a href="{{ url_for('auth.create_account') }}">Create Account</a>
         </div>
 
         <div class="dropdown">
@@ -109,16 +112,8 @@
 
     <div class="container">
         <div class="profile-header">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image">
+            <img src="{{ employee.employee_image }}" alt="Employee Image">
             <div class="username-password-id">
-                <div class="input-group">
-                    <label>Username:</label>
-                    <input type="text" readonly value="{{ current_user.username }}">
-                </div>
-                <!-- <div class="input-group">
-                    <label>Password:</label>
-                    <input type="password" id="passwordInput" placeholder="Enter new password">
-                </div> -->
                 <div class="input-group">
                     <label>ID:</label>
                     <input type="text" readonly value="{{ employee.employee_id }}">
@@ -154,15 +149,13 @@
 
         <div class="input-group">
             <label>Address:</label>
-            <textarea id="addressInput">{{ employee.employee_address }}</textarea>
+            <input type="text" readonly value="{{ employee.employee_address }}">
         </div>
 
         <div class="button-group">
-            <!-- <button class="button-save-password">Save Password</button> -->
-            <a href="{{ url_for('auth.change_password_page') }}" class="button-save-password">Change Password</a>
-            <button class="button-save-address">Save Address</button>
-            <button type="button" class="button-go-back" onclick="window.history.back()">Back</button>
+            <button class="button-save-password" onclick="window.history.back()">Back</button>
         </div>
+        
     </div>
 </body>
 

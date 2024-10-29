@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,100 +10,98 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navBar {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #4EA68D;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .menu-icon {
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            margin-right: auto;
+        }
+
+        .dropdown img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .form-control, .form-select {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: background-color 0.2s;
+        }
+
+        .product-card:hover {
+            background-color: #f1f1f1;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .product-image img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+        }
+    </style>
     <script>
         function toggleMenu() {
             document.getElementById("tabMenu").classList.toggle("open");
         }
 
-        var sortDirection = { name: false, quantity: false, unit: false };
-
         function searchProducts() {
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("searchBar");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("stockTable");
-            tr = table.getElementsByTagName("tr");
+            const input = document.getElementById("searchBar").value.toUpperCase();
+            const cards = document.getElementsByClassName("product-card");
 
-            for (i = 1; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
+            for (let card of cards) {
+                const productName = card.getAttribute("data-name").toUpperCase();
+                card.style.display = productName.includes(input) ? "" : "none";
             }
         }
 
         function filterByType() {
-            var selectedType = document.getElementById("productTypeFilter").value;
-            var table = document.getElementById("stockTable");
-            var tr = table.getElementsByTagName("tr");
+            const selectedType = document.getElementById("productTypeFilter").value;
+            const cards = document.getElementsByClassName("product-card");
 
-            for (var i = 1; i < tr.length; i++) {
-                var productType = tr[i].getAttribute("data-type");
-
-                if (selectedType === "all" || productType === selectedType) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
+            for (let card of cards) {
+                const productType = card.getAttribute("data-type");
+                card.style.display = (selectedType === "all" || productType === selectedType) ? "" : "none";
             }
-        }
-
-        function sortTableByColumn(columnIndex, dataType) {
-            var table, rows, switching, i, x, y, shouldSwitch;
-            table = document.getElementById("stockTable");
-            switching = true;
-
-            while (switching) {
-                switching = false;
-                rows = table.rows;
-
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-
-                    x = rows[i].getElementsByTagName("td")[columnIndex];
-                    y = rows[i + 1].getElementsByTagName("td")[columnIndex];
-
-                    if (dataType === 'number') {
-                        if (sortDirection[columnIndex]) {
-                            if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
-                                shouldSwitch = true;
-                                break;
-                            }
-                        } else {
-                            if (parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) {
-                                shouldSwitch = true;
-                                break;
-                            }
-                        }
-                    } else if (dataType === 'string') {
-                        if (sortDirection[columnIndex]) {
-                            if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                                shouldSwitch = true;
-                                break;
-                            }
-                        } else {
-                            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                                shouldSwitch = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
-                }
-            }
-            sortDirection[columnIndex] = !sortDirection[columnIndex];
         }
     </script>
 </head>
+
 <body>
     <div class="navBar">
         <a class="menu-icon" onclick="toggleMenu()">View Stock</a>
@@ -130,55 +129,31 @@
     </div>
 
     <div class="container mt-4">
-        <!-- ปุ่ม Add Product
-        <div class="text-left mb-3">
-            <a href="{{ url_for('stock.add_stock') }}" class = "button-19">Add Product</a>
-            <a href="{{ url_for('request.confirm_request') }}" class = "button-19">Request</a>
-        </div> -->
-
         <!-- Search Bar -->
         <input type="text" id="searchBar" onkeyup="searchProducts()" placeholder="Search for products..." class="form-control mb-3">
 
-        <!-- Dropdown สำหรับกรองประเภทสินค้า -->
-        <select id="productTypeFilter" onchange="filterByType()" class="form-control mb-3">
+        <!-- Dropdown for Filtering by Type -->
+        <select id="productTypeFilter" onchange="filterByType()" class="form-select mb-3">
             <option value="all">All Types</option>
             <option value="Food">Food</option>
             <option value="Chemical">Chemical</option>
         </select>
 
-        <!-- ตารางแสดงข้อมูลสินค้า -->
-        <table id="stockTable" class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th onclick="sortTableByColumn(0, 'string')">Product Name</th>
-                    <th onclick="sortTableByColumn(1, 'number')">Quantity</th>
-                    <th onclick="sortTableByColumn(2, 'string')">Unit</th>
-                    <th>Image</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr data-type="{{ product.product_type }}">
-                    <td>{{ product.product_name }}</td>
-                    <td>{{ product.total_quantity }}</td>
-                    <td>{{ product.unit }}</td>
-                    <td><img src="{{ product.product_image }}" alt="Product Image" style="width: 50px; height: 50px;"></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Product Cards -->
+        {% for product in products %}
+        <!-- <a href="{{ url_for('stock.view_product_details', product_id=product.product_id) }}" style="text-decoration: none; color: inherit;"> -->
+            <div class="product-card" data-name="{{ product.product_name }}" data-type="{{ product.product_type }}">
+                <div class="product-header">
+                    <span><strong>Product Name:</strong> {{ product.product_name }}</span>
+                    <div class="product-image">
+                        <img src="{{ product.product_image }}" alt="Product Image">
+                    </div>
+                </div>
+                <p class="mb-0"><strong>Quantity:</strong> {{ product.total_quantity }} {{ product.unit }}</p>
+            </div>
+        <!-- </a> -->
+        {% endfor %}
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
-    <!-- <h2>Audit</h2>
-    <ul>
-        <li><a href="{{ url_for('audit.audit_summary') }}">Create Audit</a></li>
-    </ul>
-    <h2>Confirm Order</h2>
-    <ul>
-        <li><a href="{{ url_for('order.order_history') }}">Confirm Order</a></li>
-    </ul> -->
 </body>
+
 </html>

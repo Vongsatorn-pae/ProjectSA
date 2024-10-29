@@ -11,30 +11,85 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .confirm-button {
-            background-color: #28a745;
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navBar {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #4EA68D;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .menu-icon {
+            font-size: 24px;
             color: white;
-            padding: 5px 10px;
-            border: none;
             cursor: pointer;
+            margin-right: auto;
         }
 
-        .confirm-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        .dropdown img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
         }
 
-        .reject-button {
-            background-color: #f43f3f;
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
+        .container {
+            max-width: 800px;
+            margin: auto;
         }
 
-        .reject-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        .form-control, .form-select {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .request-card {
+            background-color: white;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: background-color 0.2s;
+        }
+
+        .request-card:hover {
+            background-color: #f1f1f1;
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .request-status {
+            font-weight: bold;
+            text-transform: capitalize;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .request-status.accept {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .request-status.reject {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .request-status.waiting {
+            background-color: #fffde7;
+            color: #f9a825;
         }
     </style>
     <script>
@@ -52,9 +107,9 @@
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
             <a href="{{ url_for('main.keeper_dashboard') }}">Home</a>
-            <a href="{{ url_for('order.order_history') }}">Confirm Order</a> 
-            <a href="{{ url_for('stock.view_stock') }}">Product in Stock </a>
-            <a href="{{ url_for('stock.add_stock') }}" >Add Product</a>
+            <a href="{{ url_for('order.order_history') }}">Confirm Order</a>
+            <a href="{{ url_for('stock.view_stock') }}">Product in Stock</a>
+            <a href="{{ url_for('stock.add_stock') }}">Add Product</a>
             <a href="{{ url_for('audit.audit_summary') }}">Create Audit</a>
         </div>
 
@@ -69,79 +124,35 @@
     </div>
 
     <div class="container mt-4">
-
         <!-- ฟอร์มสำหรับค้นหาและกรอง -->
         <form method="GET" action="{{ url_for('order.order_history') }}">
-            <label for="search">Search by Order ID or Date:</label>
-            <input class="form-control" type="text" id="search" name="search"
-                value="{{ request.args.get('search', '') }}">
+            <label for="search" class="form-label">Search by Request ID or Date:</label>
+            <input class="form-control" type="text" id="search" name="search" value="{{ request.args.get('search', '') }}" placeholder="Enter Request ID or Date">
 
-            <label for="filter_status">Filter by Status:</label>
+            <label for="filter_status" class="form-label">Filter by Status:</label>
             <select class="form-select" id="filter_status" name="filter_status" onchange="this.form.submit()">
                 <option value="all" {% if request.args.get('filter_status') == 'all' %}selected{% endif %}>All</option>
-                <option value="accept" {% if request.args.get('filter_status') == 'accept' %}selected{% endif %}>
-                    Accepted</option>
-                <option value="reject" {% if request.args.get('filter_status') == 'reject' %}selected{% endif %}>
-                    Rejected</option>
-                <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>
-                    Waiting</option>
+                <option value="accept" {% if request.args.get('filter_status') == 'accept' %}selected{% endif %}>Accepted</option>
+                <option value="reject" {% if request.args.get('filter_status') == 'reject' %}selected{% endif %}>Rejected</option>
+                <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>Waiting</option>
             </select>
         </form>
 
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>Employee</th>
-                    <th>Request Date</th>
-                    <th>Request Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for request in requests %}
-                <tr>
-                    <td><a href="{{ url_for('request.request_details', request_id=request.request_id) }}">{{ request.request_id }}</a></td>
-                    <td>{{ request.employee_id }}</td>
-                    <td>{{ request.request_date }}</td>
-                    <td>{{ request.request_status }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% for request in requests %}
+        <div class="request-card">
+            <div class="request-header">
+                <a href="{{ url_for('request.request_details', request_id=request.request_id) }}" class="text-decoration-none">
+                    <span>Request ID: {{ request.request_id }}</span>
+                </a>
+                <span class="request-status {{ request.request_status }}">
+                    {{ request.request_status }}
+                </span>
+            </div>
+            <p class="mb-0 text-muted">Request Date: {{ request.request_date }}</p>
+            <p class="mb-0 text-muted">Employee: {{ request.employee_id }}</p>
+        </div>
+        {% endfor %}
     </div>
-
-    <script>
-        function filterTable() {
-            const searchInput = document.getElementById("searchInput").value.toLowerCase();
-            const statusFilter = document.getElementById("statusFilter").value;
-            const table = document.getElementById("requestTable");
-            const rows = table.getElementsByTagName("tr");
-
-            for (let i = 0; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName("td");
-                if (cells.length > 0) {
-                    const requestId = cells[0].innerText.toLowerCase();
-                    const employeeId = cells[1].innerText.toLowerCase();
-                    const status = cells[3].innerText.toLowerCase();
-
-                    const matchesSearch = requestId.includes(searchInput) || employeeId.includes(searchInput);
-                    const matchesStatus = statusFilter === "" || status === statusFilter;
-
-                    rows[i].style.display = matchesSearch && matchesStatus ? "" : "none";
-                }
-            }
-        }
-    </script>
-
-    <script>
-        document.querySelectorAll('.confirm-button, .reject-button').forEach(button => {
-            button.addEventListener('click', function (event) {
-                const action = button.classList.contains('confirm-button') ? 'confirm' : 'reject';
-                if (!confirm(`Are you sure you want to ${action} this request?`)) {
-                    event.preventDefault();
-                }
-            });
-        });
-    </script>
 </body>
+
 </html>

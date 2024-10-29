@@ -196,3 +196,18 @@ def product_detail(product_id):
     units = Unit.query.all()  # Fetch units if required
 
     return render_template('keeper/product_detail.html', product=product, units=units)
+
+@stockController.route('/stock/<product_id>', methods=['GET'])
+@login_required
+def view_product_details(product_id):
+    # Fetch product details from ProductList and Product tables
+    product = db.session.query(ProductList, Product).join(Product, Product.product_id == ProductList.product_id).filter(ProductList.product_id == product_id).first()
+
+    if not product:
+        flash('ไม่พบสินค้าที่ต้องการ', 'danger')
+        return redirect(url_for('stock.view_stock'))
+
+    # Separate data for clarity
+    product_list, product_instance = product
+
+    return render_template('keeper/product_instock_detail.html', product=product_list, product_instance=product_instance)

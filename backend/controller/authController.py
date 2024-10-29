@@ -126,26 +126,66 @@ def view_profile():
     employee = current_user.employee
     return render_template('profile.html', employee=employee)
 
-@authController.route('/auth/update_password', methods=['POST'])
+@authController.route('/auth/change_password', methods=['GET', 'POST'])
 @login_required
-def update_password():
-    data = request.get_json()
-    new_password = data.get('password')
+def change_password_page():
+    if request.method == 'GET':
+        return render_template('auth/change_password.html')
+    
+    if request.method == 'POST':
+        # การจัดการ POST (การอัปเดตรหัสผ่าน) - ตัวอย่างการตอบกลับ
+        data = request.get_json()
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
 
-    # ตรวจสอบความยาวรหัสผ่าน (ถ้าต้องการ)
-    if not new_password or len(new_password) < 8:
-        return jsonify({"status": "error", "message": "Password must be at least 8 characters"}), 400
+        # ตัวอย่างการตรวจสอบข้อมูลรหัสผ่าน
+        if current_password != current_user.password:
+            return jsonify({"status": "error", "message": "Current password is incorrect"}), 400
+        if new_password != confirm_password:
+            return jsonify({"status": "error", "message": "New passwords do not match"}), 400
+        if len(new_password) < 8:
+            return jsonify({"status": "error", "message": "Password must be at least 8 characters"}), 400
 
-    try:
-        # บันทึกรหัสผ่านเป็นข้อความธรรมดา
-        current_user.password = new_password
-        db.session.commit()
-        flash('Password updated successfully', 'success')
-        return jsonify({"status": "success"}), 200
-    except Exception as e:
-        db.session.rollback()
-        flash('Failed to update password', 'danger')
-        return jsonify({"status": "error", "message": str(e)}), 400
+        # การบันทึกรหัสผ่านใหม่
+        try:
+            current_user.password = new_password
+            db.session.commit()
+            return jsonify({"status": "success", "message": "Password updated successfully"}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"status": "error", "message": "Failed to update password"}), 500
+
+# @authController.route('/auth/change_password', methods=['POST'])
+# @login_required
+# def change_password():
+#     data = request.get_json()
+#     current_password = data.get('current_password')
+#     new_password = data.get('new_password')
+#     confirm_password = data.get('confirm_password')
+
+#     # ตรวจสอบว่ารหัสผ่านปัจจุบันตรงกับที่บันทึกในฐานข้อมูลหรือไม่
+#     if current_user.password != current_password:
+#         return jsonify({"status": "error", "message": "Current password is incorrect"}), 400
+
+#     # ตรวจสอบว่ารหัสผ่านใหม่และการยืนยันรหัสผ่านใหม่ตรงกันหรือไม่
+#     if new_password != confirm_password:
+#         return jsonify({"status": "error", "message": "New passwords do not match"}), 400
+
+#     # ตรวจสอบความยาวของรหัสผ่านใหม่
+#     if len(new_password) < 8:
+#         return jsonify({"status": "error", "message": "Password must be at least 8 characters"}), 400
+
+#     try:
+#         # อัปเดตรหัสผ่านใหม่
+#         current_user.password = new_password
+#         db.session.commit()
+#         flash('Password updated successfully', 'success')
+#         return jsonify({"status": "success"}), 200
+#     except Exception as e:
+#         db.session.rollback()
+#         flash('Failed to update password', 'danger')
+#         return jsonify({"status": "error", "message": str(e)}), 400
     
 @authController.route('/auth/update_address', methods=['POST'])
 @login_required
@@ -175,3 +215,13 @@ def view_employees():
     except Exception as e:
         flash(f"Error fetching employees: {str(e)}", "danger")
         return redirect(url_for('main.index'))
+    
+@authController.route('/employees/<string:employee_id>', methods=['GET'])
+@login_required
+def view_employee_detail(employee_id):
+    try:
+        employee = Employee.query.get_or_404(employee_id)  # ดึงข้อมูลพนักงานตาม employee_id
+        return render_template('keeper/employee_detail.html', employee=employee)
+    except Exception as e:
+        flash(f"Error fetching employee details: {str(e)}", "danger")
+        return redirect(url_for('auth.view_employees'))
