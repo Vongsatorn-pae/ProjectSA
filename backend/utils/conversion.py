@@ -41,6 +41,6 @@ def convert_to_base_unit1(quantity, unit, product_type):
     """Convert quantities to a base unit."""
     if product_type == 'Food' and unit == 'kg':
         return quantity * 1000  # Convert kg to grams
-    elif product_type == 'Liquid' and unit == 'L':
+    elif product_type == 'Chemical' and unit == 'L':
         return quantity * 1000  # Convert liters to milliliters
     return quantity  # No conversion needed for other units
