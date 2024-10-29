@@ -131,6 +131,14 @@
                 <input type="text" class="form-control" id="search" name="search" value="{{ request.args.get('search', '') }}" placeholder="Enter Request ID or Date">
             </div>
 
+            <label for="filter_type" class="form-label">Filter by Type:</label>
+            <select class="form-select" id="filter_type" name="filter_type" onchange="this.form.submit()">
+                <option value="all" {% if request.args.get('filter_type') == 'all' %}selected{% endif %}>All</option>
+                <option value="food" {% if request.args.get('filter_type') == 'food' %}selected{% endif %}>Food</option>
+                <option value="chemical" {% if request.args.get('filter_type') == 'chemical' %}selected{% endif %}>
+                    Chemical</option>
+            </select>
+
             <div class="mb-3">
                 <label for="filter_status" class="form-label">Filter by Status:</label>
                 <select class="form-select" id="filter_status" name="filter_status" onchange="this.form.submit()">
@@ -140,30 +148,24 @@
                     <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>Waiting</option>
                 </select>
             </div>
-
-            <label for="filter_type" class="form-label">Filter by Type:</label>
-            <select class="form-select" id="filter_type" name="filter_type" onchange="this.form.submit()">
-                <option value="all" {% if request.args.get('filter_type') == 'all' %}selected{% endif %}>All</option>
-                <option value="food" {% if request.args.get('filter_type') == 'food' %}selected{% endif %}>Food</option>
-                <option value="chemical" {% if request.args.get('filter_type') == 'chemical' %}selected{% endif %}>
-                    Chemical</option>
-            </select>
         </form>
 
-        {% for request in requests %}
-        <div class="order-card">
-            <div class="order-header">
-                <a href="{{ url_for('request.request_details', request_id=request.request_id) }}" class="text-decoration-none">
-                    <span>Request ID: {{ request.request_id }}</span>
-                </a>
-                <span class="order-status {{ request.request_status }}">
-                    {{ request.request_status }}
-                </span>
+        {% if request.args.get('filter_type') in ['all', 'food', 'chemical'] %}
+            {% for request in requests %}
+            <div class="order-card">
+                <div class="order-header">
+                    <a href="{{ url_for('request.request_details', request_id=request.request_id) }}" class="text-decoration-none">
+                        <span>Request ID: {{ request.request_id }}</span>
+                    </a>
+                    <span class="order-status {{ request.request_status }}">
+                        {{ request.request_status }}
+                    </span>
+                </div>
+                <p class="mb-0 text-muted">Request Date: {{ request.request_date }}</p>
+                <p class="mb-0 text-muted">Employee: {{ request.employee_id }}</p>
             </div>
-            <p class="mb-0 text-muted">Request Date: {{ request.request_date }}</p>
-            <p class="mb-0 text-muted">Employee: {{ request.employee_id }}</p>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
     </div>
 </body>
 </html>
