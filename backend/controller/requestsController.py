@@ -303,7 +303,8 @@ def view_history():
 @requestController.route('/request/confirm', methods=['GET', 'POST'])
 @login_required
 def confirm_request():
-    if current_user.employee.employee_position != 'clerical':
+    if current_user.employee.employee_position not in ['clerical', 'keeper']:
+    # if current_user.employee.employee_position != 'clerical':
         flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
@@ -353,11 +354,18 @@ def confirm_request():
         flash('ยืนยันการเบิกสินค้าสำเร็จ', 'success')
         return redirect(url_for('request.confirm_request'))
 
-    return render_template('clerical/confirm_request.html', requests=requests)
+    if current_user.employee.employee_position == 'clerical':
+        return render_template('clerical/confirm_request.html', requests=requests)
+    elif current_user.employee.employee_position == 'keeper':
+        return render_template('keeper/history_request.html', requests=requests)
 
 @requestController.route('/request/<string:request_id>/details', methods=['GET'])
 @login_required
 def request_details(request_id):
+    if current_user.employee.employee_position not in ['clerical', 'keeper']:
+        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        return redirect(url_for('main.index'))
+    
     # ดึงรายการสินค้าที่ถูกเบิกตาม request_id
     request = Request.query.filter_by(request_id=request_id).first()
     if not request:
@@ -367,7 +375,11 @@ def request_details(request_id):
     # ดึงรายการสินค้าที่เกี่ยวข้องกับคำขอเบิกนี้
     request_list = RequestList.query.filter_by(request_id=request_id).all()
 
-    return render_template('clerical/request_details.html', request=request, request_list=request_list)
+    # return render_template('clerical/request_details.html', request=request, request_list=request_list)
+    if current_user.employee.employee_position == 'clerical':
+        return render_template('clerical/request_details.html', request=request, request_list=request_list)
+    elif current_user.employee.employee_position == 'keeper':
+        return render_template('keeper/request_details.html', request=request, request_list=request_list)
 
 @requestController.route('/request/reject', methods=['POST'])
 @login_required
