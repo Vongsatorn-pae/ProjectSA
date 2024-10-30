@@ -129,12 +129,7 @@ VALUES
 ('E003', 'Michael', 'Johnson', 35, 'M', 'clerical', '789 Pine Rd', 48000.00, 'https://img5.pic.in.th/file/secure-sv1/userd91ca9a3c145868a.png'),
 ('E004', 'Emily', 'Davis', 40, 'F', 'keeper', '321 Cedar St', 60000.00, 'https://img5.pic.in.th/file/secure-sv1/userd91ca9a3c145868a.png');
 
-INSERT INTO users (user_id, username, password, employee_id)
-VALUES 
-('U001', 'john_doe', 'hashedpassword1','E001'),
-('U002', 'jane_smith', 'hashedpassword2', 'E002'),
-('U003', 'michael_johnson', 'hashedpassword3', 'E003'),
-('U004', 'emily_davis', 'hashedpassword4','E004');
+cd
 
 INSERT INTO product_lists (product_id, product_name, product_type, threshold, product_image)
 VALUES
