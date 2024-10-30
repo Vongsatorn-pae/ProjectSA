@@ -134,7 +134,7 @@
 
             <label for="filter_type" class="form-label">Filter by Type:</label>
             <select class="form-select" id="filter_type" name="filter_type" onchange="this.form.submit()">
-                <option value="all" {% if request.args.get('filter_type') == 'all' %}selected{% endif %}>All</option>
+                <option value="all" {% if request.args.get('filter_type') == 'all' %}selected{% endif %}>--- Select Type ---</option>
                 <option value="food" {% if request.args.get('filter_type') == 'food' %}selected{% endif %}>Food</option>
                 <option value="chemical" {% if request.args.get('filter_type') == 'chemical' %}selected{% endif %}>
                     Chemical</option>
@@ -152,7 +152,8 @@
             </select>
         </form>
 
-        {% if request.args.get('filter_type') in ['all', 'food', 'chemical'] %}
+        {% if (request.args.get('filter_type') in ['food', 'chemical']) or 
+        (request.args.get('filter_type') in ['food', 'chemical'] and request.args.get('filter_status') in ['accept', 'reject', 'waiting']) %}
             {% for request in requests %}
             <div class="request-card">
                 <div class="request-header">
