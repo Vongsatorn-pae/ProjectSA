@@ -44,6 +44,7 @@ def product_detail(product_id):
             'product_id': product_id,
             'product_name': product.product_name,
             'order_quantity': order_quantity,
+            'product_image': product.product_image,
             'product_unit': product_unit
         })
 
@@ -58,8 +59,13 @@ def add_to_cart():
     """ฟังก์ชันสำหรับเพิ่มสินค้าเข้า cart และเปลี่ยนไปหน้า cart"""
     product_id = request.form['product_id']
     order_quantity = request.form['order_quantity']
+    # product_image = request.form['product_image']
     unit_id = request.form['product_unit']
     product_unit = Unit.query.filter_by(unit_id=unit_id).first().unit_name  # ดึงชื่อของหน่วยมาแทน
+
+    # ดึง product_image จาก ProductList
+    product = ProductList.query.filter_by(product_id=product_id).first()
+    product_image = product.product_image if product else None
 
     # ตรวจสอบว่ามี session cart แล้วหรือยัง
     if 'cart' not in session:
@@ -69,6 +75,7 @@ def add_to_cart():
     session['cart'].append({
         'product_id': product_id,
         'order_quantity': order_quantity,
+        'product_image': product_image,
         'product_unit': product_unit
     })
     flash('Product added to cart!', 'success')
