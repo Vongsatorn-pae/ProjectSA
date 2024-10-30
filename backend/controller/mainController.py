@@ -27,8 +27,8 @@ def keeper_dashboard():
     if current_user.employee.employee_position != 'keeper':
         return abort(403)
 
-    # ดึงข้อมูล order ที่สถานะเป็น accept (จำกัด 3 รายการ)
-    accepted_orders = db.session.query(Order).filter_by(order_status='accept').limit(3).all()
+    # ดึงข้อมูล order ที่สถานะเป็น accept (จำกัด 3 รายการ) และเรียงจากใหม่ล่าสุด
+    accepted_orders = db.session.query(Order).filter_by(order_status='accept').order_by(Order.order_date.desc()).limit(3).all()
 
     # ดึงข้อมูล stock alert (จำกัด 3 รายการ)
     stock_alerts = get_stock_alerts(limit=3)
@@ -62,7 +62,8 @@ def clerical_dashboard():
     if current_user.employee.employee_position != 'clerical':
         return abort(403)
 
-    waiting_request = db.session.query(Request).filter_by(request_status='waiting').limit(3).all()
+    # waiting_request = db.session.query(Request).filter_by(request_status='waiting').limit(3).all()
+    waiting_request = db.session.query(Request).filter_by(request_status='waiting').order_by(Request.request_date.desc()).limit(3).all()
 
     return render_template(
         'clerical/dashboard.html', 

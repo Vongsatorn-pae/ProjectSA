@@ -37,7 +37,7 @@ CREATE TABLE product_lists (
 -- ตารางสำหรับเก็บข้อมูลล็อตสินค้า
 CREATE TABLE product_lots (
     lot_id VARCHAR(50) PRIMARY KEY,
-    lot_date DATE NOT NULL
+    lot_date DATETIME NOT NULL
 );
 
 -- ตารางสำหรับเก็บหน่วยสินค้า
@@ -63,7 +63,7 @@ CREATE TABLE products (
 -- ตารางสำหรับเก็บข้อมูลคำสั่งซื้อ
 CREATE TABLE orders (
     order_id VARCHAR(50) PRIMARY KEY,
-    order_date DATE NOT NULL,
+    order_date DATETIME NOT NULL,
     employee_id VARCHAR(50) NOT NULL,
     order_status VARCHAR(50) NOT NULL,
 
@@ -87,7 +87,7 @@ CREATE TABLE order_lists (
 -- ตารางสำหรับเก็บข้อมูลคำขอเบิกสินค้า
 CREATE TABLE requests (
     request_id VARCHAR(50) PRIMARY KEY,
-    request_date DATE NOT NULL,
+    request_date DATETIME NOT NULL,
     employee_id VARCHAR(50) NOT NULL,
     request_status VARCHAR(50) NOT NULL,
 

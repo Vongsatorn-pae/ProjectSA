@@ -91,8 +91,8 @@
                     {% endif %}
                 </div>
                 <div class="notification-timestamp">
-                    <p>{{ request.date.strftime('%A, %d %B %Y') }}<br>
-                    {{ request.date.strftime('%H:%M') }}</p>
+                    <p>{{ request.request_date.strftime('%A, %d %B %Y') }}<br>
+                    {{ request.request_date.strftime('%H:%M:%S') }}</p>
                 </div>
             </div>
             {% endfor %}

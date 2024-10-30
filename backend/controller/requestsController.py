@@ -69,13 +69,14 @@ def dashboard():
     selected_status = request.args.get('status', 'all').lower()
 
     # Base query to retrieve requests for the current user
-    base_query = (
-        db.session.query(Request, RequestList, ProductList)
-        .join(RequestList, Request.request_id == RequestList.request_id)
-        .join(ProductList, RequestList.product_id == ProductList.product_id)
-        .filter(Request.employee_id == current_user.employee_id)
-        .order_by(Request.request_date.desc())
-    )
+    # base_query = (
+    #     db.session.query(Request, RequestList, ProductList)
+    #     .join(RequestList, Request.request_id == RequestList.request_id)
+    #     .join(ProductList, RequestList.product_id == ProductList.product_id)
+    #     .filter(Request.employee_id == current_user.employee_id)
+    #     .order_by(Request.request_date.desc())
+    # )
+    base_query = db.session.query(Request).filter(Request.employee_id == current_user.employee.employee_id).order_by(Request.request_date.desc())
 
     # Filter by status if it's not 'all'
     if selected_status != 'all':
@@ -84,21 +85,25 @@ def dashboard():
     # Get the latest 3 requests
     requests = base_query.limit(3).all()
 
-    request_data = [
-        {
-            'request_id': req.request_id,
-            'product_name': prod.product_name,
-            'quantity': req_list.request_quantity,
-            'unit': req_list.product_unit,
-            'status': req.request_status,
-            'date': req.request_date,
-        }
-        for req, req_list, prod in requests
-    ]
+    # request_data = [
+    #     {
+    #         'request_id': req.request_id,
+    #         'product_name': prod.product_name,
+    #         'quantity': req_list.request_quantity,
+    #         'unit': req_list.product_unit,
+    #         'status': req.request_status,
+    #         'date': req.request_date,
+    #     }
+    #     for req, req_list, prod in requests
+    # ]
+    # if current_user.employee.employee_position == 'worker':
+    #     return render_template('worker/dashboard.html', requests=request_data, selected_status=selected_status)
+    # elif current_user.employee.employee_position == 'academic':
+    #     return render_template('academic/dashboard.html', requests=request_data, selected_status=selected_status)
     if current_user.employee.employee_position == 'worker':
-        return render_template('worker/dashboard.html', requests=request_data, selected_status=selected_status)
+        return render_template('worker/dashboard.html', requests=requests, selected_status=selected_status)
     elif current_user.employee.employee_position == 'academic':
-        return render_template('academic/dashboard.html', requests=request_data, selected_status=selected_status)
+        return render_template('academic/dashboard.html', requests=requests, selected_status=selected_status)
 
 @requestController.route('/request/add', methods=['GET', 'POST'])
 @login_required
