@@ -131,26 +131,24 @@
         {% endfor %}
 
         <div class="confirm-reject">
+            <!-- ปุ่มกลับ -->
+            <button type="button" class="back-button" onclick="window.history.back()">Back</button>
+        
+            <!-- แสดงปุ่ม ยอมรับ/ปฏิเสธ เฉพาะเมื่อสถานะเป็น 'waiting' -->
             {% if order.order_status == 'waiting' %}
-            <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
-                <input type="hidden" name="new_status" value="accept">
-                <button type="submit" class="btn btn-success">Accept</button>
-            </form>
-
-            <button type="button" class="back-button" onclick="window.history.back()">Back</button>
-            
-            <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
-                <input type="hidden" name="new_status" value="reject">
-                <button type="submit" class="btn btn-danger">Reject</button>
-            </form>
-            {% elif order.order_status == 'accept' %}
-            <button type="button" class="btn btn-success" disabled>Accepted</button>
-            <button type="button" class="back-button" onclick="window.history.back()">Back</button>
-            {% elif order.order_status == 'reject' %}
-            <button type="button" class="btn btn-danger" disabled>Rejected</button>
-            <button type="button" class="back-button" onclick="window.history.back()">Back</button>
+            <div class="action-buttons">
+                <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
+                    <input type="hidden" name="new_status" value="accept">
+                    <button type="submit" class="btn btn-success">Accept</button>
+                </form>
+        
+                <form method="POST" action="{{ url_for('order.update_order_status', order_id=order.order_id) }}">
+                    <input type="hidden" name="new_status" value="reject">
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </form>
+            </div>
             {% endif %}
-        </div>
+        </div>        
     </div>
 </body>
 

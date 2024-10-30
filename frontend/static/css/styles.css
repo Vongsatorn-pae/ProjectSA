@@ -306,3 +306,16 @@ body {
     text-align: left; /* Ensure the labels align left */
     display: block;
 }
+
+
+.confirm-reject {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
