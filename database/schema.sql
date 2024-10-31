@@ -285,8 +285,8 @@ VALUES
 INSERT INTO audit (audit_id, payment_due_date, payment_status) 
 VALUES
 ('AUD-20241031234539', '2025-01-09', 1),
-('AUD-20241031234603', '2025-01-09', 1),
-('AUD-20241031234622', '2025-01-09', 1);
+('AUD-20241031234603', '2025-03-09', 1),
+('AUD-20241031234622', '2025-05-09', 1);
 
 INSERT INTO audit_list (audit_list_id, audit_id, order_id, order_amount) 
 VALUES
