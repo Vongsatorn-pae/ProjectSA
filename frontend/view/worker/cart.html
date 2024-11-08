@@ -95,6 +95,7 @@
         border-radius: 5px;
         color: white;
         padding: 5px 10px;
+        text-decoration: none;
     }
 
     .button-remove {
@@ -152,9 +153,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -174,8 +175,16 @@
             <div class="product-info">
                 <h5>{{ item.product_name }}</h5>
                 <p>Quantity: {{ item.request_quantity }}</p>
-                <p>Unit: {{ item.request_unit }}</p>
-            </div>
+                <p>Unit: 
+                    {% if item.request_unit == 'UNITF01' %}
+                        Kg
+                    {% elif item.request_unit == 'UNITF02' %}
+                        g
+                    {% else %}
+                        {{ item.request_unit }}
+                    {% endif %}
+                </p>
+            </div>            
 
             <div class="actions">
                 <form method="POST" action="{{ url_for('request.update_cart_item', index=loop.index0) }}">
@@ -191,6 +200,11 @@
         {% endfor %}
 
         <div class="footer-buttons">
+            <form method="POST" action="{{ url_for('request.cancel_cart') }}">
+                <button class="button-remove" type="submit" {% if not session.cart or session.cart|length == 0 %}disabled{% endif %}>
+                    Cancel
+                </button>
+            </form>
             <a href="{{ url_for('request.add_request') }}" class="back-button">Back</a>
             <form method="POST" action="{{ url_for('request.submit_request') }}">
                 <button class="submit-button" type="submit" 
@@ -201,7 +215,7 @@
         </div>
 
         {% else %}
-        <p class="text-center mt-4">No products in the cart.</p>
+        <p class="text-center mt-4">ไม่พบสินค้า</p>
         {% endif %}
     </div>
 </body>

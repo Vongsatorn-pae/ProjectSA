@@ -95,6 +95,7 @@
         border-radius: 5px;
         color: white;
         padding: 5px 10px;
+        text-decoration: none;
     }
 
     .button-remove {
@@ -140,9 +141,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -179,6 +180,11 @@
         {% endfor %}
 
         <div class="footer-buttons">
+            <form method="POST" action="{{ url_for('order.cancel_cart') }}">
+                <button class="button-remove" type="submit" {% if not session.cart or session.cart|length == 0 %}disabled{% endif %}>
+                    Cancel
+                </button>
+            </form>
             <a href="{{ url_for('order.add_order') }}" class="button-update">Back</a>
             <form method="POST" action="{{ url_for('order.submit_order') }}">
                 <button class="button-update" type="submit" {% if not session.cart or session.cart|length == 0 %}disabled{% endif %}>

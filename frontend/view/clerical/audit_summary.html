@@ -37,10 +37,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -60,22 +59,27 @@
                     {{ audit.payment_due_date }}
                 </option>
                 {% endfor %}
-            </select>
+            </select>            
         </form>
 
 
         {% if selected_audit_id %}
         <div class="mt-4">
             <p><strong>Audit ID:</strong> {{ selected_audit_id }}</p>
-            <p><strong>Payment Due Date:</strong> {{ payment_due_date }}</p>
+            <p><strong>Payment Due Date:</strong> {{ payment_due_date_str }}</p>
             <p><strong>Payment Status:</strong> {{ "Paid" if payment_status else "Unpaid" }}</p>
             <p><strong>Total Amount:</strong> {{ total_amount }} THB</p>
 
             {% if not payment_status %}
-            <!-- ปุ่มจ่ายเงิน -->
-            <form method="POST" action="{{ url_for('audit.mark_as_paid', audit_id=selected_audit_id) }}">
-                <button class="btn btn-success mt-2" type="submit">Mark as Paid</button>
-            </form>
+                {% if payment_due_date <= date.today() %}
+                    <form method="POST" action="{{ url_for('audit.mark_as_paid', audit_id=selected_audit_id) }}">
+                        <button class="btn btn-success mt-2" type="submit">Mark as Paid</button>
+                    </form>
+                {% else %}
+                    <p class="text-warning">ยังไม่ถึงวันที่ครบกำหนดชำระ</p>
+                {% endif %}
+            {% else %}
+                <p class="text-success">ชำระเงินเรียบร้อยแล้ว</p>
             {% endif %}
         </div>
 
@@ -92,11 +96,11 @@
                 {% for order_id, order_date, amount in orders_in_audit %}
                 <tr>
                     <td>{{ order_id }}</td>
-                    <td>{{ order_date }}</td>
+                    <td>{{ format_date_th(order_date) }}</td>
                     <td>{{ amount if amount else "ยังไม่ได้กรอกราคาสินค้า" }}</td>
                 </tr>
                 {% endfor %}
-            </tbody>
+            </tbody>            
         </table>
         {% else %}
         <p class="mt-4">กรุณาเลือก Audit ID เพื่อแสดงรายการ</p>

@@ -46,9 +46,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -81,12 +81,16 @@
             <div class="notification-card">
                 <div class="notification-text">
                     Request id: {{ request.request_id }} <br>
-                    {% if request.status == 'accept' %}
+                    {% if request.request_status == 'accept' %}
                     <span class="status-accept">Accept</span>
-                    {% elif request.status == 'reject' %}
+                    {% elif request.request_status == 'reject' %}
                     <span class="status-reject">Reject</span>
-                    {% else %}
+                    {% elif request.request_status == 'waiting' %}
                     <span class="status-waiting">Waiting</span>
+                    {% elif request.request_status == 'done' %}
+                    <span class="status-waiting">Done</span>
+                    {% else %}
+                    <span class="status-waiting">Other</span>
                     {% endif %}
                 </div>
                 <div class="notification-timestamp">

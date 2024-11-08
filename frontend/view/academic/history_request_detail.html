@@ -97,9 +97,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -113,12 +113,17 @@
             <img src="{{ item.product.product_image }}" alt="Product Image" class="product-image">
             <div class="notification-text">
                 <strong>{{ item.product.product_name }}</strong>
-                <span>Quantity: {{ item.request_quantity }} {{ item.product_unit }}</span>
+                <span>Quantity: {{ item.request_quantity }} {{ item.unit.unit_name }}</span>
             </div>
         </div>
         {% endfor %}
 
         <button type="button" class="back-button" onclick="window.history.back()">Back</button>
+        {% if request.request_status == 'accept' %}
+            <form action="{{ url_for('request.confirm_request_for_wa', request_id=request.request_id) }}" method="POST" style="display: inline;">
+                <button type="submit" class="back-button" style="background-color: #28a745;">ยืนยันรับสินค้า</button>
+            </form>
+        {% endif %}
     </div>
 </body>
 

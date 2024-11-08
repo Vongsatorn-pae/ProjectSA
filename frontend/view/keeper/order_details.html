@@ -111,10 +111,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -124,17 +123,18 @@
     <div class="container mt-4">
         {% for item in order_items %}
         <div class="order-card">
-            <img src="{{ item.product.product_image }}" alt="Product Image" class="product-image">
+            <img src="{{ item.product_image }}" alt="Product Image" class="product-image">
             <div class="order-details">
-                <strong>{{ item.product.product_name }}</strong>
-                <span>Quantity: {{ item.order_quantity }} {{ item.product_unit }}</span>
-                <span>Lot ID: {{ item.lot_id }}</span>
+                <strong>{{ item.product_name }}</strong>
+                <span>Product ID: {{ item.product_id }}</span>
+                <span>Quantity: {{ item.order_quantity }} {{ item.unit_name }}</span>
             </div>
         </div>
         {% endfor %}
-
+    
         <button type="button" class="back-button" onclick="window.history.back()">Back</button>
     </div>
+    
 </body>
 
 </html>

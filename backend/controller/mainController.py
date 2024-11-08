@@ -24,7 +24,7 @@ def index():
 @mainController.route('/keeper_dashboard')
 @login_required
 def keeper_dashboard():
-    if current_user.employee.employee_position != 'keeper':
+    if current_user.employee_position != 'keeper':
         return abort(403)
 
     # ดึงข้อมูล order ที่สถานะเป็น accept (จำกัด 3 รายการ) และเรียงจากใหม่ล่าสุด
@@ -43,7 +43,7 @@ def keeper_dashboard():
 @mainController.route('/academic_dashboard')
 @login_required
 def academic_dashboard():
-    if current_user.employee.employee_position != 'academic':
+    if current_user.employee_position != 'academic':
         return abort(403)
     return render_template('academic/dashboard.html')
 
@@ -51,7 +51,7 @@ def academic_dashboard():
 @mainController.route('/worker_dashboard')
 @login_required
 def worker_dashboard():
-    if current_user.employee.employee_position != 'worker':
+    if current_user.employee_position != 'worker':
         return abort(403)
     return render_template('worker/dashboard.html')
 
@@ -59,10 +59,9 @@ def worker_dashboard():
 @mainController.route('/clerical_dashboard')
 @login_required
 def clerical_dashboard():
-    if current_user.employee.employee_position != 'clerical':
+    if current_user.employee_position != 'clerical':
         return abort(403)
 
-    # waiting_request = db.session.query(Request).filter_by(request_status='waiting').limit(3).all()
     waiting_request = db.session.query(Request).filter_by(request_status='waiting').order_by(Request.request_date.desc()).limit(3).all()
 
     return render_template(

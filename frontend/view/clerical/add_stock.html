@@ -52,13 +52,36 @@
                 }
             });
 
-            var productDropdown = document.getElementById("product_id");
-            productDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
-
             var unitDropdown = document.getElementById("product_unit");
             unitDropdown.value = ""; // ตั้งค่าเป็นว่างเปล่า
         }
+
+        function updateImagePreview() {
+            const productImageSelect = document.getElementById("product_image");
+            const selectedImage = productImageSelect.options[productImageSelect.selectedIndex].getAttribute(
+                "data-img-url");
+            const imagePreview = document.getElementById("selected_image");
+
+            if (selectedImage) {
+                imagePreview.src = selectedImage;
+                imagePreview.style.display = "block";
+            } else {
+                imagePreview.style.display = "none";
+            }
+        }
     </script>
+    <style>
+        .image_preview {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .image_preview img {
+            max-width: 200px;
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -69,16 +92,16 @@
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
             <a href="{{ url_for('main.clerical_dashboard') }}">Home</a>
-            <a href="{{ url_for('order.order_history') }}">Confirm Order</a> 
+            <a href="{{ url_for('order.order_history') }}">Confirm Order</a>
             <a href="{{ url_for('stock.view_stock') }}">Product in Stock </a>
-            <a href="{{ url_for('request.confirm_request') }}" >Request</a>
-            <a href="{{ url_for('audit.audit_summary') }}">Create Audit</a>
+            <a href="{{ url_for('request.confirm_request') }}">Request</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -87,40 +110,22 @@
 
     <div class="box">
         <form class="Aform" method="POST">
-            <label for="product_type">Select Type:</label>
-            <select class = "form-select" id="product_type" name="product_type" onchange="filterProducts()">
-                <option value="all">-- All Types --</option>
+            <label class="select-product" for="product_id">Product ID:</label>
+            <input class="form-control" type="text" id="product_id" name="product_id" placeholder="Leave empty to auto-generate">
+
+            <label class="select-product" for="product_name">Product Name:</label>
+            <input class="form-control" type="text" id="product_name" name="product_name" required>
+
+            <label class="product_type" for="product_type">Product Type:</label>
+            <select class="form-select" id="product_type" name="product_type" onchange="filterProducts()">
+                <option value="">-- Select Types --</option>
                 <option value="Food">Food</option>
                 <option value="Chemical">Chemical</option>
             </select>
 
-            <!-- Dropdown สำหรับเลือก Product -->
-            <label class="select-product" for="product_id">Select Product:</label>
-            <select class = "form-select" id="product_id" name="product_id" required>
-                <option value="">-- Please select a product --</option>
-                {% for product in product_lists %}
-                <option value="{{ product.product_id }}" data-type="{{ product.product_type }}">
-                    {{ product.product_name }} ({{ product.product_type }})
-                </option>
-                {% endfor %}
-            </select>
-
-            <!-- เลือก Lot ของสินค้าที่มี order_status เป็น accept -->
-            <label class="select-lot" for="lot_id">Select Lot:</label>
-            <select class="form-select" id="lot_id" name="lot_id" required>
-                {% for lot in product_lots %}
-                <option value="{{ lot.lot_id }}">Lot ID: {{ lot.lot_id }} - Date: {{ lot.lot_date }}</option>
-                {% endfor %}
-            </select>
-
-            <!-- กรอกจำนวนสินค้า -->
-            <label class="quantity" for="product_quantity">Quantity:</label>
-            <input class = "form-control" type="number" id="product_quantity" name="product_quantity" required>
-
-            <!-- Dropdown สำหรับเลือก Unit -->
             <label class="unit" for="product_unit">Unit:</label>
-            <select class = "form-select" id="product_unit" name="product_unit" required>
-                <option value="">-- Please select a unit --</option>
+            <select class="form-select" id="product_unit" name="product_unit" required>
+                <option value="">-- Select Unit --</option>
                 {% for unit in units %}
                 <option value="{{ unit.unit_name }}" data-type="{{ unit.product_type }}">
                     {{ unit.unit_name }}
@@ -128,9 +133,27 @@
                 {% endfor %}
             </select>
 
-            <!-- กรอกวันหมดอายุของสินค้า -->
-            <label class="expiration-date" for="product_exp">Expiration Date:</label>
-            <input class = "form-control" type="date" id="product_exp" name="product_exp" required>
+            <label class="quantity" for="product_quantity">Quantity:</label>
+            <input class="form-control" type="number" id="product_quantity" name="product_quantity" placeholder="Default 0">
+
+            <label class="threshold" for="threshold">Threshold:</label>
+            <input class="form-control" type="number" id="threshold" name="threshold" placeholder="Default 0">
+
+            <label class="product_image" for="product_image">Product Image:</label>
+            <select class="form-select" id="product_image" name="product_image" onchange="updateImagePreview()"
+                required>
+                <option value="">-- Select Image --</option>
+                {% for image in image_options %}
+                <option value="{{ image.url }}" data-img-url="{{ image.url }}">
+                    {{ image.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- แสดงภาพตัวอย่างและจัดกึ่งกลาง -->
+            <div id="image_preview" style="display: flex; justify-content: center; margin-top: 10px;">
+                <img src="" alt="Selected Image" style="max-width: 200px; display: none;" id="selected_image">
+            </div>
 
             <button class="button-20" type="submit">Add Product</button>
         </form>

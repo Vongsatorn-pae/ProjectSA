@@ -141,10 +141,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -172,7 +171,7 @@
         </div>
 
         <div class="listProduct" id="product_list">
-            {% for product in product_lists if product.product_type == 'Chemical' %}
+            {% for product in products if product.product_type == 'Chemical' %}
             <div class="item" data-type="{{ product.product_type }}">
                 <a href="{{ url_for('request.product_detail', product_id=product.product_id) }}">
                     <img src="{{ product.product_image }}" alt="{{ product.product_name }}">

@@ -113,13 +113,13 @@
             <a href="{{ url_for('order.order_history') }}">Confirm Order</a>
             <a href="{{ url_for('stock.add_stock') }}">Add Product</a>
             <a href="{{ url_for('request.confirm_request') }}">Request</a>
-            <a href="{{ url_for('audit.audit_summary') }}">Create Audit</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>
@@ -139,16 +139,18 @@
 
         <!-- Product Cards -->
         {% for product in products %}
-        <div class="product-card" data-name="{{ product.product_name }}" data-type="{{ product.product_type }}">
-            <div class="product-header">
-                <span><strong>Product Name:</strong> {{ product.product_name }}</span>
-                <div class="product-image">
-                    <img src="{{ product.product_image }}" alt="Product Image">
+        <a href="{{ url_for('stock.view_stock_lot', product_id=product.product_id) }}" style="text-decoration: none; color: inherit;">
+            <div class="product-card" data-name="{{ product.product_name }}" data-type="{{ product.product_type }}">
+                <div class="product-header">
+                    <span><strong>Product Name:</strong> {{ product.product_name }}</span>
+                    <div class="product-image">
+                        <img src="{{ product.product_image }}" alt="Product Image">
+                    </div>
                 </div>
+                <p class="mb-0"><strong>Quantity:</strong> {{ product.product_quantity }} {{ product.product_unit }}</p>
             </div>
-            <p class="mb-0"><strong>Quantity:</strong> {{ product.total_quantity }} {{ product.unit }}</p>
-        </div>
-        {% endfor %}
+        </a>
+        {% endfor %}  
     </div>
 </body>
 

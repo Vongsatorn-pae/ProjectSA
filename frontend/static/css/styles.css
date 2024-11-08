@@ -43,7 +43,15 @@ body {
     margin-top: 1rem;
 }
 
-.expiration-date {
+.threshold {
+    margin-top: 1rem;
+}
+
+.product_type {
+    margin-top: 1rem;
+}
+
+.product_image {
     margin-top: 1rem;
 }
 

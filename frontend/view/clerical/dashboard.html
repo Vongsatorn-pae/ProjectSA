@@ -104,14 +104,14 @@
             <a href="{{ url_for('stock.view_stock') }}">Product in Stock </a>
             <a href="{{ url_for('stock.add_stock') }}" >Add Product</a>
             <a href="{{ url_for('request.confirm_request') }}" >Request</a>
-            <a href="{{ url_for('audit.audit_summary') }}">Create Audit</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image" class="user-icon">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image" class="user-icon">
             <div class="dropdown-content">
-                <a href="#">Name: {{ current_user.employee.employee_fname }}
-                    {{ current_user.employee.employee_lname }}</a>
+                <a href="#">Name: {{ current_user.employee_fname }}
+                    {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>

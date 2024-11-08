@@ -109,9 +109,9 @@
         </div>
 
         <div class="dropdown">
-            <img src="{{ current_user.employee.employee_image }}" alt="Profile Image">
+            <img src="{{ current_user.employee_image }}" alt="Profile Image">
             <div class="dropdown-content">
-                <a href="#"><strong>Name:</strong> {{ current_user.employee.employee_fname }} {{ current_user.employee.employee_lname }}</a>
+                <a href="#"><strong>Name:</strong> {{ current_user.employee_fname }} {{ current_user.employee_lname }}</a>
                 <a href="{{ url_for('auth.view_profile') }}">View Profile</a>
                 <a href="{{ url_for('auth.logout') }}">Sign Out</a>
             </div>

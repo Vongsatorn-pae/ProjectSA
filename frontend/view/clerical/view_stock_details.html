@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Address</title>
+    <title>Lot Details</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
@@ -11,7 +11,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .button-save-address,
+        .button-group {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
         .button-go-back {
             background-color: #4EA68D;
             color: white;
@@ -24,48 +29,45 @@
             text-decoration: none;
         }
 
-        .button-save-address:hover,
         .button-go-back:hover {
             background-color: #3A8B6F;
         }
 
-        .button-save-address:active,
-        .button-go-back:active {
-            background-color: #3A8B6F;
+        .lot-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-weight: bold;
         }
     </style>
     <script>
         function toggleMenu() {
             document.getElementById("tabMenu").classList.toggle("open");
         }
-
-        async function updateAddress() {
-            const address = document.getElementById("addressInput").value;
-
-            const response = await fetch('/auth/edit_address', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ address })
-            });
-
-            const result = await response.json();
-            alert(result.status === "success" ? "Address updated successfully" : "Error: " + result.message);
-            if (result.status === "success") {
-                window.location.href = '/profile';
-            }
-        }
     </script>
 </head>
 <body>
     <div class="navBar">
-        <a class="menu-icon" onclick="toggleMenu()">Edit Address</a>
+        <a class="menu-icon" onclick="toggleMenu()">Lot Details</a>
 
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
-            <a href="javascript:window.history.back()">Back</a>
+            <a href="{{ url_for('main.clerical_dashboard') }}">Home</a>
+            <a href="{{ url_for('order.order_history') }}">Confirm Order</a> 
+            <a href="{{ url_for('stock.view_stock') }}">Product in Stock</a>
+            <a href="{{ url_for('stock.add_stock') }}">Add Product</a>
+            <a href="{{ url_for('request.confirm_request') }}">Request</a>
+            <a href="{{ url_for('audit.audit_summary') }}">Audit</a>
         </div>
 
         <div class="dropdown">
@@ -78,16 +80,38 @@
         </div>
     </div>
 
-    <div class="container mt-5">
-        <h2>Edit Address</h2>
-        <form id="editAddressForm">
-            <div class="mb-3">
-                <label for="addressInput" class="form-label">Address</label>
-                <textarea id="addressInput" class="form-control">{{ current_user.employee_address }}</textarea>
+    <div class="container">
+        <div class="profile-header">
+            <div class="username-password-id">
+                <div class="input-group">
+                    <label>Lot ID:</label>
+                    <input type="text" readonly value="{{ lot.lot_id }}">
+                </div>
+                <div class="input-group">
+                    <label>Product ID:</label>
+                    <input type="text" readonly value="{{ lot.product_id }}">
+                </div>
             </div>
-            <button type="button" class="button-save-address" onclick="updateAddress()">Save Address</button>
+        </div>
+
+        <div class="lot-details">
+            <div class="input-group">
+                <label>Quantity:</label>
+                <input type="text" readonly value="{{ lot.lot_quantity }} {{ lot.unit }}">
+            </div>
+            <div class="input-group">
+                <label>Lot Date:</label>
+                <input type="text" readonly value="{{ lot_date }}">
+            </div>
+            <div class="input-group">
+                <label>Expiration Date:</label>
+                <input type="text" readonly value="{{ lot_exp }}">
+            </div>
+        </div>
+
+        <div class="button-group">
             <button type="button" class="button-go-back" onclick="window.history.back()">Back</button>
-        </form>
+        </div>
     </div>
 </body>
 </html>

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from models.product import Product
 from models.productList import ProductList
 from models.productLot import ProductLot
 from models.product import Product
@@ -8,13 +9,14 @@ from models.orderList import OrderList
 from models.unit import Unit
 # from utils.conversion import convert_to_base_unit, convert_to_largest_unit
 from extensions import db
+from datetime import datetime
 
 stockController = Blueprint('stock', __name__)
 
 def convert_to_base_unit(quantity, unit, product_type):
     """แปลงหน่วยสินค้าเป็นหน่วยเล็กที่สุด (g สำหรับ Food และ mL สำหรับ Chemical)"""
     if product_type == 'Food':
-        if unit == 'kg':
+        if unit == 'Kg':
             return quantity * 1000  # แปลง kg เป็น g
         elif unit == 'g':
             return quantity  # ถ้าเป็น g อยู่แล้วไม่ต้องแปลง
@@ -33,10 +35,10 @@ def convert_to_base_unit(quantity, unit, product_type):
         raise ValueError("Unknown product type")
 
 def convert_to_largest_unit(quantity, product_type):
-    """เปลี่ยนหน่วยเป็นหน่วยใหญ่ที่สุด (kg สำหรับ Food และ L สำหรับ Chemical)"""
+    """เปลี่ยนหน่วยเป็นหน่วยใหญ่ที่สุด (Kg สำหรับ Food และ L สำหรับ Chemical)"""
     if product_type == 'Food':
         if quantity >= 1000:
-            return quantity / 1000, 'kg'  # แปลงกลับเป็น kg ถ้าจำนวน >= 1000g
+            return quantity / 1000, 'Kg'  # แปลงกลับเป็น kg ถ้าจำนวน >= 1000g
         else:
             return quantity, 'g'  # แสดงเป็น g ถ้าน้อยกว่า 1000g
 
@@ -48,125 +50,146 @@ def convert_to_largest_unit(quantity, product_type):
 
     else:
         raise ValueError("Unknown product type")
+
+def generate_product_id(product_type):
+    # กำหนด prefix ตามประเภทสินค้า
+    prefix = 'F' if product_type == 'Food' else 'C'
     
-def convert_to_base_unit1(quantity, unit, product_type):
-    """Convert quantities to a base unit."""
-    if product_type == 'Food' and unit == 'kg':
-        return quantity * 1000  # Convert kg to grams
-    elif product_type == 'Chemical' and unit == 'L':
-        return quantity * 1000  # Convert liters to milliliters
-    return quantity  # No conversion needed for other units
+    # ดึง product_id ล่าสุดที่ขึ้นต้นด้วย prefix จากฐานข้อมูล
+    last_product = Product.query.filter(Product.product_id.like(f"{prefix}%")).order_by(Product.product_id.desc()).first()
+    
+    # หากมี product_id ที่สร้างไว้ก่อนหน้า ให้ดึงหมายเลขแล้วบวกเพิ่ม
+    if last_product:
+        last_id_num = int(last_product.product_id[1:])  # ตัดตัวอักษรตัวแรกออกแล้วแปลงเป็นเลข
+        new_id_num = last_id_num + 1
+    else:
+        new_id_num = 1  # หากยังไม่มี id ในประเภทนั้น ให้เริ่มต้นจาก 1
+
+    # สร้าง product_id ใหม่ โดยเพิ่มเลข 3 หลักต่อท้าย prefix
+    return f"{prefix}{new_id_num:03}"
 
 # Route สำหรับดูรายการสินค้าในสต็อก
 @stockController.route('/stock')
 @login_required
 def view_stock():
-    # ตรวจสอบบทบาทว่าผู้ใช้ต้องเป็นธุรการ (clerical) เท่านั้น
-    # if current_user.employee.employee_position != 'clerical':
-    if current_user.employee.employee_position not in ['keeper', 'clerical']:
+    if current_user.employee_position not in ['keeper', 'clerical']:
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
 
-    # ดึงข้อมูลจาก product_lists และ products
+    # stock_data = db.session.query(
+    #     ProductList.product_id,
+    #     ProductList.product_name,
+    #     ProductList.product_image,
+    #     Product.product_quantity,
+    #     Product.product_unit,
+    #     ProductList.product_type
+    # ).join(Product, Product.product_id == ProductList.product_id).all()
     stock_data = db.session.query(
-        ProductList.product_id,
-        ProductList.product_name,
-        ProductList.product_image,
+        Product.product_id,
+        Product.product_name,
+        Product.product_image,
         Product.product_quantity,
         Product.product_unit,
-        ProductList.product_type
-    ).join(Product, Product.product_id == ProductList.product_id).all()
+        Product.product_type
+    ).all()
 
     # รวมสินค้าโดย product_id
-    combined_stock = {}
-    for item in stock_data:
-        base_quantity = convert_to_base_unit(item.product_quantity, item.product_unit, item.product_type)
+    # combined_stock = {}
+    # for item in stock_data:
+    #     base_quantity = convert_to_base_unit(item.product_quantity, item.product_unit, item.product_type)
 
-        if item.product_id in combined_stock:
-            combined_stock[item.product_id]['total_quantity'] += base_quantity
-        else:
-            combined_stock[item.product_id] = {
-                'product_name': item.product_name,
-                'product_image': item.product_image,
-                'total_quantity': base_quantity,
-                'product_type': item.product_type
-            }
+    #     if item.product_id in combined_stock:
+    #         combined_stock[item.product_id]['total_quantity'] += base_quantity
+    #     else:
+    #         combined_stock[item.product_id] = {
+    #             'product_name': item.product_name,
+    #             'product_image': item.product_image,
+    #             'total_quantity': base_quantity,
+    #             'product_type': item.product_type
+    #         }
 
-    # แปลงหน่วยกลับเป็นหน่วยใหญ่ที่สุด
-    for product_id, data in combined_stock.items():
-        total_quantity, unit = convert_to_largest_unit(data['total_quantity'], data['product_type'])
-        data['total_quantity'] = total_quantity
-        data['unit'] = unit
-    if current_user.employee.employee_position == 'clerical':
-        return render_template('clerical/view_stock.html', products=combined_stock.values())
-    elif current_user.employee.employee_position == 'keeper':
-        return render_template('keeper/view_stock.html', products=combined_stock.values())
+    # # แปลงหน่วยกลับเป็นหน่วยใหญ่ที่สุด
+    # for product_id, data in combined_stock.items():
+    #     total_quantity, unit = convert_to_largest_unit(data['total_quantity'], data['product_type'])
+    #     data['total_quantity'] = total_quantity
+    #     data['unit'] = unit
+
+    # if current_user.employee_position == 'clerical':
+    #     return render_template('clerical/view_stock.html', products=combined_stock.values())
+    # elif current_user.employee_position == 'keeper':
+    #     return render_template('keeper/view_stock.html', products=combined_stock.values())
+
+    if current_user.employee_position == 'clerical':
+        return render_template('clerical/view_stock.html', products=stock_data)
+    elif current_user.employee_position == 'keeper':
+        return render_template('keeper/view_stock.html', products=stock_data)
 
 # Route สำหรับเพิ่มสินค้าใหม่
 @stockController.route('/stock/add', methods=['GET', 'POST'])
 @login_required
 def add_stock():
-    # ตรวจสอบบทบาทว่าผู้ใช้ต้องเป็นธุรการ (clerical) เท่านั้น
-    if current_user.employee.employee_position != 'clerical':
+    if current_user.employee_position != 'clerical':
         flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
     
-    product_lists = ProductList.query.all()
-
-    # ดึง lot ที่เกี่ยวข้องกับ order ที่มี order_status = True
-    product_lots = ProductLot.query.join(OrderList, ProductLot.lot_id == OrderList.lot_id)\
-                                   .join(Order, OrderList.order_id == Order.order_id)\
-                                   .filter(Order.order_status == 'accept').all()
-
-    # ดึงข้อมูล units ทั้งหมดและแปลงเป็น dict
+    products = Product.query.all()
     units = Unit.query.all()
     unit_list = [
         {"unit_id": unit.unit_id, "unit_name": unit.unit_name, "product_type": unit.product_type or ""}
         for unit in units if unit.unit_name is not None
     ]
 
-    if request.method == 'POST':
-        product_id = request.form['product_id']  # ดึง id ของสินค้าที่เลือกจาก dropdown
-        lot_id = request.form['lot_id']  # ดึง lot_id จาก dropdown
-        product_quantity = request.form['product_quantity']
-        product_unit = request.form['product_unit']
-        product_exp = request.form['product_exp']  # ดึงวันที่หมดอายุจากฟอร์ม
+    # ลิสต์ของรูปภาพที่ให้เลือก
+    image_options = [
+        {"url": "https://kasets.art/51kGYq", "name": "Food"},
+        {"url": "https://kasets.art/HtBpeI", "name": "Chemical"}
+    ]
 
-        # เพิ่มข้อมูลสินค้าพร้อมข้อมูลล็อตเข้าสู่ฐานข้อมูล
+    if request.method == 'POST':
+        product_type = request.form['product_type']
+        product_name = request.form['product_name']
+        product_unit = request.form['product_unit']
+        
+        # สร้าง product_id โดยใช้ฟังก์ชัน generate_product_id ถ้าไม่มีการกรอก product_id
+        product_id = request.form['product_id'] or generate_product_id(product_type)
+        
+        # ถ้าไม่ได้ใส่ product_quantity หรือ threshold ให้ตั้งค่าเริ่มต้นเป็น 0
+        product_quantity = request.form.get('product_quantity', 0) or 0
+        threshold = request.form.get('threshold', 0) or 0
+        product_image = request.form['product_image']
+
         new_product = Product(
-            product_id=product_id,  # ใส่ product_id เท่านั้น
-            lot_id=lot_id,  # lot_id จาก product_lots
-            product_quantity=product_quantity,
+            product_id=product_id,
+            product_name=product_name,
+            product_type=product_type,
             product_unit=product_unit,
-            product_exp=product_exp  # เพิ่มวันที่หมดอายุ
+            product_quantity=product_quantity,
+            threshold=threshold,
+            product_image=product_image
         )
         db.session.add(new_product)
         db.session.commit()
         flash('Product added successfully!', 'success')
         return redirect(url_for('stock.view_stock'))
 
-    return render_template('clerical/add_stock.html', product_lists=product_lists, product_lots=product_lots, units=unit_list)
+    return render_template('clerical/add_stock.html', product_lists=products, units=unit_list, image_options=image_options)
 
 def get_stock_alerts(limit=None):
-    """Fetch stock alerts for products below the threshold."""
     stock_alerts = []
 
-    # Fetch all products from ProductList
-    product_list = ProductList.query.all()
+    products = Product.query.all()
 
-    for product in product_list:
-        # Fetch all stock entries with the same product_id
+    for product in products:
         stock_products = Product.query.filter_by(product_id=product.product_id).all()
 
         total_quantity_in_stock = sum(
-            convert_to_base_unit1(
+            convert_to_base_unit(
                 stock_product.product_quantity,
                 stock_product.product_unit,
                 product.product_type
             ) for stock_product in stock_products
         )
 
-        # Add to alerts if total quantity <= threshold
         if total_quantity_in_stock <= float(product.threshold):
             alert = {
                 'product_id': product.product_id,
@@ -178,36 +201,63 @@ def get_stock_alerts(limit=None):
             }
             stock_alerts.append(alert)
 
-    # Ensure no limit is applied unintentionally
     return stock_alerts
 
 @stockController.route('/stock/alert')
 @login_required
 def stock_alert():
-    """Render the stock alert page."""
-    stock_data = get_stock_alerts()  # Fetch all alerts
+    stock_data = get_stock_alerts()
     return render_template('dashboard.html', stock_alerts=stock_data)
 
+# @stockController.route('/product_detail/<product_id>')
+# @login_required
+# def product_detail(product_id):
+#     product = ProductList.query.filter_by(product_id=product_id).first_or_404()
+#     units = Unit.query.all()
 
-@stockController.route('/product_detail/<product_id>')
+#     return render_template('keeper/product_detail.html', product=product, units=units)
+
+@stockController.route('/stock/<product_id>/lots', methods=['GET'])
 @login_required
-def product_detail(product_id):
-    product = ProductList.query.filter_by(product_id=product_id).first_or_404()
-    units = Unit.query.all()  # Fetch units if required
+def view_stock_lot(product_id):
+    lots = ProductLot.query.filter_by(product_id=product_id).all()
+    
+    formatted_lots = []
+    for lot in lots:
+        lot_date = (
+            datetime.strptime(lot.lot_date, "%Y-%m-%d").strftime("%d/%m/%Y")
+            if isinstance(lot.lot_date, str) else
+            lot.lot_date.strftime("%d/%m/%Y") if lot.lot_date else None
+        )
+        lot_exp = (
+            datetime.strptime(lot.lot_exp, "%Y-%m-%d").strftime("%d/%m/%Y")
+            if isinstance(lot.lot_exp, str) else
+            lot.lot_exp.strftime("%d/%m/%Y") if lot.lot_exp else None
+        )
 
-    return render_template('keeper/product_detail.html', product=product, units=units)
+        lot_data = {
+            'lot_id': lot.lot_id,
+            'lot_date': lot_date,
+            'lot_exp': lot_exp,
+        }
+        formatted_lots.append(lot_data)
 
-@stockController.route('/stock/<product_id>', methods=['GET'])
+    # return render_template('keeper/view_stock_lot.html', product_id=product_id, lots=formatted_lots)
+    if current_user.employee_position == 'clerical':
+        return render_template('clerical/view_stock_lot.html', product_id=product_id, lots=formatted_lots)
+    elif current_user.employee_position == 'keeper':
+        return render_template('keeper/view_stock_lot.html', product_id=product_id, lots=formatted_lots)
+
+@stockController.route('/stock/lot/<lot_id>', methods=['GET'])
 @login_required
-def view_product_details(product_id):
-    # Fetch product details from ProductList and Product tables
-    product = db.session.query(ProductList, Product).join(Product, Product.product_id == ProductList.product_id).filter(ProductList.product_id == product_id).first()
+def view_stock_details(lot_id):
+    lot = ProductLot.query.filter_by(lot_id=lot_id).first_or_404()
+    
+    lot_date = lot.lot_date.strftime("%d/%m/%Y") if lot.lot_date else None
+    lot_exp = lot.lot_exp.strftime("%d/%m/%Y") if lot.lot_exp else None
 
-    if not product:
-        flash('ไม่พบสินค้าที่ต้องการ', 'danger')
-        return redirect(url_for('stock.view_stock'))
-
-    # Separate data for clarity
-    product_list, product_instance = product
-
-    return render_template('keeper/product_instock_detail.html', product=product_list, product_instance=product_instance)
+    # return render_template('keeper/view_stock_details.html', lot=lot, lot_date=lot_date, lot_exp=lot_exp)
+    if current_user.employee_position == 'clerical':
+        return render_template('clerical/view_stock_details.html', lot=lot, lot_date=lot_date, lot_exp=lot_exp)
+    elif current_user.employee_position == 'keeper':
+        return render_template('keeper/view_stock_details.html', lot=lot, lot_date=lot_date, lot_exp=lot_exp)

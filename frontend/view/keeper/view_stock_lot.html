@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Stock</title>
+    <title>Product Lots</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
@@ -32,24 +32,12 @@
             margin-right: auto;
         }
 
-        .dropdown img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
         .container {
             max-width: 800px;
             margin: auto;
         }
 
-        .form-control, .form-select {
-            margin-top: 10px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-
-        .product-card {
+        .lot-card {
             background-color: white;
             border-radius: 10px;
             border: 1px solid #ddd;
@@ -58,21 +46,8 @@
             transition: background-color 0.2s;
         }
 
-        .product-card:hover {
+        .lot-card:hover {
             background-color: #f1f1f1;
-        }
-
-        .product-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .product-image img {
-            width: 50px;
-            height: 50px;
-            border-radius: 5px;
         }
     </style>
     <script>
@@ -80,26 +55,41 @@
             document.getElementById("tabMenu").classList.toggle("open");
         }
 
-        function searchProducts() {
+        function searchLots() {
             const input = document.getElementById("searchBar").value.toUpperCase();
-            const cards = document.getElementsByClassName("product-card");
+            const cards = document.getElementsByClassName("lot-card");
 
             for (let card of cards) {
-                const productName = card.getAttribute("data-name").toUpperCase();
-                card.style.display = productName.includes(input) ? "" : "none";
+                const lotId = card.getAttribute("data-lot-id").toUpperCase();
+                const lotDate = card.getAttribute("data-lot-date").toUpperCase();
+                card.style.display = lotId.includes(input) || lotDate.includes(input) ? "" : "none";
             }
+        }
+
+        function sortLots(order) {
+            const container = document.querySelector(".container");
+            const cards = Array.from(container.getElementsByClassName("lot-card"));
+
+            cards.sort((a, b) => {
+                const dateA = new Date(a.getAttribute("data-lot-date"));
+                const dateB = new Date(b.getAttribute("data-lot-date"));
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            });
+
+            cards.forEach(card => container.appendChild(card));
         }
     </script>
 </head>
 
 <body>
     <div class="navBar">
-        <a class="menu-icon" onclick="toggleMenu()">View Stock</a>
+        <a class="menu-icon" onclick="toggleMenu()">Lots for Product ID: {{ product_id }}</a>
 
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
             <a href="javascript:void(0)" onclick="toggleMenu()">Close &times;</a>
             <a href="{{ url_for('main.keeper_dashboard') }}">Home</a>
+            <a href="{{ url_for('stock.view_stock') }}">Product In Stock</a>
             <a href="{{ url_for('order.add_order') }}">New Order</a>
             <a href="{{ url_for('order.order_history') }}">Order History</a>
             <a href="{{ url_for('request.confirm_request') }}">Request History</a>
@@ -119,30 +109,22 @@
     </div>
 
     <div class="container mt-4">
-        <!-- Search Bar -->
-        <input type="text" id="searchBar" onkeyup="searchProducts()" placeholder="Search for products..." class="form-control mb-3">
 
-        <!-- Dropdown for Filtering by Type -->
-        <select id="productTypeFilter" onchange="filterByType()" class="form-select mb-3">
-            <option value="all">All Types</option>
-            <option value="Food">Food</option>
-            <option value="Chemical">Chemical</option>
-        </select>
+        <!-- Search Bar -->
+        <input type="text" id="searchBar" onkeyup="searchLots()" placeholder="Search for lots..."
+            class="form-control mb-3">
 
         <!-- Product Cards -->
-        {% for product in products %}
-        <a href="{{ url_for('stock.view_stock_lot', product_id=product.product_id) }}" style="text-decoration: none; color: inherit;">
-            <div class="product-card" data-name="{{ product.product_name }}" data-type="{{ product.product_type }}">
-                <div class="product-header">
-                    <span><strong>Product Name:</strong> {{ product.product_name }}</span>
-                    <div class="product-image">
-                        <img src="{{ product.product_image }}" alt="Product Image">
-                    </div>
-                </div>
-                <p class="mb-0"><strong>Quantity:</strong> {{ product.product_quantity }} {{ product.product_unit }}</p>
+        {% for lot in lots %}
+        <a href="{{ url_for('stock.view_stock_details', lot_id=lot.lot_id) }}"
+            style="text-decoration: none; color: inherit;">
+            <div class="lot-card" data-lot-id="{{ lot.lot_id }}" data-lot-date="{{ lot.lot_date }}">
+                <p><strong>Lot ID:</strong> {{ lot.lot_id }}</p>
+                <p><strong>Lot Date:</strong> {{ lot.lot_date }}</p>
+                <p><strong>Expiration Date:</strong> {{ lot.lot_exp }}</p>
             </div>
         </a>
-        {% endfor %}        
+        {% endfor %}
     </div>
 </body>
 
