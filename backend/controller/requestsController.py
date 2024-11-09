@@ -275,28 +275,29 @@ def submit_request():
 @requestController.route('/request/history', methods=['GET'])
 @login_required
 def view_history():
-    search_query = request.args.get('search', '')  # ดึงค่าจาก search bar
-    filter_status = request.args.get('status', 'all')  # ดึงค่าจากตัวกรองสถานะ
-    
-    # Query พื้นฐานสำหรับดึงข้อมูล request ทั้งหมด
-    # query = db.session.query(Request, RequestList, ProductList).join(RequestList, Request.request_id == RequestList.request_id)\
-    #     .join(ProductList, RequestList.product_id == ProductList.product_id)\
-    #     .filter(Request.employee_id == current_user.employee_id)
-    query = db.session.query(Request).filter(Request.employee_id == current_user.employee_id)
+    search_query = request.args.get('search', '')
+    filter_status = request.args.get('status', '')
 
-    # ถ้ามีการค้นหา ให้กรองข้อมูลตามชื่อสินค้า
-    if search_query:
-        query = query.filter(Request.request_id.ilike(f'%{search_query}%'))
+    # ตรวจสอบว่า filter_status ไม่เป็นค่าเริ่มต้น
+    if filter_status not in ['all', 'accept', 'reject', 'waiting', 'done']:
+        requests = []  # ถ้าไม่ได้เลือกสถานะ กำหนดให้ไม่มีข้อมูลแสดง
+    else:
+        # ดำเนินการ query ข้อมูลตามสถานะที่เลือก
+        query = db.session.query(Request).filter(Request.employee_id == current_user.employee_id)
+        
+        if search_query:
+            query = query.filter(Request.request_id.ilike(f'%{search_query}%'))
 
-    # กรองตามสถานะคำขอเบิก
-    if filter_status == 'accept':
-        query = query.filter(Request.request_status == 'accept')
-    elif filter_status == 'reject':
-        query = query.filter(Request.request_status == 'reject')
-    elif filter_status == 'waiting':
-        query = query.filter(Request.request_status == 'waiting')
+        if filter_status == 'accept':
+            query = query.filter(Request.request_status == 'accept')
+        elif filter_status == 'reject':
+            query = query.filter(Request.request_status == 'reject')
+        elif filter_status == 'waiting':
+            query = query.filter(Request.request_status == 'waiting')
+        elif filter_status == 'done':
+            query = query.filter(Request.request_status == 'done')
 
-    requests = query.all()
+        requests = query.all()
 
     if current_user.employee_position == 'worker':
         return render_template('worker/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)

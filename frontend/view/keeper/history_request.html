@@ -96,6 +96,10 @@
         function toggleMenu() {
             document.getElementById("tabMenu").classList.toggle("open");
         }
+
+        function submitForm() {
+            document.getElementById("filterForm").submit();
+        }
     </script>
 </head>
 
@@ -146,6 +150,7 @@
                     <option value="accept" {% if request.args.get('filter_status') == 'accept' %}selected{% endif %}>Accepted</option>
                     <option value="reject" {% if request.args.get('filter_status') == 'reject' %}selected{% endif %}>Rejected</option>
                     <option value="waiting" {% if request.args.get('filter_status') == 'waiting' %}selected{% endif %}>Waiting</option>
+                    <option value="done" {% if request.args.get('filter_status') == 'done' %}selected{% endif %}>Done</option>
                 </select>
             </div>
         </form>

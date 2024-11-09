@@ -130,10 +130,12 @@
 
             <label for="status">Filter by Status:</label>
             <select class="form-control" name="status" id="status" onchange="submitForm()">
+                <option value="" {% if filter_status == '' %}selected{% endif %}>--- Select Status ---</option>
                 <option value="all" {% if filter_status == 'all' %}selected{% endif %}>All</option>
                 <option value="accept" {% if filter_status == 'accept' %}selected{% endif %}>Accepted</option>
                 <option value="reject" {% if filter_status == 'reject' %}selected{% endif %}>Rejected</option>
                 <option value="waiting" {% if filter_status == 'waiting' %}selected{% endif %}>Waiting</option>
+                <option value="done" {% if filter_status == 'done' %}selected{% endif %}>Done</option>
             </select>
         </form>
 

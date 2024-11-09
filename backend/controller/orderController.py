@@ -281,10 +281,14 @@ def order_history():
 
     # ดึงข้อมูลการค้นหาและตัวกรองจาก query parameters
     search_query = request.args.get('search', '')
-    filter_status = request.args.get('filter_status', 'all')
+    filter_status = request.args.get('filter_status', '')
 
-    # เริ่มต้น query สำหรับคำสั่งซื้อ
-    query = Order.query
+    # ถ้า filter_status เป็นค่าว่าง กำหนด orders ให้เป็นลิสต์ว่าง
+    if not filter_status:
+        orders = []  # ไม่มีข้อมูลแสดง
+    else:
+        # เริ่มต้น query สำหรับคำสั่งซื้อ
+        query = Order.query
 
     # ถ้ามีการค้นหา ให้ทำการค้นหาจาก order_id หรือ order_date
     if search_query:
@@ -296,15 +300,18 @@ def order_history():
         )
 
     # กรองตามสถานะคำสั่งซื้อ
-    if filter_status == 'accept':
-        query = query.filter_by(order_status='accept')
-    elif filter_status == 'reject':
-        query = query.filter_by(order_status='reject')
-    elif filter_status == 'waiting':
-        query = query.filter_by(order_status='waiting')
+    if filter_status:
+        if filter_status == 'accept':
+            query = query.filter_by(order_status='accept')
+        elif filter_status == 'reject':
+            query = query.filter_by(order_status='reject')
+        elif filter_status == 'waiting':
+            query = query.filter_by(order_status='waiting')
+        elif filter_status == 'done':
+            query = query.filter_by(order_status='done')
 
-    # ดึงข้อมูลคำสั่งซื้อที่ค้นหาและกรองแล้ว
-    orders = query.all()
+        # ดึงข้อมูลคำสั่งซื้อที่ค้นหาและกรองแล้ว
+        orders = query.all()
 
     if current_user.employee_position == 'keeper':
         return render_template('keeper/order_history.html', orders=orders)
