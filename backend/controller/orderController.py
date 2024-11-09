@@ -311,7 +311,7 @@ def order_history():
             query = query.filter_by(order_status='done')
 
         # ดึงข้อมูลคำสั่งซื้อที่ค้นหาและกรองแล้ว
-        orders = query.all()
+        orders = query.order_by(Order.order_date.desc()).all()
 
     if current_user.employee_position == 'keeper':
         return render_template('keeper/order_history.html', orders=orders)

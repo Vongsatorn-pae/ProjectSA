@@ -297,7 +297,8 @@ def view_history():
         elif filter_status == 'done':
             query = query.filter(Request.request_status == 'done')
 
-        requests = query.all()
+        # จัดเรียงตามวันที่ใหม่ก่อน
+        requests = query.order_by(Request.request_date.desc()).all()
 
     if current_user.employee_position == 'worker':
         return render_template('worker/history_request.html', requests=requests, search_query=search_query, filter_status=filter_status)
@@ -344,7 +345,7 @@ def confirm_request():
                     .filter(Product.product_type == filter_type)
 
     # ดึงข้อมูลตามเงื่อนไข
-    requests = query.all()
+    requests = query.order_by(Request.request_date.desc()).all()
 
     if request.method == 'POST':
         request_id = request.form['request_id']
