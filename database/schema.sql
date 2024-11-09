@@ -163,7 +163,7 @@ VALUES
 
 INSERT INTO units (unit_id, product_type, unit_name)
 VALUES
-('UNITF01', 'Food', 'kg'),
+('UNITF01', 'Food', 'Kg'),
 ('UNITF02', 'Food', 'g'),
 ('UNITC01', 'Chemical', 'L'),
 ('UNITC02', 'Chemical', 'mL');
