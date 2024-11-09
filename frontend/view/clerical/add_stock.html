@@ -34,8 +34,12 @@
                 }
             }
 
-            // อัปเดต dropdown หน่วย
+            // อัปเดต dropdown หน่วยและกรองภาพ
             updateUnitDropdown(selectedType);
+            filterImages(selectedType);
+
+            // เคลียร์ค่าของ Unit, Product Image และ Image Preview
+            clearSelections();
         }
 
         function updateUnitDropdown(selectedType) {
@@ -58,8 +62,7 @@
 
         function updateImagePreview() {
             const productImageSelect = document.getElementById("product_image");
-            const selectedImage = productImageSelect.options[productImageSelect.selectedIndex].getAttribute(
-                "data-img-url");
+            const selectedImage = productImageSelect.value;
             const imagePreview = document.getElementById("selected_image");
 
             if (selectedImage) {
@@ -68,6 +71,38 @@
             } else {
                 imagePreview.style.display = "none";
             }
+        }
+
+
+        function filterImages(selectedType) {
+            var imageDropdown = document.getElementById("product_image");
+            var images = imageDropdown.getElementsByTagName("option");
+
+            for (var i = 0; i < images.length; i++) {
+                var imageType = images[i].getAttribute("data-type");
+
+                if (selectedType === "" || imageType === selectedType) {
+                    images[i].style.display = "block"; // แสดงภาพที่ตรงกับประเภทที่เลือก
+                } else {
+                    images[i].style.display = "none"; // ซ่อนภาพที่ไม่ตรงกับประเภท
+                }
+            }
+
+            imageDropdown.value = ""; // รีเซ็ตค่า image dropdown
+        }
+
+        function clearSelections() {
+            // เคลียร์ค่า Unit
+            var unitDropdown = document.getElementById("product_unit");
+            unitDropdown.value = "";
+
+            // เคลียร์ค่า Product Image
+            var imageDropdown = document.getElementById("product_image");
+            imageDropdown.value = "";
+
+            // ซ่อน Image Preview
+            var imagePreview = document.getElementById("selected_image");
+            imagePreview.style.display = "none";
         }
     </script>
     <style>
@@ -111,21 +146,22 @@
     <div class="box">
         <form class="Aform" method="POST">
             <label class="select-product" for="product_id">Product ID:</label>
-            <input class="form-control" type="text" id="product_id" name="product_id" placeholder="Leave empty to auto-generate">
+            <input class="form-control" type="text" id="product_id" name="product_id"
+                placeholder="Leave empty to auto-generate">
 
             <label class="select-product" for="product_name">Product Name:</label>
             <input class="form-control" type="text" id="product_name" name="product_name" required>
 
             <label class="product_type" for="product_type">Product Type:</label>
             <select class="form-select" id="product_type" name="product_type" onchange="filterProducts()">
-                <option value="">-- Select Types --</option>
+                <option value="">--- Select Types ---</option>
                 <option value="Food">Food</option>
                 <option value="Chemical">Chemical</option>
             </select>
 
             <label class="unit" for="product_unit">Unit:</label>
             <select class="form-select" id="product_unit" name="product_unit" required>
-                <option value="">-- Select Unit --</option>
+                <option value="">--- Select Unit ---</option>
                 {% for unit in units %}
                 <option value="{{ unit.unit_name }}" data-type="{{ unit.product_type }}">
                     {{ unit.unit_name }}
@@ -134,7 +170,8 @@
             </select>
 
             <label class="quantity" for="product_quantity">Quantity:</label>
-            <input class="form-control" type="number" id="product_quantity" name="product_quantity" placeholder="Default 0">
+            <input class="form-control" type="number" id="product_quantity" name="product_quantity"
+                placeholder="Default 0">
 
             <label class="threshold" for="threshold">Threshold:</label>
             <input class="form-control" type="number" id="threshold" name="threshold" placeholder="Default 0">
@@ -142,15 +179,11 @@
             <label class="product_image" for="product_image">Product Image:</label>
             <select class="form-select" id="product_image" name="product_image" onchange="updateImagePreview()"
                 required>
-                <option value="">-- Select Image --</option>
-                {% for image in image_options %}
-                <option value="{{ image.url }}" data-img-url="{{ image.url }}">
-                    {{ image.name }}
-                </option>
-                {% endfor %}
+                <option value="">--- Select Image ---</option>
+                <option value="https://kasets.art/51kGYq" data-type="Food">Food</option>
+                <option value="https://kasets.art/HtBpeI" data-type="Chemical">Chemical</option>
             </select>
 
-            <!-- แสดงภาพตัวอย่างและจัดกึ่งกลาง -->
             <div id="image_preview" style="display: flex; justify-content: center; margin-top: 10px;">
                 <img src="" alt="Selected Image" style="max-width: 200px; display: none;" id="selected_image">
             </div>
