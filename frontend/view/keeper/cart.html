@@ -163,7 +163,19 @@
             <div class="product-info">
                 <h5>{{ item.product_name }}</h5>
                 <p>Quantity: {{ item.order_quantity }}</p>
-                <p>Unit: {{ item.product_unit }}</p>
+                <p>Unit: 
+                    {% if item.product_unit == 'UNITC01' %}
+                        L
+                    {% elif item.product_unit == 'UNITC02' %}
+                        mL
+                    {% elif item.product_unit == 'UNITF01' %}
+                        Kg
+                    {% elif item.product_unit == 'UNITF02' %}
+                        g
+                    {% else %}
+                        {{ item.product_unit }}
+                    {% endif %}
+                </p>
             </div>
 
             <div class="actions">
