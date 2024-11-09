@@ -7,7 +7,7 @@ CREATE TABLE employees (
     employee_fname VARCHAR(50) NOT NULL,
     employee_lname VARCHAR(50) NOT NULL,
     employee_age INT NOT NULL CHECK (employee_age > 0 AND employee_age < 120),
-    employee_sex VARCHAR(5) NOT NULL,
+    employee_sex VARCHAR(10) NOT NULL,
     employee_position ENUM('worker', 'academic', 'clerical', 'keeper') NOT NULL,
     employee_address VARCHAR(255) NOT NULL,
     employee_salary DECIMAL(10, 3) NOT NULL,
