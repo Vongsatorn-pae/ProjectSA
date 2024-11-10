@@ -18,7 +18,7 @@ mainController = Blueprint('main', __name__)
 def index():
     # Log out user
     logout_user()
-    flash('You have been logged out successfully.', 'success')
+    # flash('You have been logged out successfully.', 'success')
     return redirect(url_for('auth.login'))
 
 @mainController.route('/keeper_dashboard')

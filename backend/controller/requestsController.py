@@ -55,7 +55,7 @@ def convert_to_largest_unit(quantity, product_type):
 @login_required
 def dashboard():
     if current_user.employee_position not in ['worker', 'academic']:
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
     
     selected_status = request.args.get('status', 'all').lower()
@@ -76,7 +76,7 @@ def dashboard():
 @login_required
 def add_request():
     if current_user.employee_position not in ['worker', 'academic']:
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
     products = Product.query.all()
@@ -96,10 +96,9 @@ def add_to_cart():
     request_quantity = request.form['request_quantity']
     request_unit = request.form['request_unit']
 
-    # product = ProductList.query.filter_by(product_id=product_id).first()
     product = Product.query.filter_by(product_id=product_id).first()
     if not product:
-        flash('ไม่พบสินค้าที่เลือก', 'danger')
+        # flash('ไม่พบสินค้าที่เลือก', 'danger')
         return redirect(url_for('request.add_request'))
 
     # # ดึงข้อมูลหน่วยและปริมาณสินค้าจากตาราง Product
@@ -139,7 +138,7 @@ def add_to_cart():
 @login_required
 def product_detail(product_id):
     if current_user.employee_position not in ['worker', 'academic']:
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
     # product = ProductList.query.get_or_404(product_id)
@@ -174,7 +173,7 @@ def product_detail(product_id):
 def view_cart():
     """แสดง cart และฟังก์ชันสำหรับส่งคำขอเบิก"""
     if current_user.employee_position not in ['worker', 'academic']:
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
     # cart_items = []
@@ -309,7 +308,7 @@ def view_history():
 @login_required
 def confirm_request():
     if current_user.employee_position not in ['clerical', 'keeper']:
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
     # รับค่า search และ filter_status จาก query string
@@ -474,7 +473,7 @@ def request_details(request_id):
 @login_required
 def reject_request():
     if current_user.employee_position != 'clerical':
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
     # เข้าถึง request_id จากข้อมูลฟอร์ม

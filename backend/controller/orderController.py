@@ -16,7 +16,7 @@ orderController = Blueprint('order', __name__)
 @login_required
 def add_order():
     if current_user.employee_position != 'keeper':
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
     # แปลง quantity ให้เป็นหน่วยเล็กก่อนเปรียบเทียบกับ threshold
@@ -27,7 +27,7 @@ def add_order():
 @login_required
 def product_detail(product_id):
     if current_user.employee_position != 'keeper':
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
     # ดึงข้อมูลสินค้าและหน่วยที่เกี่ยวข้อง
@@ -208,7 +208,7 @@ def edit_cart_item(index):
 @login_required
 def update_order_status(order_id):
     if current_user.employee_position != 'clerical':
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
     # ดึงคำสั่งซื้อตาม order_id
@@ -276,7 +276,7 @@ def update_order_status(order_id):
 @login_required
 def order_history():
     if current_user.employee_position not in ['keeper', 'clerical']:
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
     # ดึงข้อมูลการค้นหาและตัวกรองจาก query parameters
@@ -322,7 +322,7 @@ def order_history():
 @login_required
 def view_order_details(order_id):
     if current_user.employee_position not in ['keeper', 'clerical']:
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
     # ดึงรายละเอียดคำสั่งซื้อจากตาราง order_lists

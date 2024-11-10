@@ -73,7 +73,7 @@ def generate_product_id(product_type):
 @login_required
 def view_stock():
     if current_user.employee_position not in ['keeper', 'clerical']:
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
 
     # stock_data = db.session.query(
@@ -129,7 +129,7 @@ def view_stock():
 @login_required
 def add_stock():
     if current_user.employee_position != 'clerical':
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
     
     products = Product.query.all()
@@ -155,7 +155,7 @@ def add_stock():
         
         # ถ้าไม่ได้ใส่ product_quantity หรือ threshold ให้ตั้งค่าเริ่มต้นเป็น 0
         product_quantity = request.form.get('product_quantity', 0) or 0
-        threshold = request.form.get('threshold', 0) or 0
+        threshold = request.form.get('threshold', 0) or 2000
         product_image = request.form['product_image']
 
         new_product = Product(

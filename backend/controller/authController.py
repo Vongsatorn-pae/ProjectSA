@@ -68,7 +68,7 @@ def logout():
 @login_required
 def create_account():
     if current_user.employee_position != 'keeper':  # ตรวจสอบว่าเป็น Keeper เท่านั้น
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('main.index'))
 
     if request.method == 'POST':

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script>
         function toggleMenu() {
             document.getElementById("tabMenu").classList.toggle("open");
@@ -121,7 +122,9 @@
 
 <body>
     <div class="navBar">
-        <a class="menu-icon" onclick="toggleMenu()">Add New Product</a>
+        <a class="menu-icon" onclick="toggleMenu()">
+            <i class="fa fa-bars"></i> Add New Product
+        </a>
 
         <div id="tabMenu" class="tab-menu">
             <h1>Menu</h1>
@@ -174,7 +177,7 @@
                 placeholder="Default 0">
 
             <label class="threshold" for="threshold">Threshold:</label>
-            <input class="form-control" type="number" id="threshold" name="threshold" placeholder="Default 0">
+            <input class="form-control" type="number" id="threshold" name="threshold" placeholder="Default 2 Kg or L">
 
             <label class="product_image" for="product_image">Product Image:</label>
             <select class="form-select" id="product_image" name="product_image" onchange="updateImagePreview()"

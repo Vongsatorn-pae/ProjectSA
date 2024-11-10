@@ -19,16 +19,19 @@ def format_date_th(date):
 @login_required
 def audit_summary():
     if current_user.employee_position not in ['keeper', 'clerical']:
-        flash('You do not have permission to access this page.', 'danger')
+        # flash('You do not have permission to access this page.', 'danger')
         return redirect(url_for('auth.logout'))
 
-    # ดึงรายการ audit_id และ payment_due_date จากตาราง Audit สำหรับ dropdown และแปลง format
+    # ดึงรายการ audit_id และ payment_due_date เรียงจากวันที่ใหม่ขึ้นมาก่อนสำหรับ dropdown
     audit_ids = [
         {'audit_id': audit.audit_id, 'payment_due_date': audit.payment_due_date.strftime("%d/%m/%Y")}
-        for audit in Audit.query.with_entities(Audit.audit_id, Audit.payment_due_date).all()
+        for audit in Audit.query.with_entities(Audit.audit_id, Audit.payment_due_date, Audit.payment_status)
+        .order_by(Audit.payment_due_date.desc())
+        .all()
     ]
 
-    selected_audit_id = request.form.get('selected_audit_id')
+    # ตั้งค่า selected_audit_id เริ่มต้นเป็น audit_id ล่าสุด
+    selected_audit_id = request.form.get('selected_audit_id') or (audit_ids[0]['audit_id'] if audit_ids else None)
     orders_in_audit = []
     total_amount = 0.0
     payment_status = None
@@ -41,7 +44,7 @@ def audit_summary():
         if audit_record:
             payment_status = audit_record.payment_status
             payment_due_date = audit_record.payment_due_date.date()
-            payment_due_date_str = payment_due_date.strftime("%d/%m/%Y")  # แปลงเป็น string ในรูปแบบ %d/%m/%Y
+            payment_due_date_str = payment_due_date.strftime("%d/%m/%Y")
 
         # ดึงรายการ order ที่มี audit_id ตรงกับ audit_id ที่เลือก
         orders_in_audit = db.session.query(Order.order_id, Order.order_date, AuditList.order_amount).join(
@@ -51,6 +54,7 @@ def audit_summary():
         # คำนวณยอดรวมสำหรับ audit_id ที่เลือก
         total_amount = sum(order[2] for order in orders_in_audit if order[2] is not None)
 
+    # Rendering template ตามตำแหน่งของผู้ใช้งาน
     if current_user.employee_position == 'clerical':
         return render_template(
             'clerical/audit_summary.html',
@@ -82,7 +86,7 @@ def audit_summary():
 @login_required
 def add_price():
     if not is_clerical():
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
     if request.method == 'POST':
@@ -138,7 +142,7 @@ def add_price():
 @login_required
 def mark_as_paid(audit_id):
     if not is_clerical():
-        flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
+        # flash('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'danger')
         return redirect(url_for('main.index'))
 
     audit_record = Audit.query.get(audit_id)
