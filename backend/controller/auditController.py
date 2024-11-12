@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from models.product import Product
+from models.unit import Unit
+from models.orderList import OrderList
 from models.audit import Audit
 from models.auditList import AuditList
 from models.order import Order
@@ -15,6 +18,24 @@ def is_clerical():
 def format_date_th(date):
     return date.strftime('%d/%m/%Y') if date else None
 
+def create_or_get_current_audit():
+    # ตรวจสอบว่า Audit ที่มี payment_due_date ภายใน 70 วันมีอยู่หรือไม่
+    existing_audit = Audit.query.filter(
+        Audit.payment_due_date >= datetime.now(),
+        Audit.payment_status == False
+    ).first()
+
+    # ถ้าไม่มี Audit ที่มี payment_due_date ภายใน 70 วัน ให้สร้างใหม่
+    if not existing_audit:
+        audit_id = f"AUD-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        payment_due_date = datetime.now() + timedelta(days=70)
+        new_audit = Audit(audit_id=audit_id, payment_due_date=payment_due_date, payment_status=False)
+        db.session.add(new_audit)
+        db.session.commit()  # บันทึกเพื่อให้ audit_id ใหม่ถูกสร้าง
+        return new_audit.audit_id
+    else:
+        return existing_audit.audit_id
+    
 @auditController.route('/audit/summary', methods=['GET', 'POST'])
 @login_required
 def audit_summary():
@@ -158,3 +179,56 @@ def mark_as_paid(audit_id):
         flash('Audit record not found.', 'danger')
 
     return redirect(url_for('audit.audit_summary'))
+
+@auditController.route('/audit/order_detail/<order_id>', methods=['GET', 'POST'])
+@login_required
+def order_detail(order_id):
+    if not is_clerical():
+        return redirect(url_for('main.index'))
+
+    # ดึงข้อมูลของ order และรายการที่เกี่ยวข้องใน order_lists
+    order = Order.query.get(order_id)
+    audit_list_entry = AuditList.query.filter_by(order_id=order_id).first()
+
+    # Query ข้อมูลจาก order_lists พร้อม join ตาราง product และ unit
+    order_list_items = db.session.query(
+        OrderList.order_id,
+        OrderList.product_id,
+        OrderList.order_quantity,
+        Product.product_name,
+        Product.product_image,
+        Unit.unit_name
+    ).join(Product, Product.product_id == OrderList.product_id) \
+     .join(Unit, Unit.unit_id == OrderList.unit_id) \
+     .filter(OrderList.order_id == order_id).all()
+
+    if request.method == 'POST':
+        order_price = request.form.get('order_price')
+        
+        if order_price:
+            audit_id = audit_list_entry.audit_id if audit_list_entry else create_or_get_current_audit()
+            audit_list_id = f"AL-{order_id}"
+            
+            if audit_list_entry:
+                audit_list_entry.order_amount = float(order_price)
+            else:
+                new_audit_list = AuditList(
+                    audit_list_id=audit_list_id,
+                    audit_id=audit_id,
+                    order_id=order_id,
+                    order_amount=float(order_price)
+                )
+                db.session.add(new_audit_list)
+            
+            order.order_status = 'done'
+            db.session.commit()
+            flash('บันทึกราคาสำเร็จ', 'success')
+            return redirect(url_for('audit.audit_summary'))
+
+    return render_template(
+        'clerical/add_price_detail.html',
+        order=order,
+        audit_list_entry=audit_list_entry,
+        order_list_items=order_list_items,  # ส่งข้อมูล order_lists ไปยัง template
+        format_date_th=format_date_th
+    )
