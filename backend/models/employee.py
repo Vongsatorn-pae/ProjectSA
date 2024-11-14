@@ -11,7 +11,7 @@ class Employee(db.Model):
     employee_sex = db.Column(db.String(10), nullable = False)
     employee_position = db.Column(db.Enum('worker', 'academic', 'clerical', 'keeper'), nullable = False)
     employee_address = db.Column(db.String(255), nullable = False)
-    employee_salary = db.Column(db.DECIMAL(10, 3), nullable = False)
+    employee_salary = db.Column(db.DECIMAL(20, 3), nullable = False)
     employee_image = db.Column(db.String(255), nullable = False)
     username = db.Column(db.String(255), nullable = False, unique = True)
     password = db.Column(db.String(255), nullable = False)

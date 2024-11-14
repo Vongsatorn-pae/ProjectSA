@@ -7,7 +7,7 @@ class OrderList(db.Model):
     order_id = db.Column(db.String(50), db.ForeignKey('orders.order_id'), nullable = False)
     product_id = db.Column(db.String(50), db.ForeignKey('products.product_id'), nullable = False)
     unit_id = db.Column(db.String(50), db.ForeignKey('units.unit_id'), nullable = False)
-    order_quantity = db.Column(db.DECIMAL(10, 3), nullable = False)
+    order_quantity = db.Column(db.DECIMAL(20, 3), nullable = False)
 
     # product = db.relationship('Product', backref = 'order_lists', lazy = True)
     # lot = db.relationship('ProductLot', backref = 'order_lists', lazy = True)

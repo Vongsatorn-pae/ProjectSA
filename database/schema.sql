@@ -10,7 +10,7 @@ CREATE TABLE employees (
     employee_sex VARCHAR(10) NOT NULL,
     employee_position ENUM('worker', 'academic', 'clerical', 'keeper') NOT NULL,
     employee_address VARCHAR(255) NOT NULL,
-    employee_salary DECIMAL(10, 3) NOT NULL,
+    employee_salary DECIMAL(20, 3) NOT NULL,
     employee_image VARCHAR(255) NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL
@@ -21,8 +21,8 @@ CREATE TABLE products (
     product_name VARCHAR(50) NOT NULL,
     product_type ENUM('Food', 'Chemical') NOT NULL,
     product_unit VARCHAR(50) NOT NULL,
-    product_quantity DECIMAL(10, 3) NOT NULL,
-    threshold DECIMAL(10, 3) NOT NULL,
+    product_quantity DECIMAL(20, 3) NOT NULL,
+    threshold DECIMAL(20, 3) NOT NULL,
     product_image VARCHAR(255) NOT NULL
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE product_lots (
     product_id VARCHAR(50) NOT NULL,
     lot_date DATETIME NOT NULL,
     lot_exp DATETIME NOT NULL,
-    lot_quantity DECIMAL(10, 3) NOT NULL,
+    lot_quantity DECIMAL(20, 3) NOT NULL,
 
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
@@ -56,7 +56,7 @@ CREATE TABLE order_lists (
     order_id VARCHAR(50) NOT NULL,
     product_id VARCHAR(50) NOT NULL,
     unit_id VARCHAR(50) NOT NULL,
-    order_quantity DECIMAL(10, 3) NOT NULL,
+    order_quantity DECIMAL(20, 3) NOT NULL,
 
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id),
@@ -77,7 +77,7 @@ CREATE TABLE request_lists (
     request_id VARCHAR(50) NOT NULL,
     product_id VARCHAR(50) NOT NULL,
     unit_id VARCHAR(50) NOT NULL,
-    request_quantity DECIMAL(10, 3) NOT NULL,
+    request_quantity DECIMAL(20, 3) NOT NULL,
 
     FOREIGN KEY (request_id) REFERENCES requests(request_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id),
@@ -94,7 +94,7 @@ CREATE TABLE audit_lists (
     audit_list_id VARCHAR(50) PRIMARY KEY,
     audit_id VARCHAR(50) NOT NULL,
     order_id VARCHAR(50) NOT NULL,
-    order_amount DECIMAL(10, 3) NOT NULL,
+    order_amount DECIMAL(20, 3) NOT NULL,
 
     FOREIGN KEY (audit_id) REFERENCES audits(audit_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id)

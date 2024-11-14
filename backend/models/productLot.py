@@ -11,6 +11,6 @@ class ProductLot(db.Model):
     product_id = db.Column(db.String(50), db.ForeignKey('products.product_id'), nullable = False)
     lot_date = db.Column(db.DateTime, nullable = False, default = datetime.utcnow)
     lot_exp = db.Column(db.DateTime, nullable = False, default = default_exp)
-    lot_quantity = db.Column(db.DECIMAL(10, 3), nullable = False)
+    lot_quantity = db.Column(db.DECIMAL(20, 3), nullable = False)
 
     # products = db.relationship('Product', backref = 'product_lots', lazy = True)

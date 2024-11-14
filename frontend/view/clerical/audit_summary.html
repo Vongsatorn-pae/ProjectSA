@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Audit Summary</title>
+    <title>Audit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
@@ -26,7 +26,7 @@
 <body>
     <div class="navBar">
         <a class="menu-icon" onclick="toggleMenu()">
-            <i class="fa fa-bars"></i> Audit Summary
+            <i class="fa fa-bars"></i> Audit
         </a>
 
         <div id="tabMenu" class="tab-menu">
@@ -50,7 +50,7 @@
     </div>
 
     <div class="container mt-4">
-        <h1>Audit Summary</h1>
+        <h1>Audit</h1>
 
         <!-- Dropdown สำหรับเลือก audit_id -->
         <form method="POST" action="{{ url_for('audit.audit_summary') }}">
@@ -109,7 +109,11 @@
         <p class="mt-4">กรุณาเลือก Audit ID เพื่อแสดงรายการ</p>
         {% endif %}
 
-        <button class="button-20" onclick="location.href='{{ url_for('audit.add_price') }}'">Add Prices to Orders</button>
+        <!-- <button class="button-20" onclick="location.href='{{ url_for('audit.add_price') }}'">Add payment amount</button> -->
+        {% if not payment_status %}
+            <button class="button-20" onclick="location.href='{{ url_for('audit.add_price') }}'">Add payment amount</button>
+        {% endif %}
+    
     </div>
 </body>
 
