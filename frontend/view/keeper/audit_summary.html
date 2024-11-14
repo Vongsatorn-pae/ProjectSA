@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Audit Summary</title>
+    <title>Audit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown_profile.css') }}">
@@ -26,7 +26,7 @@
 <body>
     <div class="navBar">
         <a class="menu-icon" onclick="toggleMenu()">
-            <i class="fa fa-bars"></i> Audit Summary
+            <i class="fa fa-bars"></i> Audit
         </a>
 
         <div id="tabMenu" class="tab-menu">
@@ -52,7 +52,7 @@
     </div>
 
     <div class="container mt-4">
-        <h1>Audit Summary</h1>
+        <h1>Audit</h1>
 
         <!-- Dropdown สำหรับเลือก audit_id -->
         <form method="POST" action="{{ url_for('audit.audit_summary') }}">
@@ -74,6 +74,12 @@
             <p><strong>Payment Due Date:</strong> {{ payment_due_date_str }}</p>
             <p><strong>Payment Status:</strong> {{ "Paid" if payment_status else "Unpaid" }}</p>
             <p><strong>Total Amount:</strong> {{ total_amount }} THB</p>
+
+            {% if payment_status %} 
+                <p class="text-success">ชำระเงินเรียบร้อยแล้ว</p>
+            {% else %}
+                <p class="text-warning">ยังไม่ถึงวันที่ครบกำหนดชำระ</p>
+            {% endif %}
         </div>
 
         <!-- ตารางแสดงรายการ order ที่เกี่ยวข้องกับ audit_id ที่เลือก -->
